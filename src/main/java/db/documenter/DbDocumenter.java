@@ -28,7 +28,7 @@ public class DbDocumenter {
   private final DbDocumenterConfig dbDocumenterConfig;
 
   public DbDocumenter(final DbDocumenterConfig dbDocumenterConfig) {
-    this.connectionManager = new PostgresConnectionManager(dbDocumenterConfig, new Properties());
+    this.connectionManager = new PostgresConnectionManager(dbDocumenterConfig);
     this.dbDocumenterConfig = dbDocumenterConfig;
   }
 
@@ -72,11 +72,10 @@ public class DbDocumenter {
 
   private List<Table> buildTables(final String schema) throws SQLException {
     final var resultSetMapper = new ResultSetMapper();
-    try (final var connection = connectionManager.getConnection()) {
-      final var queryRunner =
-          new QueryRunner(new PreparedStatementMapper(), new ResultSetMapper(), connection);
 
       try {
+          final var queryRunner =
+                  new QueryRunner(new PreparedStatementMapper(), new ResultSetMapper(), connectionManager);
         final var tables = queryRunner.getTableInfo(schema);
 
         return tables.stream()
@@ -109,6 +108,5 @@ public class DbDocumenter {
       } catch (SQLException e) {
         throw new RuntimeException(e);
       }
-    }
   }
 }

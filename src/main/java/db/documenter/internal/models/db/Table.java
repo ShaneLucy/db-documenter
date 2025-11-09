@@ -10,6 +10,10 @@ public record Table(
     PrimaryKey primaryKey,
     List<ForeignKey> foreignKeys) {
 
+    public Table {
+        columns = columns == null ? List.of() : List.copyOf(columns);
+        foreignKeys = foreignKeys == null ? List.of() : List.copyOf(foreignKeys);
+    }
   public static Builder builder() {
     return new Builder();
   }
@@ -38,7 +42,7 @@ public record Table(
     }
 
     public Builder columns(List<Column> columns) {
-      this.columns = columns;
+      this.columns = List.copyOf(columns);
       return this;
     }
 
@@ -47,8 +51,8 @@ public record Table(
       return this;
     }
 
-    public Builder foreignKeys(List<ForeignKey> foreignKeys) {
-      this.foreignKeys = foreignKeys;
+    public Builder foreignKeys(final List<ForeignKey> foreignKeys) {
+      this.foreignKeys = List.copyOf(foreignKeys);
       return this;
     }
 

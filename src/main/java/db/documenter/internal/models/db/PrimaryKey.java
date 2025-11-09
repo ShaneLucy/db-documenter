@@ -7,6 +7,9 @@ public record PrimaryKey(String constraintName, List<String> columnNames) {
     return new Builder();
   }
 
+  public PrimaryKey {
+      columnNames = columnNames == null ? List.of() : List.copyOf(columnNames);
+  }
   public static class Builder {
     private String constraintName;
     private List<String> columnNames;
@@ -17,7 +20,7 @@ public record PrimaryKey(String constraintName, List<String> columnNames) {
     }
 
     public Builder columnNames(final List<String> columnNames) {
-      this.columnNames = columnNames;
+      this.columnNames = List.copyOf(columnNames);
       return this;
     }
 

@@ -15,7 +15,7 @@ public class RelationshipRenderer implements PumlRenderer<List<Table>> {
       for (ForeignKey fk : table.foreignKeys()) {
         sb.append(
             String.format(
-                "%s::%s --> %s::%s : %s\n",
+                "%s::%s --> %s::%s : %s%n",
                 fk.sourceTable(),
                 fk.sourceColumn(),
                 fk.targetTable(),

@@ -15,7 +15,7 @@ public class EntityRenderer implements PumlRenderer<Table> {
   @Override
   public String render(Table table) {
     StringBuilder sb = new StringBuilder();
-    sb.append(String.format("\tentity \"%s\" as %s {\n", table.name(), table.name()));
+    sb.append(String.format("\tentity \"%s\" as %s {%n", table.name(), table.name()));
 
     table
         .columns()

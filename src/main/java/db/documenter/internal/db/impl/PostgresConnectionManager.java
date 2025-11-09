@@ -15,7 +15,7 @@ public class PostgresConnectionManager implements ConnectionManager {
   private final Properties properties;
 
   public PostgresConnectionManager(
-      final DbDocumenterConfig dbDocumenterConfig, final Properties properties) {
+      final DbDocumenterConfig dbDocumenterConfig) {
     this.dbDocumenterConfig = dbDocumenterConfig;
     this.url =
         String.format(
@@ -23,7 +23,7 @@ public class PostgresConnectionManager implements ConnectionManager {
             dbDocumenterConfig.databaseHost(),
             dbDocumenterConfig.databasePort(),
             dbDocumenterConfig.databaseName());
-    this.properties = properties;
+    this.properties = new Properties();
     setDbProperties();
   }
 

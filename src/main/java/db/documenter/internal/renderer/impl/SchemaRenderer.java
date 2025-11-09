@@ -21,7 +21,7 @@ public class SchemaRenderer implements PumlRenderer<List<Schema>> {
 
     schemas.forEach(
         schema -> {
-          sb.append(String.format("package \"%s\" {\n", schema.name()));
+          sb.append(String.format("package \"%s\" {%n", schema.name()));
           // Entities
           schema.tables().forEach(table -> sb.append(entityRenderer.render(table)).append("\n"));
 

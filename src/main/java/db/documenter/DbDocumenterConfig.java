@@ -18,6 +18,7 @@ public record DbDocumenterConfig(
     Validators.isNotBlank(databaseName, "databaseName");
     Validators.isNotBlank(username, "username");
     Validators.isNotBlank(password, "password");
+    schemas = List.copyOf(schemas);
   }
 
   public static Builder builder() {
@@ -34,7 +35,7 @@ public record DbDocumenterConfig(
     private String password;
 
     public Builder schemas(final List<String> schemas) {
-      this.schemas = schemas;
+      this.schemas = List.copyOf(schemas);
       return this;
     }
 

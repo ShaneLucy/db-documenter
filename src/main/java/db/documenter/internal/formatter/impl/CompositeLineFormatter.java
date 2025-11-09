@@ -10,7 +10,7 @@ public class CompositeLineFormatter implements LineFormatter {
   private final List<LineFormatter> lineFormatters;
 
   public CompositeLineFormatter(final List<LineFormatter> lineFormatters) {
-    this.lineFormatters = lineFormatters;
+    this.lineFormatters = List.copyOf(lineFormatters);
   }
 
   @Override

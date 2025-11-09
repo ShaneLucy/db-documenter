@@ -1,11 +1,16 @@
 package db.documenter.internal.models.db;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public record Schema(String name, List<Table> tables) {
 
   public static Builder builder() {
     return new Builder();
+  }
+
+  public Schema {
+      tables = tables == null ? List.of() : List.copyOf(tables);
   }
 
   public static class Builder {
@@ -18,7 +23,7 @@ public record Schema(String name, List<Table> tables) {
     }
 
     public Builder tables(final List<Table> tables) {
-      this.tables = tables;
+      this.tables = List.copyOf(tables);
       return this;
     }
 
