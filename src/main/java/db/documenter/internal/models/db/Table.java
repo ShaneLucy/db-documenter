@@ -10,10 +10,11 @@ public record Table(
     PrimaryKey primaryKey,
     List<ForeignKey> foreignKeys) {
 
-    public Table {
-        columns = columns == null ? List.of() : List.copyOf(columns);
-        foreignKeys = foreignKeys == null ? List.of() : List.copyOf(foreignKeys);
-    }
+  public Table {
+    columns = columns == null ? List.of() : List.copyOf(columns);
+    foreignKeys = foreignKeys == null ? List.of() : List.copyOf(foreignKeys);
+  }
+
   public static Builder builder() {
     return new Builder();
   }

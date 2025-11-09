@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Properties;
 
 public class DbDocumenter {
 
@@ -73,32 +72,31 @@ public class DbDocumenter {
   private List<Table> buildTables(final String schema) throws SQLException {
     final var resultSetMapper = new ResultSetMapper();
 
-      try {
-          final var queryRunner =
-                  new QueryRunner(new PreparedStatementMapper(), new ResultSetMapper(), connectionManager);
-        final var tables = queryRunner.getTableInfo(schema);
+    try {
+      final var queryRunner =
+          new QueryRunner(new PreparedStatementMapper(), new ResultSetMapper(), connectionManager);
+      final var tables = queryRunner.getTableInfo(schema);
 
-        return tables.stream()
-            .map(
-                table -> {
-                  try {
-                    final List<Column> columns = queryRunner.getColumnInfo(schema, table);
+      return tables.stream()
+          .map(
+              table -> {
+                try {
+                  final List<Column> columns = queryRunner.getColumnInfo(schema, table);
 
-                    final var primaryKey = queryRunner.getPrimaryKeyInfo(schema, table);
+                  final var primaryKey = queryRunner.getPrimaryKeyInfo(schema, table);
 
-                    final List<ForeignKey> foreignKeys =
-                        queryRunner.getForeignKeyInfo(schema, table);
+                  final List<ForeignKey> foreignKeys = queryRunner.getForeignKeyInfo(schema, table);
 
-                    return resultSetMapper.combineTableColumnsPrimaryAndForeignKeys(
-                        table, columns, primaryKey, foreignKeys);
-                  } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                  }
-                })
-            .toList();
+                  return resultSetMapper.combineTableColumnsPrimaryAndForeignKeys(
+                      table, columns, primaryKey, foreignKeys);
+                } catch (SQLException e) {
+                  throw new RuntimeException(e);
+                }
+              })
+          .toList();
 
-      } catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

@@ -8,8 +8,9 @@ public record PrimaryKey(String constraintName, List<String> columnNames) {
   }
 
   public PrimaryKey {
-      columnNames = columnNames == null ? List.of() : List.copyOf(columnNames);
+    columnNames = columnNames == null ? List.of() : List.copyOf(columnNames);
   }
+
   public static class Builder {
     private String constraintName;
     private List<String> columnNames;

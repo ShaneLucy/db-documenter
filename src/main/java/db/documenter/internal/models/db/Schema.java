@@ -1,6 +1,5 @@
 package db.documenter.internal.models.db;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public record Schema(String name, List<Table> tables) {
@@ -10,7 +9,7 @@ public record Schema(String name, List<Table> tables) {
   }
 
   public Schema {
-      tables = tables == null ? List.of() : List.copyOf(tables);
+    tables = tables == null ? List.of() : List.copyOf(tables);
   }
 
   public static class Builder {

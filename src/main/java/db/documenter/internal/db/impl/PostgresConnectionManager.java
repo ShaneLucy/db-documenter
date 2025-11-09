@@ -11,14 +11,13 @@ import java.util.logging.Logger;
 
 public class PostgresConnectionManager implements ConnectionManager {
 
-    private static final Logger LOGGER = Logger.getLogger(PostgresConnectionManager.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(PostgresConnectionManager.class.getName());
   private static final String BASE_CONNECTION_STRING = "jdbc:postgresql://%s:%s/%s";
   private final String url;
   private final DbDocumenterConfig dbDocumenterConfig;
   private final Properties properties;
 
-  public PostgresConnectionManager(
-      final DbDocumenterConfig dbDocumenterConfig) {
+  public PostgresConnectionManager(final DbDocumenterConfig dbDocumenterConfig) {
     this.dbDocumenterConfig = dbDocumenterConfig;
     this.url =
         String.format(
@@ -34,9 +33,9 @@ public class PostgresConnectionManager implements ConnectionManager {
   public Connection getConnection() throws SQLException {
     final var connection = DriverManager.getConnection(url, properties);
 
-      if(LOGGER.isLoggable(Level.INFO)) {
-          LOGGER.log(Level.INFO, "Connected to postgres database");
-      }
+    if (LOGGER.isLoggable(Level.INFO)) {
+      LOGGER.log(Level.INFO, "Connected to postgres database");
+    }
     return connection;
   }
 

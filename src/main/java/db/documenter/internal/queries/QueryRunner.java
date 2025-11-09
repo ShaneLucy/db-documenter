@@ -7,7 +7,6 @@ import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
 import db.documenter.internal.queries.preparedstatements.PreparedStatementMapper;
 import db.documenter.internal.queries.resultsets.ResultSetMapper;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,72 +70,81 @@ public class QueryRunner {
   }
 
   public List<Table> getTableInfo(final String schema) throws SQLException {
-      try (final var connection = connectionManager.getConnection()) {
-          try (final var preparedStatement = connection.prepareStatement(GET_TABLE_INFO_QUERY)) {
-              preparedStatementMapper.prepareTableInfoStatement(preparedStatement, schema);
-              final var resultSet = preparedStatement.executeQuery();
-              final List<Table> tables = new ArrayList<>();
-              while (resultSet.next()) {
-                  tables.add(resultSetMapper.mapToTable(resultSet));
-              }
+    try (final var connection = connectionManager.getConnection()) {
+      try (final var preparedStatement = connection.prepareStatement(GET_TABLE_INFO_QUERY)) {
+        preparedStatementMapper.prepareTableInfoStatement(preparedStatement, schema);
+        final var resultSet = preparedStatement.executeQuery();
+        final List<Table> tables = new ArrayList<>();
+        while (resultSet.next()) {
+          tables.add(resultSetMapper.mapToTable(resultSet));
+        }
 
-              if(LOGGER.isLoggable(Level.INFO)) {
-                  LOGGER.log(Level.INFO, "Discovered: {0} tables in schema: {1}", new Object[]{tables.size(), schema});
-              }
-              return tables;
-          }
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Discovered: {0} tables in schema: {1}",
+              new Object[] {tables.size(), schema});
+        }
+        return tables;
       }
+    }
   }
 
   public List<Column> getColumnInfo(final String schema, final Table table) throws SQLException {
-      try (final var connection = connectionManager.getConnection()) {
-          try (final var preparedStatement = connection.prepareStatement(GET_COLUMN_INFO_QUERY)) {
-              preparedStatementMapper.prepareColumnInfoStatement(preparedStatement, schema, table.name());
+    try (final var connection = connectionManager.getConnection()) {
+      try (final var preparedStatement = connection.prepareStatement(GET_COLUMN_INFO_QUERY)) {
+        preparedStatementMapper.prepareColumnInfoStatement(preparedStatement, schema, table.name());
 
-              final var resultSet = preparedStatement.executeQuery();
+        final var resultSet = preparedStatement.executeQuery();
 
-              final List<Column> columns = new ArrayList<>();
-              while (resultSet.next()) {
-                  columns.add(resultSetMapper.mapToColumn(resultSet));
-              }
+        final List<Column> columns = new ArrayList<>();
+        while (resultSet.next()) {
+          columns.add(resultSetMapper.mapToColumn(resultSet));
+        }
 
-              if(LOGGER.isLoggable(Level.INFO)) {
-                  LOGGER.log(Level.INFO, "Discovered: {0} columns for table: {1} in schema: {2}", new Object[]{columns.size(), table.name(), schema});
-              }
-              return columns;
-          }
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Discovered: {0} columns for table: {1} in schema: {2}",
+              new Object[] {columns.size(), table.name(), schema});
+        }
+        return columns;
       }
+    }
   }
 
   public PrimaryKey getPrimaryKeyInfo(final String schema, final Table table) throws SQLException {
-      try (final var connection = connectionManager.getConnection()) {
-    try (final var preparedStatement = connection.prepareStatement(GET_PRIMARY_KEY_INFO_QUERY)) {
-      preparedStatementMapper.preparePrimaryKeyInfoStatement(preparedStatement, schema, table);
+    try (final var connection = connectionManager.getConnection()) {
+      try (final var preparedStatement = connection.prepareStatement(GET_PRIMARY_KEY_INFO_QUERY)) {
+        preparedStatementMapper.preparePrimaryKeyInfoStatement(preparedStatement, schema, table);
 
-      final var resultSet = preparedStatement.executeQuery();
+        final var resultSet = preparedStatement.executeQuery();
 
-      return resultSetMapper.mapToPrimaryKey(resultSet);
-    }
+        return resultSetMapper.mapToPrimaryKey(resultSet);
+      }
     }
   }
 
   public List<ForeignKey> getForeignKeyInfo(final String schema, final Table table)
       throws SQLException {
-      try (final var connection = connectionManager.getConnection()) {
+    try (final var connection = connectionManager.getConnection()) {
       try (final var preparedStatement = connection.prepareStatement(GET_FOREIGN_KEY_INFO)) {
-          preparedStatementMapper.prepareForeignKeyInfoStatement(preparedStatement, schema, table);
+        preparedStatementMapper.prepareForeignKeyInfoStatement(preparedStatement, schema, table);
 
-          final var resultSet = preparedStatement.executeQuery();
+        final var resultSet = preparedStatement.executeQuery();
 
-          final List<ForeignKey> foreignKeys = new ArrayList<>();
-          while (resultSet.next()) {
-              foreignKeys.add(resultSetMapper.mapToForeignKey(resultSet));
-          }
+        final List<ForeignKey> foreignKeys = new ArrayList<>();
+        while (resultSet.next()) {
+          foreignKeys.add(resultSetMapper.mapToForeignKey(resultSet));
+        }
 
-          if(LOGGER.isLoggable(Level.INFO)) {
-              LOGGER.log(Level.INFO, "Discovered: {0} foreign keys for table: {1} in schema: {2}", new Object[]{foreignKeys.size(), table.name(), schema});
-          }
-          return foreignKeys;
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Discovered: {0} foreign keys for table: {1} in schema: {2}",
+              new Object[] {foreignKeys.size(), table.name(), schema});
+        }
+        return foreignKeys;
       }
     }
   }
