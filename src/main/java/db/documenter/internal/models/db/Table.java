@@ -3,7 +3,7 @@ package db.documenter.internal.models.db;
 
 import java.util.List;
 
-public record Table(String schema, String name, String type, List<Column> columns) {
+public record Table(String schema, String name, String type, List<Column> columns, PrimaryKey primaryKey, List<ForeignKey> foreignKeys) {
 
     public static Builder builder() {
         return new Builder();
@@ -14,6 +14,8 @@ public record Table(String schema, String name, String type, List<Column> column
         private String name;
         private String type;
         private List<Column> columns;
+        private PrimaryKey primaryKey;
+        private List<ForeignKey> foreignKeys;
 
         public Builder schema(String schema) {
             this.schema = schema;
@@ -35,8 +37,18 @@ public record Table(String schema, String name, String type, List<Column> column
             return this;
         }
 
+        public Builder primaryKey(final PrimaryKey primaryKey) {
+            this.primaryKey = primaryKey;
+            return this;
+        }
+
+        public Builder foreignKeys(List<ForeignKey> foreignKeys){
+            this.foreignKeys = foreignKeys;
+            return this;
+        }
+
         public Table build() {
-            return new Table(schema, name, type, columns);
+            return new Table(schema, name, type, columns, primaryKey, foreignKeys);
         }
 
     }

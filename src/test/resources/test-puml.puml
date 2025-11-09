@@ -8,118 +8,119 @@ hide methods
 hide stereotypes
 
 ' === Entities ===
+package "public" {
+    entity "app_user" as app_user {
+      *id : uuid <<PK>>
+      --
+      username : varchar(50) <<UNIQUE>>
+      email : varchar(255) <<UNIQUE>>
+      display_name : varchar(100)
+      birth_date : date
+      created_at : timestamptz
+      profile : jsonb
+      is_active : boolean
+    }
 
-entity "app_user" as app_user {
-  *id : uuid <<PK>>
-  --
-  username : varchar(50) <<UNIQUE>>
-  email : varchar(255) <<UNIQUE>>
-  display_name : varchar(100)
-  birth_date : date
-  created_at : timestamptz
-  profile : jsonb
-  is_active : boolean
-}
+    entity "address" as address {
+      *id : bigserial <<PK>>
+      --
+      user_id : uuid <<FK>>
+      line1 : varchar(200)
+      line2 : varchar(200)
+      city : varchar(100)
+      state : varchar(100)
+      postal_code : varchar(20)
+      country : char(2)
+      created_at : timestamptz
+    }
 
-entity "address" as address {
-  *id : bigserial <<PK>>
-  --
-  user_id : uuid <<FK>>
-  line1 : varchar(200)
-  line2 : varchar(200)
-  city : varchar(100)
-  state : varchar(100)
-  postal_code : varchar(20)
-  country : char(2)
-  created_at : timestamptz
-}
+    entity "product" as product {
+      *id : bigserial <<PK>>
+      --
+      sku : varchar(30) <<UNIQUE>>
+      name : varchar(200)
+      description : text
+      price : NUMERIC(19,2)
+      attributes : jsonb
+      created_at : timestamp
+      stock : integer
+    }
 
-entity "product" as product {
-  *id : bigserial <<PK>>
-  --
-  sku : varchar(30) <<UNIQUE>>
-  name : varchar(200)
-  description : text
-  price : NUMERIC(19,2)
-  attributes : jsonb
-  created_at : timestamp
-  stock : integer
-}
+    entity "category" as category {
+      *id : smallserial <<PK>>
+      --
+      slug : varchar(80) <<UNIQUE>>
+      title : varchar(120)
+      metadata : jsonb
+    }
 
-entity "category" as category {
-  *id : smallserial <<PK>>
-  --
-  slug : varchar(80) <<UNIQUE>>
-  title : varchar(120)
-  metadata : jsonb
-}
+    entity "product_category" as product_category {
+      *product_id : bigint <<FK>>
+      *category_id : smallint <<FK>>
+      --
+      assigned_at : timestamptz
+    }
 
-entity "product_category" as product_category {
-  *product_id : bigint <<FK>>
-  *category_id : smallint <<FK>>
-  --
-  assigned_at : timestamptz
-}
+    entity "customer_order" as customer_order {
+      *id : bigserial <<PK>>
+      --
+      user_id : uuid <<FK>>
+      order_number : varchar(30) <<UNIQUE>>
+      order_date : timestamptz
+      ship_date : timestamp
+      shipping_address_id : bigint <<FK>>
+      status : order_status
+      total : NUMERIC(19,2)
+      metadata : jsonb
+    }
 
-entity "customer_order" as customer_order {
-  *id : bigserial <<PK>>
-  --
-  user_id : uuid <<FK>>
-  order_number : varchar(30) <<UNIQUE>>
-  order_date : timestamptz
-  ship_date : timestamp
-  shipping_address_id : bigint <<FK>>
-  status : order_status
-  total : NUMERIC(19,2)
-  metadata : jsonb
-}
+    entity "order_item" as order_item {
+      *id : bigserial <<PK>>
+      --
+      order_id : bigint <<FK>>
+      product_id : bigint <<FK>>
+      product_snapshot : jsonb
+      unit_price : NUMERIC(19,2)
+      quantity : integer
+      line_total : NUMERIC(19,2)
+    }
 
-entity "order_item" as order_item {
-  *id : bigserial <<PK>>
-  --
-  order_id : bigint <<FK>>
-  product_id : bigint <<FK>>
-  product_snapshot : jsonb
-  unit_price : NUMERIC(19,2)
-  quantity : integer
-  line_total : NUMERIC(19,2)
-}
+    entity "payment" as payment {
+      *id : uuid <<PK>>
+      --
+      order_id : bigint <<FK>>
+      paid_at : timestamptz
+      amount : NUMERIC(19,2)
+      method : varchar(50)
+      provider_transaction_id : varchar(255)
+      raw_response : jsonb
+    }
 
-entity "payment" as payment {
-  *id : uuid <<PK>>
-  --
-  order_id : bigint <<FK>>
-  paid_at : timestamptz
-  amount : NUMERIC(19,2)
-  method : varchar(50)
-  provider_transaction_id : varchar(255)
-  raw_response : jsonb
-}
+    entity "audit_log" as audit_log {
+      *id : bigserial <<PK>>
+      --
+      entity_type : varchar(100)
+      entity_id : text
+      action : varchar(50)
+      performed_by : uuid <<FK>>
+      performed_at : timestamptz
+      details : jsonb
+    }
 
-entity "audit_log" as audit_log {
-  *id : bigserial <<PK>>
-  --
-  entity_type : varchar(100)
-  entity_id : text
-  action : varchar(50)
-  performed_by : uuid <<FK>>
-  performed_at : timestamptz
-  details : jsonb
-}
+    entity "role" as role {
+      *id : smallserial <<PK>>
+      --
+      code : varchar(50) <<UNIQUE>>
+      description : varchar(255)
+    }
 
-entity "role" as role {
-  *id : smallserial <<PK>>
-  --
-  code : varchar(50) <<UNIQUE>>
-  description : varchar(255)
-}
-
-entity "user_role" as user_role {
-  *user_id : uuid <<FK>>
-  *role_id : smallint <<FK>>
-  --
-  assigned_at : timestamptz
-  assigned_by : uuid <<FK>>
+    entity "user_role" as user_role {
+      *user_id : uuid <<FK>>
+      *role_id : smallint <<FK>>
+      --
+      assigned_at : timestamptz
+      assigned_by : uuid <<FK>>
+    }
 }
 
 ' === Relationships ===

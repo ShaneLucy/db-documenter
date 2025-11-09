@@ -2,85 +2,116 @@ package db.documenter;
 
 import db.documenter.internal.db.api.ConnectionManager;
 import db.documenter.internal.db.impl.PostgresConnectionManager;
+import db.documenter.internal.formatter.impl.*;
 import db.documenter.internal.models.db.Column;
+import db.documenter.internal.models.db.ForeignKey;
+import db.documenter.internal.models.db.Schema;
 import db.documenter.internal.models.db.Table;
+import db.documenter.internal.queries.QueryRunner;
+import db.documenter.internal.queries.preparedstatements.PreparedStatementMapper;
+import db.documenter.internal.queries.resultsets.ResultSetMapper;
+import db.documenter.internal.renderer.impl.EntityRenderer;
+import db.documenter.internal.renderer.impl.RelationshipRenderer;
+import db.documenter.internal.renderer.impl.SchemaRenderer;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import static db.documenter.internal.LineConstructor.constructEntity;
-import static db.documenter.internal.resultsets.Mapper.*;
+import static db.documenter.internal.queries.resultsets.ResultSetMapper.*;
 
 public class DbDocumenter {
 
     private final ConnectionManager connectionManager;
+    private final DbDocumenterConfig dbDocumenterConfig;
 
-    public DbDocumenter(final DbDocumenterConfig dbDocumenterConfig){
+    public DbDocumenter(final DbDocumenterConfig dbDocumenterConfig) {
         this.connectionManager = new PostgresConnectionManager(dbDocumenterConfig, new Properties());
+        this.dbDocumenterConfig = dbDocumenterConfig;
     }
 
-    public String generatePUML() throws SQLException {
+    public String generatePuml() throws SQLException {
+        final var formatter = new CompositeLineFormatter(
+                List.of(new DefaultLineFormatter(), new PrimaryKeyLineFormatter(), new ForeignKeyLineFormatter(), new NullableLineFormatter())
+        );
+        final var entityRenderer = new EntityRenderer(formatter);
+        final var relationShipRenderer = new RelationshipRenderer();
+        final var schemaRenderer = new SchemaRenderer(entityRenderer, relationShipRenderer);
+        final List<Schema> schemas = buildSchemas();
 
+        return schemaRenderer.render(schemas);
 
-        try (final var connection = connectionManager.getConnection()){
-            var statement = connection.createStatement();
+    }
 
-            var tableResult = statement.executeQuery("SELECT * FROM information_schema.tables WHERE table_schema = 'public';");
+    public void writePumlToFile(final String fileName, Charset charset) throws SQLException, IOException {
+        final String puml = generatePuml();
 
-            final List<Table> tables = new ArrayList<>();
-            while (tableResult.next()) {
-                tables.add(mapToTable(tableResult));
-            }
-
-            System.out.println("Discovered tables:");
-            System.out.println(tables.size());
-
-            final var tablesWithColumns = tables.stream().map(table -> {
-                final List<Column> columns = new ArrayList<>();
-                final Statement statement1;
-                try {
-                    statement1 = connection.createStatement();
-                } catch (SQLException e) {
-                    System.out.println(e);
-                    throw new RuntimeException(e);
-                }
-                try {
-                    final var columnResult = statement1.executeQuery(
-                            "SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'order_item'"
-//                            String.format("SELECT * FROM information_schema.columns WHERE table_schema = '%' AND table_name = '%'",
-//                                    table.schema(), table.name())
-                    );
-
-                    while (columnResult.next()) {
-                        columns.add(mapToColumn(columnResult));
-                    }
-
-
-                    System.out.printf("For table %s detected %s columns%n", table.name(), columns.size());
-                    return combineTableAndColumns(table, columns);
-                } catch (SQLException e) {
-                    System.out.println(e);
-                    throw new RuntimeException(e);
-                }
-            }).toList();
-
-
-            System.out.println(tablesWithColumns);
-
-            System.out.println("\n\n\n");
-            tablesWithColumns.forEach(table -> {
-                final var tableToEntity = constructEntity(table);
-                System.out.println(tableToEntity);
-            });
-
-            return "test";
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try (final var writer = new FileOutputStream(fileName)){
+            writer.write(puml.getBytes(charset));
         }
+    }
 
+
+    private List<Schema> buildSchemas()  {
+        return dbDocumenterConfig.schemas().stream().map(schema ->
+        {
+            try {
+                return Schema.builder()
+                           .name(schema)
+                           .tables(buildTables(schema))
+                           .build();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
 
     }
+
+
+    private List<Table> buildTables(final String schema) throws SQLException {
+        final var resultSetMapper = new ResultSetMapper();
+        try (final var connection = connectionManager.getConnection()) {
+            final var queryRunner = new QueryRunner(new PreparedStatementMapper(), new ResultSetMapper(), connection);
+
+                try {
+                    final var tables = queryRunner.getTableInfo(schema);
+
+
+                    return tables.stream().map(table -> {
+                        try {
+                            final List<Column> columns = queryRunner.getColumnInfo(schema, table);
+                            System.out.printf("For table %s detected %s columns%n", table.name(), columns.size());
+
+                            final var primaryKey = queryRunner.getPrimaryKeyInfo(schema, table);
+                            System.out.printf("For table %s detected %s primary key%n", table.name(), primaryKey);
+
+                            final List<ForeignKey> foreignKeys = queryRunner.getForeignKeyInfo(schema, table);
+                            System.out.printf("For table %s detected %s foreign keys%n", table.name(), foreignKeys.size());
+
+                            return resultSetMapper.combineTableColumnsPrimaryAndForeignKeys(table, columns, primaryKey, foreignKeys);
+                        } catch (SQLException e) {
+                            System.out.println(e);
+                            throw new RuntimeException(e);
+                        }
+                    }).toList();
+
+
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+
+
+        }
+    }
+
 }

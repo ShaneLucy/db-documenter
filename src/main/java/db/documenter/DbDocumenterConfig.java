@@ -1,5 +1,7 @@
 package db.documenter;
 
+import db.documenter.internal.validation.Validators;
+
 import java.util.List;
 
 public record DbDocumenterConfig(List<String> schemas,
@@ -9,6 +11,14 @@ public record DbDocumenterConfig(List<String> schemas,
                                  boolean useSSL,
                                  String username,
                                  String password) {
+
+    public DbDocumenterConfig {
+        Validators.containsAtLeast1Item(schemas, "schemas");
+        Validators.isNotBlank(databaseHost, "databaseHost");
+        Validators.isNotBlank(databaseName, "databaseName");
+        Validators.isNotBlank(username, "username");
+        Validators.isNotBlank(password, "password");
+    }
 
     public static Builder builder() {
         return new Builder();
@@ -59,8 +69,18 @@ public record DbDocumenterConfig(List<String> schemas,
         }
 
         public DbDocumenterConfig build() {
+            validate();
             return new DbDocumenterConfig(schemas, databaseHost, databasePort, databaseName, useSSL, username, password);
         }
 
+
+        private void validate(){
+            Validators.containsAtLeast1Item(schemas, "schemas");
+            Validators.isNotBlank(databaseHost, "databaseHost");
+            Validators.isNotBlank(databaseName, "databaseName");
+            Validators.isNotBlank(username, "username");
+            Validators.isNotBlank(password, "password");
+
+        }
     }
 }
