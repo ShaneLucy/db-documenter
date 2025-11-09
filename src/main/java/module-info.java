@@ -1,5 +1,5 @@
 module db.documenter {
-    requires java.sql;
+  requires java.sql;
 
-    exports db.documenter;
+  exports db.documenter;
 }

@@ -4,7 +4,5 @@ import java.io.FileWriter;
 
 public record PumlWriter(FileWriter fileWriter) {
 
-    public void writeLine() {
-
-    }
+  public void writeLine() {}
 }

@@ -6,8 +6,8 @@ import db.documenter.internal.models.db.Table;
 
 public class NullableLineFormatter implements LineFormatter {
 
-    @Override
-    public String format(final Table table, final Column column, final String current) {
-        return column.isNullable() ? current + "?" : current;
-    }
+  @Override
+  public String format(final Table table, final Column column, final String current) {
+    return column.isNullable() ? current + "?" : current;
+  }
 }

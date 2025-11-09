@@ -5,5 +5,5 @@ import db.documenter.internal.models.db.Table;
 
 public interface LineFormatter {
 
-    String format(final Table table, final Column column, final String current);
+  String format(final Table table, final Column column, final String current);
 }
