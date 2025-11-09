@@ -12,22 +12,32 @@ import java.util.Objects;
 
 public class ResultSetMapper {
 
-  public Table mapToTable(final ResultSet resultSet) throws SQLException {
-    return Table.builder()
-        .schema(resultSet.getString("table_schema"))
-        .name(resultSet.getString("table_name"))
-        .type(resultSet.getString("table_type"))
-        .build();
+  public List<Table> mapToTables(final ResultSet resultSet) throws SQLException {
+    final List<Table> tables = new ArrayList<>();
+    while (resultSet.next()) {
+      tables.add(
+          Table.builder()
+              .schema(resultSet.getString("table_schema"))
+              .name(resultSet.getString("table_name"))
+              .type(resultSet.getString("table_type"))
+              .build());
+    }
+    return tables;
   }
 
-  public Column mapToColumn(final ResultSet resultSet) throws SQLException {
-    return Column.builder()
-        .name(resultSet.getString("column_name"))
-        .ordinalPosition(resultSet.getInt("ordinal_position"))
-        .isNullable(Objects.equals(resultSet.getString("is_nullable"), "YES"))
-        .dataType(resultSet.getString("data_type"))
-        .maximumLength(resultSet.getInt("character_maximum_length"))
-        .build();
+  public List<Column> mapToColumns(final ResultSet resultSet) throws SQLException {
+    final List<Column> columns = new ArrayList<>();
+    while (resultSet.next()) {
+      columns.add(
+          Column.builder()
+              .name(resultSet.getString("column_name"))
+              .ordinalPosition(resultSet.getInt("ordinal_position"))
+              .isNullable(Objects.equals(resultSet.getString("is_nullable"), "YES"))
+              .dataType(resultSet.getString("data_type"))
+              .maximumLength(resultSet.getInt("character_maximum_length"))
+              .build());
+    }
+    return columns;
   }
 
   public PrimaryKey mapToPrimaryKey(final ResultSet resultSet) throws SQLException {
@@ -48,14 +58,21 @@ public class ResultSetMapper {
     return primaryKeyBuilder.columnNames(columnNames).build();
   }
 
-  public ForeignKey mapToForeignKey(final ResultSet resultSet) throws SQLException {
-    return ForeignKey.builder()
-        .name(resultSet.getString("constraint_name"))
-        .sourceTable(resultSet.getString("source_table_name"))
-        .sourceColumn(resultSet.getString("source_column"))
-        .targetTable(resultSet.getString("referenced_table"))
-        .targetColumn(resultSet.getString("referenced_column"))
-        .build();
+  public List<ForeignKey> mapToForeignKeys(final ResultSet resultSet) throws SQLException {
+    final List<ForeignKey> foreignKeys = new ArrayList<>();
+
+    while (resultSet.next()) {
+      foreignKeys.add(
+          ForeignKey.builder()
+              .name(resultSet.getString("constraint_name"))
+              .sourceTable(resultSet.getString("source_table_name"))
+              .sourceColumn(resultSet.getString("source_column"))
+              .targetTable(resultSet.getString("referenced_table"))
+              .targetColumn(resultSet.getString("referenced_column"))
+              .build());
+    }
+
+    return foreignKeys;
   }
 
   public Table combineTableColumnsPrimaryAndForeignKeys(

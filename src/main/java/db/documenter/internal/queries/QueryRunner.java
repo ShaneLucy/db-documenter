@@ -8,7 +8,6 @@ import db.documenter.internal.queries.preparedstatements.PreparedStatementMapper
 import db.documenter.internal.queries.resultsets.ResultSetMapper;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,11 +72,9 @@ public class QueryRunner {
     try (final var preparedStatement =
         connectionHolder.connection().prepareStatement(GET_TABLE_INFO_QUERY)) {
       preparedStatementMapper.prepareTableInfoStatement(preparedStatement, schema);
+
       final var resultSet = preparedStatement.executeQuery();
-      final List<Table> tables = new ArrayList<>();
-      while (resultSet.next()) {
-        tables.add(resultSetMapper.mapToTable(resultSet));
-      }
+      final List<Table> tables = resultSetMapper.mapToTables(resultSet);
 
       if (LOGGER.isLoggable(Level.INFO)) {
         LOGGER.log(
@@ -95,11 +92,7 @@ public class QueryRunner {
       preparedStatementMapper.prepareColumnInfoStatement(preparedStatement, schema, table.name());
 
       final var resultSet = preparedStatement.executeQuery();
-
-      final List<Column> columns = new ArrayList<>();
-      while (resultSet.next()) {
-        columns.add(resultSetMapper.mapToColumn(resultSet));
-      }
+      final List<Column> columns = resultSetMapper.mapToColumns(resultSet);
 
       if (LOGGER.isLoggable(Level.INFO)) {
         LOGGER.log(
@@ -130,10 +123,7 @@ public class QueryRunner {
 
       final var resultSet = preparedStatement.executeQuery();
 
-      final List<ForeignKey> foreignKeys = new ArrayList<>();
-      while (resultSet.next()) {
-        foreignKeys.add(resultSetMapper.mapToForeignKey(resultSet));
-      }
+      final List<ForeignKey> foreignKeys = resultSetMapper.mapToForeignKeys(resultSet);
 
       if (LOGGER.isLoggable(Level.INFO)) {
         LOGGER.log(
@@ -145,16 +135,7 @@ public class QueryRunner {
     }
   }
 
-  private static final class ConnectionHolder implements AutoCloseable {
-    private final Connection connection;
-
-    private ConnectionHolder(final Connection connection) {
-      this.connection = connection;
-    }
-
-    private Connection connection() {
-      return connection;
-    }
+  private record ConnectionHolder(Connection connection) implements AutoCloseable {
 
     @Override
     public void close() throws SQLException {
