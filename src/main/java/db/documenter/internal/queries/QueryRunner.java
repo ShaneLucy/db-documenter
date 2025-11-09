@@ -11,12 +11,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class QueryRunner {
 
   private final PreparedStatementMapper preparedStatementMapper;
   private final ResultSetMapper resultSetMapper;
   private final ConnectionManager connectionManager;
+
+  private static final Logger LOGGER = Logger.getLogger(QueryRunner.class.getName());
 
   private static final String GET_TABLE_INFO_QUERY =
       "SELECT table_schema, table_name, table_type FROM information_schema.tables WHERE table_schema = ?;";
@@ -76,8 +80,9 @@ public class QueryRunner {
                   tables.add(resultSetMapper.mapToTable(resultSet));
               }
 
-              System.out.println("Discovered tables:");
-              System.out.println(tables.size());
+              if(LOGGER.isLoggable(Level.INFO)) {
+                  LOGGER.log(Level.INFO, "Discovered: {0} tables in schema: {1}", new Object[]{tables.size(), schema});
+              }
               return tables;
           }
       }
@@ -95,8 +100,9 @@ public class QueryRunner {
                   columns.add(resultSetMapper.mapToColumn(resultSet));
               }
 
-              System.out.println("Discovered columns:");
-              System.out.println(columns.size());
+              if(LOGGER.isLoggable(Level.INFO)) {
+                  LOGGER.log(Level.INFO, "Discovered: {0} columns for table: {1} in schema: {2}", new Object[]{columns.size(), table.name(), schema});
+              }
               return columns;
           }
       }
@@ -127,8 +133,9 @@ public class QueryRunner {
               foreignKeys.add(resultSetMapper.mapToForeignKey(resultSet));
           }
 
-          System.out.println("Discovered foreign keys:");
-          System.out.println(foreignKeys.size());
+          if(LOGGER.isLoggable(Level.INFO)) {
+              LOGGER.log(Level.INFO, "Discovered: {0} foreign keys for table: {1} in schema: {2}", new Object[]{foreignKeys.size(), table.name(), schema});
+          }
           return foreignKeys;
       }
     }

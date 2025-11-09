@@ -35,7 +35,7 @@ public class ResultSetMapper {
       return null;
     }
 
-    final ArrayList<String> columnNames = new ArrayList<>();
+    final List<String> columnNames = new ArrayList<>();
     columnNames.add(resultSet.getString("column_name"));
     final var primaryKey =
         PrimaryKey.builder()

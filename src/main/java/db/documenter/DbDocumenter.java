@@ -32,7 +32,7 @@ public class DbDocumenter {
     this.dbDocumenterConfig = dbDocumenterConfig;
   }
 
-  public String generatePuml() throws SQLException {
+  public String generatePuml() {
     final var formatter =
         new CompositeLineFormatter(
             List.of(
@@ -83,23 +83,15 @@ public class DbDocumenter {
                 table -> {
                   try {
                     final List<Column> columns = queryRunner.getColumnInfo(schema, table);
-                    System.out.printf(
-                        "For table %s detected %s columns%n", table.name(), columns.size());
 
                     final var primaryKey = queryRunner.getPrimaryKeyInfo(schema, table);
-                    System.out.printf(
-                        "For table %s detected %s primary key%n", table.name(), primaryKey);
 
                     final List<ForeignKey> foreignKeys =
                         queryRunner.getForeignKeyInfo(schema, table);
-                    System.out.printf(
-                        "For table %s detected %s foreign keys%n",
-                        table.name(), foreignKeys.size());
 
                     return resultSetMapper.combineTableColumnsPrimaryAndForeignKeys(
                         table, columns, primaryKey, foreignKeys);
                   } catch (SQLException e) {
-                    System.out.println(e);
                     throw new RuntimeException(e);
                   }
                 })

@@ -6,9 +6,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PostgresConnectionManager implements ConnectionManager {
 
+    private static final Logger LOGGER = Logger.getLogger(PostgresConnectionManager.class.getName());
   private static final String BASE_CONNECTION_STRING = "jdbc:postgresql://%s:%s/%s";
   private final String url;
   private final DbDocumenterConfig dbDocumenterConfig;
@@ -27,12 +30,13 @@ public class PostgresConnectionManager implements ConnectionManager {
     setDbProperties();
   }
 
+  @Override
   public Connection getConnection() throws SQLException {
     final var connection = DriverManager.getConnection(url, properties);
 
-    if (connection != null) {
-      System.out.println("Connected to database #1");
-    }
+      if(LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(Level.INFO, "Connected to postgres database");
+      }
     return connection;
   }
 
