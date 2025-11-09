@@ -35,19 +35,17 @@ public class ResultSetMapper {
       return null;
     }
 
+    final var primaryKeyBuilder =
+        PrimaryKey.builder().constraintName(resultSet.getString("constraint_name"));
+
     final List<String> columnNames = new ArrayList<>();
     columnNames.add(resultSet.getString("column_name"));
-    final var primaryKey =
-        PrimaryKey.builder()
-            .columnNames(columnNames)
-            .constraintName(resultSet.getString("constraint_name"))
-            .build();
 
     while (resultSet.next()) {
-      primaryKey.columnNames().add(resultSet.getString("column_name"));
+      columnNames.add(resultSet.getString("column_name"));
     }
 
-    return primaryKey;
+    return primaryKeyBuilder.columnNames(columnNames).build();
   }
 
   public ForeignKey mapToForeignKey(final ResultSet resultSet) throws SQLException {

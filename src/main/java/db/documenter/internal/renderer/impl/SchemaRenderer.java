@@ -29,10 +29,7 @@ public class SchemaRenderer implements PumlRenderer<List<Schema>> {
         });
 
     // Relationships
-    schemas.forEach(
-        schema -> {
-          sb.append(relationshipRenderer.render(schema.tables()));
-        });
+    schemas.forEach(schema -> sb.append(relationshipRenderer.render(schema.tables())));
 
     sb.append("@enduml\n");
     return sb.toString();

@@ -22,7 +22,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class DbDocumenter {
-
   private final ConnectionManager connectionManager;
   private final DbDocumenterConfig dbDocumenterConfig;
 
@@ -72,9 +71,9 @@ public class DbDocumenter {
   private List<Table> buildTables(final String schema) throws SQLException {
     final var resultSetMapper = new ResultSetMapper();
 
-    try {
+    try (final var connection = connectionManager.getConnection()) {
       final var queryRunner =
-          new QueryRunner(new PreparedStatementMapper(), new ResultSetMapper(), connectionManager);
+          new QueryRunner(new PreparedStatementMapper(), new ResultSetMapper(), connection);
       final var tables = queryRunner.getTableInfo(schema);
 
       return tables.stream()
