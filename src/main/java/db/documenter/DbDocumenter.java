@@ -69,8 +69,6 @@ public class DbDocumenter {
   }
 
   private List<Table> buildTables(final String schema) throws SQLException {
-    final var resultSetMapper = new ResultSetMapper();
-
     try (final var connection = connectionManager.getConnection()) {
       final var queryRunner =
           new QueryRunner(new PreparedStatementMapper(), new ResultSetMapper(), connection);
@@ -86,7 +84,7 @@ public class DbDocumenter {
 
                   final List<ForeignKey> foreignKeys = queryRunner.getForeignKeyInfo(schema, table);
 
-                  return resultSetMapper.combineTableColumnsPrimaryAndForeignKeys(
+                  return Table.combineTableColumnsPrimaryAndForeignKeys(
                       table, columns, primaryKey, foreignKeys);
                 } catch (SQLException e) {
                   throw new RuntimeException(e);

@@ -74,19 +74,4 @@ public class ResultSetMapper {
 
     return foreignKeys;
   }
-
-  public Table combineTableColumnsPrimaryAndForeignKeys(
-      final Table table,
-      final List<Column> columns,
-      final PrimaryKey primaryKey,
-      final List<ForeignKey> foreignKeys) {
-    return Table.builder()
-        .schema(table.schema())
-        .name(table.name())
-        .type(table.type())
-        .columns(columns)
-        .primaryKey(primaryKey)
-        .foreignKeys(foreignKeys)
-        .build();
-  }
 }

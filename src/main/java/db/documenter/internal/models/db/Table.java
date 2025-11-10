@@ -27,22 +27,22 @@ public record Table(
     private PrimaryKey primaryKey;
     private List<ForeignKey> foreignKeys;
 
-    public Builder schema(String schema) {
+    public Builder schema(final String schema) {
       this.schema = schema;
       return this;
     }
 
-    public Builder name(String name) {
+    public Builder name(final String name) {
       this.name = name;
       return this;
     }
 
-    public Builder type(String type) {
+    public Builder type(final String type) {
       this.type = type;
       return this;
     }
 
-    public Builder columns(List<Column> columns) {
+    public Builder columns(final List<Column> columns) {
       this.columns = List.copyOf(columns);
       return this;
     }
@@ -60,5 +60,20 @@ public record Table(
     public Table build() {
       return new Table(schema, name, type, columns, primaryKey, foreignKeys);
     }
+  }
+
+  public static Table combineTableColumnsPrimaryAndForeignKeys(
+      final Table table,
+      final List<Column> columns,
+      final PrimaryKey primaryKey,
+      final List<ForeignKey> foreignKeys) {
+    return Table.builder()
+        .schema(table.schema())
+        .name(table.name())
+        .type(table.type())
+        .columns(columns)
+        .primaryKey(primaryKey)
+        .foreignKeys(foreignKeys)
+        .build();
   }
 }
