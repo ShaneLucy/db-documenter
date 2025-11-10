@@ -56,7 +56,6 @@ public class QueryRunner {
               AND ccu.table_schema = tc.table_schema
             WHERE tc.constraint_type = 'FOREIGN KEY'
               AND tc.table_schema = ? AND tc.table_name = ?;
-
             """;
 
   public QueryRunner(
