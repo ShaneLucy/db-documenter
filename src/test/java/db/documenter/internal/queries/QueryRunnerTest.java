@@ -1319,35 +1319,292 @@ class QueryRunnerTest {
   @Nested
   class PrimaryKeyTests {
 
-    @Test
-    void itReturnsPrimaryKey_appUser() throws SQLException {
-      final Table appUser = Table.builder().schema("public").name("app_user").build();
-      final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", appUser);
+    private Table appUser;
 
-      assertEquals("app_user_pkey", primaryKey.constraintName());
-      assertEquals(1, primaryKey.columnNames().size());
-      assertEquals("id", primaryKey.columnNames().getFirst());
+    @BeforeEach
+    void setUp() {
+      appUser = Table.builder().schema("public").name("app_user").build();
     }
 
-    @Test
-    void itReturnsCompositePrimaryKey_userRole() throws SQLException {
-      final Table userRole = Table.builder().schema("public").name("user_role").build();
-      final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", userRole);
+    @Nested
+    class AppUserPrimaryKeyTests {
 
-      assertEquals("user_role_pkey", primaryKey.constraintName());
-      assertEquals(2, primaryKey.columnNames().size());
-      assertTrue(primaryKey.columnNames().containsAll(List.of("user_id", "role_id")));
+      @Test
+      void itHasTheCorrectConstraintName() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", appUser);
+
+        assertEquals("app_user_pkey", primaryKey.constraintName());
+      }
+
+      @Test
+      void itHasTheCorrectColumnNames() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", appUser);
+
+        assertEquals(1, primaryKey.columnNames().size());
+        assertEquals("id", primaryKey.columnNames().getFirst());
+      }
     }
 
-    @Test
-    void itReturnsPrimaryKey_productCategory() throws SQLException {
-      final Table productCategory =
-          Table.builder().schema("public").name("product_category").build();
-      final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", productCategory);
+    @Nested
+    class RolePrimaryKeyTests {
 
-      assertEquals("product_category_pkey", primaryKey.constraintName());
-      assertEquals(2, primaryKey.columnNames().size());
-      assertTrue(primaryKey.columnNames().containsAll(List.of("product_id", "category_id")));
+      private Table role;
+
+      @BeforeEach
+      void setUp() {
+        role = Table.builder().schema("public").name("role").build();
+      }
+
+      @Test
+      void itHasTheCorrectConstraintName() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", role);
+
+        assertEquals("role_pkey", primaryKey.constraintName());
+      }
+
+      @Test
+      void itHasTheCorrectColumnNames() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", role);
+
+        assertEquals(1, primaryKey.columnNames().size());
+        assertEquals("id", primaryKey.columnNames().getFirst());
+      }
+    }
+
+    @Nested
+    class UserRolePrimaryKeyTests {
+
+      private Table userRole;
+
+      @BeforeEach
+      void setUp() {
+        userRole = Table.builder().schema("public").name("user_role").build();
+      }
+
+      @Test
+      void itHasTheCorrectConstraintName() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", userRole);
+
+        assertEquals("user_role_pkey", primaryKey.constraintName());
+      }
+
+      @Test
+      void itHasTheCorrectColumnNames() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", userRole);
+
+        assertEquals(2, primaryKey.columnNames().size());
+        assertEquals("user_id", primaryKey.columnNames().get(0));
+        assertEquals("role_id", primaryKey.columnNames().get(1));
+      }
+    }
+
+    @Nested
+    class AddressPrimaryKeyTests {
+
+      private Table address;
+
+      @BeforeEach
+      void setUp() {
+        address = Table.builder().schema("public").name("address").build();
+      }
+
+      @Test
+      void itHasTheCorrectConstraintName() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", address);
+
+        assertEquals("address_pkey", primaryKey.constraintName());
+      }
+
+      @Test
+      void itHasTheCorrectColumnNames() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", address);
+
+        assertEquals(1, primaryKey.columnNames().size());
+        assertEquals("id", primaryKey.columnNames().getFirst());
+      }
+    }
+
+    @Nested
+    class ProductPrimaryKeyTests {
+
+      private Table product;
+
+      @BeforeEach
+      void setUp() {
+        product = Table.builder().schema("public").name("product").build();
+      }
+
+      @Test
+      void itHasTheCorrectConstraintName() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", product);
+
+        assertEquals("product_pkey", primaryKey.constraintName());
+      }
+
+      @Test
+      void itHasTheCorrectColumnNames() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", product);
+
+        assertEquals(1, primaryKey.columnNames().size());
+        assertEquals("id", primaryKey.columnNames().getFirst());
+      }
+    }
+
+    @Nested
+    class CategoryPrimaryKeyTests {
+
+      private Table category;
+
+      @BeforeEach
+      void setUp() {
+        category = Table.builder().schema("public").name("category").build();
+      }
+
+      @Test
+      void itHasTheCorrectConstraintName() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", category);
+
+        assertEquals("category_pkey", primaryKey.constraintName());
+      }
+
+      @Test
+      void itHasTheCorrectColumnNames() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", category);
+
+        assertEquals(1, primaryKey.columnNames().size());
+        assertEquals("id", primaryKey.columnNames().getFirst());
+      }
+    }
+
+    @Nested
+    class ProductCategoryPrimaryKeyTests {
+
+      private Table productCategory;
+
+      @BeforeEach
+      void setUp() {
+        productCategory = Table.builder().schema("public").name("product_category").build();
+      }
+
+      @Test
+      void itHasTheCorrectConstraintName() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", productCategory);
+
+        assertEquals("product_category_pkey", primaryKey.constraintName());
+      }
+
+      @Test
+      void itHasTheCorrectColumnNames() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", productCategory);
+
+        assertEquals(2, primaryKey.columnNames().size());
+        assertEquals("product_id", primaryKey.columnNames().get(0));
+        assertEquals("category_id", primaryKey.columnNames().get(1));
+      }
+    }
+
+    @Nested
+    class CustomerOrderPrimaryKeyTests {
+
+      private Table customerOrder;
+
+      @BeforeEach
+      void setUp() {
+        customerOrder = Table.builder().schema("public").name("customer_order").build();
+      }
+
+      @Test
+      void itHasTheCorrectConstraintName() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", customerOrder);
+
+        assertEquals("customer_order_pkey", primaryKey.constraintName());
+      }
+
+      @Test
+      void itHasTheCorrectColumnNames() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", customerOrder);
+
+        assertEquals(1, primaryKey.columnNames().size());
+        assertEquals("id", primaryKey.columnNames().getFirst());
+      }
+    }
+
+    @Nested
+    class OrderItemPrimaryKeyTests {
+
+      private Table orderItem;
+
+      @BeforeEach
+      void setUp() {
+        orderItem = Table.builder().schema("public").name("order_item").build();
+      }
+
+      @Test
+      void itHasTheCorrectConstraintName() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", orderItem);
+
+        assertEquals("order_item_pkey", primaryKey.constraintName());
+      }
+
+      @Test
+      void itHasTheCorrectColumnNames() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", orderItem);
+
+        assertEquals(1, primaryKey.columnNames().size());
+        assertEquals("id", primaryKey.columnNames().getFirst());
+      }
+    }
+
+    @Nested
+    class PaymentPrimaryKeyTests {
+
+      private Table payment;
+
+      @BeforeEach
+      void setUp() {
+        payment = Table.builder().schema("public").name("payment").build();
+      }
+
+      @Test
+      void itHasTheCorrectConstraintName() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", payment);
+
+        assertEquals("payment_pkey", primaryKey.constraintName());
+      }
+
+      @Test
+      void itHasTheCorrectColumnNames() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", payment);
+
+        assertEquals(1, primaryKey.columnNames().size());
+        assertEquals("id", primaryKey.columnNames().getFirst());
+      }
+    }
+
+    @Nested
+    class AuditLogPrimaryKeyTests {
+
+      private Table auditLog;
+
+      @BeforeEach
+      void setUp() {
+        auditLog = Table.builder().schema("public").name("audit_log").build();
+      }
+
+      @Test
+      void itHasTheCorrectConstraintName() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", auditLog);
+
+        assertEquals("audit_log_pkey", primaryKey.constraintName());
+      }
+
+      @Test
+      void itHasTheCorrectColumnNames() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", auditLog);
+
+        assertEquals(1, primaryKey.columnNames().size());
+        assertEquals("id", primaryKey.columnNames().getFirst());
+      }
     }
   }
 
