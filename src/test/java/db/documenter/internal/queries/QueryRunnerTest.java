@@ -61,7 +61,8 @@ class QueryRunnerTest {
                   "customer_order",
                   "order_item",
                   "payment",
-                  "audit_log")));
+                  "audit_log",
+                  "tag_log")));
     }
   }
 
@@ -1314,20 +1315,94 @@ class QueryRunnerTest {
         assertEquals(0, detailsColumn.maximumLength());
       }
     }
+
+    @Nested
+    class TagLogColumnTests {
+
+      private Table tagLog;
+
+      @BeforeEach
+      void setUp() {
+        tagLog = Table.builder().schema("public").name("tag_log").build();
+      }
+
+      @Test
+      void itReturnsColumns() throws SQLException {
+        final List<Column> columns = queryRunner.getColumnInfo("public", tagLog);
+        final List<String> names = columns.stream().map(Column::name).toList();
+
+        final List<String> expectedColumnNames = List.of("tag_id", "logged_at");
+
+        assertTrue(names.containsAll(expectedColumnNames));
+        assertEquals(expectedColumnNames.size(), names.size());
+      }
+
+      @Test
+      void columnsHaveCorrectOrdinalPosition() throws SQLException {
+        final List<Column> columns = queryRunner.getColumnInfo("public", tagLog);
+
+        final var tagIdColumn = columns.getFirst();
+        final var loggedAtColumn = columns.getLast();
+
+        assertEquals(2, columns.size());
+
+        assertEquals(1, tagIdColumn.ordinalPosition());
+        assertEquals(2, loggedAtColumn.ordinalPosition());
+      }
+
+      @Test
+      void columnsHaveCorrectIsNullable() throws SQLException {
+        final List<Column> columns = queryRunner.getColumnInfo("public", tagLog);
+
+        final var tagIdColumn = columns.getFirst();
+        final var loggedAtColumn = columns.getLast();
+
+        assertEquals(2, columns.size());
+
+        assertFalse(tagIdColumn.isNullable());
+        assertFalse(loggedAtColumn.isNullable());
+      }
+
+      @Test
+      void columnsHaveCorrectDataType() throws SQLException {
+        final List<Column> columns = queryRunner.getColumnInfo("public", tagLog);
+
+        final var tagIdColumn = columns.getFirst();
+        final var loggedAtColumn = columns.getLast();
+
+        assertEquals(2, columns.size());
+
+        assertEquals("character varying", tagIdColumn.dataType());
+        assertEquals("timestamp with time zone", loggedAtColumn.dataType());
+      }
+
+      @Test
+      void columnsHaveCorrectMaximumLength() throws SQLException {
+        final List<Column> columns = queryRunner.getColumnInfo("public", tagLog);
+
+        final var tagIdColumn = columns.getFirst();
+        final var loggedAtColumn = columns.getLast();
+
+        assertEquals(2, columns.size());
+
+        assertEquals(50, tagIdColumn.maximumLength());
+        assertEquals(0, loggedAtColumn.maximumLength());
+      }
+    }
   }
 
   @Nested
   class PrimaryKeyTests {
 
-    private Table appUser;
-
-    @BeforeEach
-    void setUp() {
-      appUser = Table.builder().schema("public").name("app_user").build();
-    }
-
     @Nested
     class AppUserPrimaryKeyTests {
+
+      private Table appUser;
+
+      @BeforeEach
+      void setUp() {
+        appUser = Table.builder().schema("public").name("app_user").build();
+      }
 
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
@@ -1606,10 +1681,45 @@ class QueryRunnerTest {
         assertEquals("id", primaryKey.columnNames().getFirst());
       }
     }
+
+    @Nested
+    class TagLogPrimaryKeyTests {
+
+      private Table tagLog;
+
+      @BeforeEach
+      void setUp() {
+        tagLog = Table.builder().schema("public").name("tag_log").build();
+      }
+
+      @Test
+      void itHasNoPrimaryKey() throws SQLException {
+        final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo("public", tagLog);
+        assertNull(primaryKey);
+      }
+    }
   }
 
   @Nested
   class ForeignKeyTests {
+
+    @Nested
+    class AppUserForeignKeyTests {
+
+      private Table appUser;
+
+      @BeforeEach
+      void setUp() {
+        appUser = Table.builder().schema("public").name("app_user").build();
+      }
+
+      @Test
+      void appUserForeignKeyIsEmpty() throws SQLException {
+        final var appUserForeignKey = queryRunner.getForeignKeyInfo("public", appUser);
+
+        assertTrue(appUserForeignKey.isEmpty());
+      }
+    }
 
     @Test
     void itReturnsForeignKey_address() throws SQLException {

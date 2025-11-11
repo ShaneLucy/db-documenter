@@ -140,6 +140,15 @@ CREATE TABLE audit_log (
     details jsonb
 );
 
+
+-- -------------------
+-- table without a primary key
+-- ------------------
+CREATE TABLE tag_log (
+    tag_id varchar(50) NOT NULL,
+    logged_at timestamptz NOT NULL DEFAULT now()
+);
+
 -- -------------------------
 -- Helpful indexes for common lookups
 -- -------------------------

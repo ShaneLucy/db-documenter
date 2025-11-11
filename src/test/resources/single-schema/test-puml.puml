@@ -121,6 +121,12 @@ package "public" {
       assigned_at : timestamptz
       assigned_by : uuid <<FK>>
     }
+
+    entity "tag_log" as tag_log {
+        tag_id : varchar(50)
+        logged_at : timestamptz
+    }
+
 }
 
 ' === Relationships ===
