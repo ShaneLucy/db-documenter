@@ -1716,53 +1716,238 @@ class QueryRunnerTest {
       @Test
       void appUserForeignKeyIsEmpty() throws SQLException {
         final var appUserForeignKey = queryRunner.getForeignKeyInfo("public", appUser);
-
+        assertNotNull(appUserForeignKey);
         assertTrue(appUserForeignKey.isEmpty());
       }
     }
+  }
+
+  @Nested
+  class AddressForeignKeyTests {
+    private Table address;
+
+    @BeforeEach
+    void setUp() {
+      address = Table.builder().schema("public").name("address").build();
+    }
 
     @Test
-    void itReturnsForeignKey_address() throws SQLException {
-      final Table address = Table.builder().schema("public").name("address").build();
+    void itHasForeignKeyToAppUser() throws SQLException {
       final List<ForeignKey> fks = queryRunner.getForeignKeyInfo("public", address);
 
       assertEquals(1, fks.size());
+
       final ForeignKey fk = fks.getFirst();
       assertEquals("address_user_id_fkey", fk.name());
-      assertEquals("address", fk.sourceTable());
       assertEquals("user_id", fk.sourceColumn());
+      assertEquals("app_user", fk.targetTable());
+      assertEquals("id", fk.targetColumn());
+    }
+  }
+
+  @Nested
+  class ProductForeignKeyTests {
+    private Table product;
+
+    @BeforeEach
+    void setUp() {
+      product = Table.builder().schema("public").name("product").build();
+    }
+
+    @Test
+    void itHasNoForeignKeys() throws SQLException {
+      final List<ForeignKey> foreignKeys = queryRunner.getForeignKeyInfo("public", product);
+      assertTrue(foreignKeys.isEmpty());
+    }
+  }
+
+  @Nested
+  class CategoryForeignKeyTests {
+    private Table category;
+
+    @BeforeEach
+    void setUp() {
+      category = Table.builder().schema("public").name("category").build();
+    }
+
+    @Test
+    void itHasNoForeignKeys() throws SQLException {
+      final List<ForeignKey> fks = queryRunner.getForeignKeyInfo("public", category);
+      assertTrue(fks.isEmpty());
+    }
+  }
+
+  @Nested
+  class ProductCategoryForeignKeyTests {
+    private Table productCategory;
+
+    @BeforeEach
+    void setUp() {
+      productCategory = Table.builder().schema("public").name("product_category").build();
+    }
+
+    @Test
+    void itHasForeignKeyToProduct() throws SQLException {
+      final List<ForeignKey> fks = queryRunner.getForeignKeyInfo("public", productCategory);
+
+      final ForeignKey fk =
+          fks.stream().filter(f -> f.sourceColumn().equals("product_id")).findFirst().orElseThrow();
+
+      assertEquals("product_category_product_id_fkey", fk.name());
+      assertEquals("product", fk.targetTable());
+      assertEquals("id", fk.targetColumn());
+    }
+
+    @Test
+    void itHasForeignKeyToCategory() throws SQLException {
+      final List<ForeignKey> fks = queryRunner.getForeignKeyInfo("public", productCategory);
+
+      final ForeignKey fk =
+          fks.stream()
+              .filter(f -> f.sourceColumn().equals("category_id"))
+              .findFirst()
+              .orElseThrow();
+
+      assertEquals("product_category_category_id_fkey", fk.name());
+      assertEquals("category", fk.targetTable());
+      assertEquals("id", fk.targetColumn());
+    }
+  }
+
+  @Nested
+  class CustomerOrderForeignKeyTests {
+    private Table customerOrder;
+
+    @BeforeEach
+    void setUp() {
+      customerOrder = Table.builder().schema("public").name("customer_order").build();
+    }
+
+    @Test
+    void itHasForeignKeyToAppUser() throws SQLException {
+      final List<ForeignKey> fks = queryRunner.getForeignKeyInfo("public", customerOrder);
+
+      final ForeignKey fk =
+          fks.stream().filter(f -> f.sourceColumn().equals("user_id")).findFirst().orElseThrow();
+
+      assertEquals("customer_order_user_id_fkey", fk.name());
       assertEquals("app_user", fk.targetTable());
       assertEquals("id", fk.targetColumn());
     }
 
     @Test
-    void itReturnsForeignKeys_userRole() throws SQLException {
-      final Table userRole = Table.builder().schema("public").name("user_role").build();
-      final List<ForeignKey> fks = queryRunner.getForeignKeyInfo("public", userRole);
+    void itHasForeignKeyToAddress() throws SQLException {
+      final List<ForeignKey> fks = queryRunner.getForeignKeyInfo("public", customerOrder);
 
-      assertEquals(3, fks.size());
-      final List<String> targetTables = fks.stream().map(ForeignKey::targetTable).toList();
-      assertTrue(targetTables.containsAll(List.of("app_user", "role")));
+      final ForeignKey fk =
+          fks.stream()
+              .filter(f -> f.sourceColumn().equals("shipping_address_id"))
+              .findFirst()
+              .orElseThrow();
+
+      assertEquals("customer_order_shipping_address_id_fkey", fk.name());
+      assertEquals("address", fk.targetTable());
+      assertEquals("id", fk.targetColumn());
+    }
+  }
+
+  @Nested
+  class OrderItemForeignKeyTests {
+    private Table orderItem;
+
+    @BeforeEach
+    void setUp() {
+      orderItem = Table.builder().schema("public").name("order_item").build();
     }
 
     @Test
-    void itReturnsForeignKeys_orderItem() throws SQLException {
-      final Table orderItem = Table.builder().schema("public").name("order_item").build();
+    void itHasForeignKeyToCustomerOrder() throws SQLException {
       final List<ForeignKey> fks = queryRunner.getForeignKeyInfo("public", orderItem);
 
-      assertEquals(2, fks.size());
-      final List<String> targetTables = fks.stream().map(ForeignKey::targetTable).toList();
-      assertTrue(targetTables.containsAll(List.of("customer_order", "product")));
+      final ForeignKey fk =
+          fks.stream().filter(f -> f.sourceColumn().equals("order_id")).findFirst().orElseThrow();
+
+      assertEquals("order_item_order_id_fkey", fk.name());
+      assertEquals("customer_order", fk.targetTable());
+      assertEquals("id", fk.targetColumn());
     }
 
     @Test
-    void itReturnsForeignKeys_customerOrder() throws SQLException {
-      final Table order = Table.builder().schema("public").name("customer_order").build();
-      final List<ForeignKey> fks = queryRunner.getForeignKeyInfo("public", order);
+    void itHasForeignKeyToProduct() throws SQLException {
+      final List<ForeignKey> fks = queryRunner.getForeignKeyInfo("public", orderItem);
 
-      assertEquals(2, fks.size());
-      final List<String> targetTables = fks.stream().map(ForeignKey::targetTable).toList();
-      assertTrue(targetTables.containsAll(List.of("app_user", "address")));
+      final ForeignKey fk =
+          fks.stream().filter(f -> f.sourceColumn().equals("product_id")).findFirst().orElseThrow();
+
+      assertEquals("order_item_product_id_fkey", fk.name());
+      assertEquals("product", fk.targetTable());
+      assertEquals("id", fk.targetColumn());
+    }
+  }
+
+  @Nested
+  class PaymentForeignKeyTests {
+    private Table payment;
+
+    @BeforeEach
+    void setUp() {
+      payment = Table.builder().schema("public").name("payment").build();
+    }
+
+    @Test
+    void itHasForeignKeyToCustomerOrder() throws SQLException {
+      final List<ForeignKey> fks = queryRunner.getForeignKeyInfo("public", payment);
+
+      final ForeignKey fk =
+          fks.stream().filter(f -> f.sourceColumn().equals("order_id")).findFirst().orElseThrow();
+
+      assertEquals("payment_order_id_fkey", fk.name());
+      assertEquals("customer_order", fk.targetTable());
+      assertEquals("id", fk.targetColumn());
+    }
+  }
+
+  @Nested
+  class AuditLogForeignKeyTests {
+    private Table auditLog;
+
+    @BeforeEach
+    void setUp() {
+      auditLog = Table.builder().schema("public").name("audit_log").build();
+    }
+
+    @Test
+    void itHasForeignKeyToAppUser() throws SQLException {
+      final List<ForeignKey> fks = queryRunner.getForeignKeyInfo("public", auditLog);
+
+      final ForeignKey fk =
+          fks.stream()
+              .filter(f -> f.sourceColumn().equals("performed_by"))
+              .findFirst()
+              .orElseThrow();
+
+      assertEquals("audit_log_performed_by_fkey", fk.name());
+      assertEquals("app_user", fk.targetTable());
+      assertEquals("id", fk.targetColumn());
+    }
+  }
+
+  @Nested
+  class TagLogForeignKeyTests {
+
+    private Table tagLog;
+
+    @BeforeEach
+    void setUp() {
+      tagLog = Table.builder().schema("public").name("tag_log").build();
+    }
+
+    @Test
+    void itHasNoForeignKeys() throws SQLException {
+      final List<ForeignKey> foreignKeys = queryRunner.getForeignKeyInfo("public", tagLog);
+
+      assertNotNull(foreignKeys);
+      assertTrue(foreignKeys.isEmpty(), "tag_log should not have any foreign keys");
     }
   }
 }
