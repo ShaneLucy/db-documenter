@@ -8,11 +8,13 @@ import db.documenter.internal.models.db.Table;
 public class ForeignKeyLineFormatter implements LineFormatter {
 
   @Override
-  public String format(Table table, Column column, String current) {
-    for (ForeignKey fk : table.foreignKeys()) {
+  public String format(final Table table, final Column column, final String current) {
+
+
+    for (final ForeignKey fk : table.foreignKeys()) {
       if (fk.sourceColumn().equalsIgnoreCase(column.name())) {
-        // Underline the FK column name in PUML
-        String decorated = "__" + current + "__";
+
+        final String decorated = "__" + current + "__";
 
         // Optionally add a tooltip comment
         return decorated + String.format(" '→ %s.%s", fk.targetTable(), fk.targetColumn());

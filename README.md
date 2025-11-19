@@ -1,4 +1,5 @@
 TODOs
+1. Finish formatter tests
 2. Handle primary keys & foreign keys
 2. Convert character varying to varchar
 3. Handle enum types

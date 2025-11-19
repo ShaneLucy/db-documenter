@@ -32,12 +32,12 @@ public class DbDocumenter {
 
   public String generatePuml() {
     final var formatter =
-        new CompositeLineFormatter(
-            List.of(
-                new DefaultLineFormatter(),
-                new PrimaryKeyLineFormatter(),
-                new ForeignKeyLineFormatter(),
-                new NullableLineFormatter()));
+        CompositeLineFormatter.builder()
+            .addFormatter(new DefaultLineFormatter())
+            .addFormatter(new PrimaryKeyLineFormatter())
+            .addFormatter(new ForeignKeyLineFormatter())
+            .addFormatter(new NullableLineFormatter())
+            .build();
     final var entityRenderer = new EntityRenderer(formatter);
     final var relationShipRenderer = new RelationshipRenderer();
     final var schemaRenderer = new SchemaRenderer(entityRenderer, relationShipRenderer);

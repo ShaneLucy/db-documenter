@@ -3,14 +3,17 @@ package db.documenter.internal.formatter.impl;
 import db.documenter.internal.formatter.api.LineFormatter;
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.Table;
+import java.util.ArrayList;
 import java.util.List;
 
-public class CompositeLineFormatter implements LineFormatter {
+public record CompositeLineFormatter(List<LineFormatter> lineFormatters) implements LineFormatter {
 
-  private final List<LineFormatter> lineFormatters;
+  public CompositeLineFormatter {
+    lineFormatters = lineFormatters == null ? List.of() : List.copyOf(lineFormatters);
+  }
 
-  public CompositeLineFormatter(final List<LineFormatter> lineFormatters) {
-    this.lineFormatters = List.copyOf(lineFormatters);
+  public static Builder builder() {
+    return new Builder();
   }
 
   @Override
@@ -20,5 +23,18 @@ public class CompositeLineFormatter implements LineFormatter {
       result = lineFormatter.format(table, column, result);
     }
     return result;
+  }
+
+  public static class Builder {
+    private final List<LineFormatter> lineFormatters = new ArrayList<>();
+
+    public Builder addFormatter(final LineFormatter lineFormatter) {
+      lineFormatters.add(lineFormatter);
+      return this;
+    }
+
+    public CompositeLineFormatter build() {
+      return new CompositeLineFormatter(lineFormatters);
+    }
   }
 }
