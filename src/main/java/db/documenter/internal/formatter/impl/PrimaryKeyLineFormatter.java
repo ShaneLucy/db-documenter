@@ -11,7 +11,7 @@ public class PrimaryKeyLineFormatter implements LineFormatter {
   public String format(Table table, Column column, String current) {
     var pkCols = table.primaryKey() != null ? table.primaryKey().columnNames() : List.<String>of();
     if (pkCols.contains(column.name())) {
-      return "**" + current + "**"; // bold PKs in PUML
+      return "**" + current + "**";
     }
     return current;
   }
