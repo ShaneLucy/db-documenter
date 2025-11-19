@@ -21,9 +21,28 @@ public class QueryRunner {
   private static final Logger LOGGER = Logger.getLogger(QueryRunner.class.getName());
 
   private static final String GET_TABLE_INFO_QUERY =
-      "SELECT table_schema, table_name, table_type FROM information_schema.tables WHERE table_schema = ?;";
+      """
+           SELECT
+             table_schema,
+             table_name,
+             table_type
+           FROM information_schema.tables
+           WHERE table_schema = ?;
+           """;
+
   private static final String GET_COLUMN_INFO_QUERY =
-      "SELECT * FROM information_schema.columns WHERE table_schema = ? AND table_name = ?;";
+      """
+           SELECT
+             column_name,
+             ordinal_position,
+             is_nullable,
+             data_type,
+             character_maximum_length
+           FROM information_schema.columns
+           WHERE table_schema = ?
+             AND table_name = ?;
+           """;
+
   private static final String GET_PRIMARY_KEY_INFO_QUERY =
       """
             SELECT
