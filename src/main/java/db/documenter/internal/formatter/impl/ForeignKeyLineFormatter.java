@@ -10,7 +10,6 @@ public class ForeignKeyLineFormatter implements LineFormatter {
   @Override
   public String format(final Table table, final Column column, final String current) {
 
-
     for (final ForeignKey fk : table.foreignKeys()) {
       if (fk.sourceColumn().equalsIgnoreCase(column.name())) {
 

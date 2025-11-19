@@ -148,8 +148,7 @@ class ForeignKeyLineFormatterTest {
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
       final var column = columnBuilder.build();
       assertThrows(
-          NullPointerException.class,
-          () -> foreignKeyLineFormatter.format(table, column, "v"));
+          NullPointerException.class, () -> foreignKeyLineFormatter.format(table, column, "v"));
     }
 
     @Test
@@ -166,10 +165,9 @@ class ForeignKeyLineFormatterTest {
 
     @Test
     void ifTableIsNullThrowsNullPointerException() {
-        final var column = columnBuilder.build();
+      final var column = columnBuilder.build();
       assertThrows(
-          NullPointerException.class,
-          () -> foreignKeyLineFormatter.format(null, column, "v"));
+          NullPointerException.class, () -> foreignKeyLineFormatter.format(null, column, "v"));
     }
 
     @Test
