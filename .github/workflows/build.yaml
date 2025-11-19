@@ -29,5 +29,5 @@ jobs:
         run: |
           mvn -B clean verify sonar:sonar \
             -Dsonar.projectKey=ShaneLucy_db-documenter \
-            -Dsonar.organization=ShaneLucy \
+            -Dsonar.organization=shanelucy \
             -Dsonar.host.url=https://sonarcloud.io
