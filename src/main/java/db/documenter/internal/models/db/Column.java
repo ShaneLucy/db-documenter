@@ -14,27 +14,27 @@ public record Column(
     private String dataType;
     private int maximumLength;
 
-    public Builder name(String name) {
+    public Builder name(final String name) {
       this.name = name;
       return this;
     }
 
-    public Builder ordinalPosition(int ordinalPosition) {
+    public Builder ordinalPosition(final int ordinalPosition) {
       this.ordinalPosition = ordinalPosition;
       return this;
     }
 
-    public Builder isNullable(boolean isNullable) {
+    public Builder isNullable(final boolean isNullable) {
       this.isNullable = isNullable;
       return this;
     }
 
-    public Builder dataType(String dataType) {
+    public Builder dataType(final String dataType) {
       this.dataType = dataType;
       return this;
     }
 
-    public Builder maximumLength(int maximumLength) {
+    public Builder maximumLength(final int maximumLength) {
       this.maximumLength = maximumLength;
       return this;
     }

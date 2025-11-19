@@ -8,30 +8,33 @@ public class SchemaRenderer implements PumlRenderer<List<Schema>> {
   private final EntityRenderer entityRenderer;
   private final RelationshipRenderer relationshipRenderer;
 
-  public SchemaRenderer(EntityRenderer entityRenderer, RelationshipRenderer relationshipRenderer) {
+  public SchemaRenderer(
+      final EntityRenderer entityRenderer, final RelationshipRenderer relationshipRenderer) {
     this.entityRenderer = entityRenderer;
     this.relationshipRenderer = relationshipRenderer;
   }
 
   @Override
   public String render(final List<Schema> schemas) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("@startuml\n");
-    sb.append("hide methods\nhide stereotypes\n\n");
+    final var stringBuilder = new StringBuilder();
+    stringBuilder.append("@startuml\n");
+    stringBuilder.append("hide methods\nhide stereotypes\n\n");
 
     schemas.forEach(
         schema -> {
-          sb.append(String.format("package \"%s\" {%n", schema.name()));
+          stringBuilder.append(String.format("package \"%s\" {%n", schema.name()));
           // Entities
-          schema.tables().forEach(table -> sb.append(entityRenderer.render(table)).append("\n"));
+          schema
+              .tables()
+              .forEach(table -> stringBuilder.append(entityRenderer.render(table)).append("\n"));
 
-          sb.append("}\n");
+          stringBuilder.append("}\n");
         });
 
     // Relationships
-    schemas.forEach(schema -> sb.append(relationshipRenderer.render(schema.tables())));
+    schemas.forEach(schema -> stringBuilder.append(relationshipRenderer.render(schema.tables())));
 
-    sb.append("@enduml\n");
-    return sb.toString();
+    stringBuilder.append("@enduml\n");
+    return stringBuilder.toString();
   }
 }

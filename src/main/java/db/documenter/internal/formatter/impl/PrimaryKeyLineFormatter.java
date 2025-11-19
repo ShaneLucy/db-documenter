@@ -8,9 +8,10 @@ import java.util.List;
 public class PrimaryKeyLineFormatter implements LineFormatter {
 
   @Override
-  public String format(Table table, Column column, String current) {
-    var pkCols = table.primaryKey() != null ? table.primaryKey().columnNames() : List.<String>of();
-    if (pkCols.contains(column.name())) {
+  public String format(final Table table, final Column column, final String current) {
+    final var primaryKeys =
+        table.primaryKey() != null ? table.primaryKey().columnNames() : List.<String>of();
+    if (primaryKeys.contains(column.name())) {
       return "**" + current + "**";
     }
     return current;

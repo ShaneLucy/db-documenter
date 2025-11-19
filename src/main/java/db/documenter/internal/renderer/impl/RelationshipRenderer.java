@@ -8,12 +8,12 @@ import java.util.List;
 public class RelationshipRenderer implements PumlRenderer<List<Table>> {
 
   @Override
-  public String render(List<Table> tables) {
-    StringBuilder sb = new StringBuilder();
+  public String render(final List<Table> tables) {
+    final var stringBuilder = new StringBuilder();
 
-    for (Table table : tables) {
-      for (ForeignKey fk : table.foreignKeys()) {
-        sb.append(
+    for (final Table table : tables) {
+      for (final ForeignKey fk : table.foreignKeys()) {
+        stringBuilder.append(
             String.format(
                 "%s::%s --> %s::%s : %s%n",
                 fk.sourceTable(),
@@ -23,6 +23,6 @@ public class RelationshipRenderer implements PumlRenderer<List<Table>> {
                 fk.name()));
       }
     }
-    return sb.toString();
+    return stringBuilder.toString();
   }
 }
