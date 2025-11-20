@@ -1,10 +1,12 @@
 package db.documenter;
 
-import static db.documenter.internal.queries.resultsets.ResultSetMapper.*;
-
 import db.documenter.internal.db.api.ConnectionManager;
 import db.documenter.internal.db.impl.PostgresConnectionManager;
-import db.documenter.internal.formatter.impl.*;
+import db.documenter.internal.formatter.impl.CompositeLineFormatter;
+import db.documenter.internal.formatter.impl.DefaultLineFormatter;
+import db.documenter.internal.formatter.impl.ForeignKeyLineFormatter;
+import db.documenter.internal.formatter.impl.NullableLineFormatter;
+import db.documenter.internal.formatter.impl.PrimaryKeyLineFormatter;
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.Schema;
@@ -15,12 +17,10 @@ import db.documenter.internal.queries.resultsets.ResultSetMapper;
 import db.documenter.internal.renderer.impl.EntityRenderer;
 import db.documenter.internal.renderer.impl.RelationshipRenderer;
 import db.documenter.internal.renderer.impl.SchemaRenderer;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.List;
 
+/** Entrypoint to the DbDocumenter application. */
 public class DbDocumenter {
   private final ConnectionManager connectionManager;
   private final DbDocumenterConfig dbDocumenterConfig;
@@ -30,6 +30,11 @@ public class DbDocumenter {
     this.dbDocumenterConfig = dbDocumenterConfig;
   }
 
+  /**
+   * Inspects the provided database schema(s) to generate a puml file.
+   *
+   * @return a formatted {@link String} representation of the database schema.
+   */
   public String generatePuml() {
     final var formatter =
         CompositeLineFormatter.builder()
@@ -44,15 +49,6 @@ public class DbDocumenter {
     final List<Schema> schemas = buildSchemas();
 
     return schemaRenderer.render(schemas);
-  }
-
-  public void writePumlToFile(final String fileName, Charset charset)
-      throws SQLException, IOException {
-    final String puml = generatePuml();
-
-    try (final var writer = new FileOutputStream(fileName)) {
-      writer.write(puml.getBytes(charset));
-    }
   }
 
   private List<Schema> buildSchemas() {

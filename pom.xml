@@ -138,6 +138,7 @@
                 <configuration>
                     <failOnViolation>true</failOnViolation>
                     <configLocation>checkstyle.xml</configLocation>
+                    <excludes>**/module-info.java</excludes>
                 </configuration>
                 <executions>
                     <execution>

@@ -42,6 +42,6 @@ public class PostgresConnectionManager implements ConnectionManager {
   private void setDbProperties() {
     properties.setProperty("user", dbDocumenterConfig.username());
     properties.setProperty("password", dbDocumenterConfig.password());
-    properties.setProperty("ssl", String.valueOf(dbDocumenterConfig.useSSL()));
+    properties.setProperty("ssl", String.valueOf(dbDocumenterConfig.useSsl()));
   }
 }

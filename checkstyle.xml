@@ -19,19 +19,13 @@
 <module name = "Checker">
     <property name="charset" value="UTF-8"/>
 
-    <property name="severity" value="warning"/>
+    <property name="severity" value="error"/>
 
     <property name="fileExtensions" value="java, properties, xml"/>
     <!-- Excludes all 'module-info.java' files              -->
     <!-- See https://checkstyle.org/config_filefilters.html -->
     <module name="BeforeExecutionExclusionFileFilter">
         <property name="fileNamePattern" value="module\-info\.java$"/>
-    </module>
-    <!-- https://checkstyle.org/config_filters.html#SuppressionFilter -->
-    <module name="SuppressionFilter">
-        <property name="file" value="${org.checkstyle.google.suppressionfilter.config}"
-                  default="checkstyle-suppressions.xml" />
-        <property name="optional" value="true"/>
     </module>
 
     <!-- Checks for whitespace                               -->
@@ -364,8 +358,8 @@
         <!-- extending google style -->
 
         <!-- Final checks -->
-        <module name="LocalFinalVariableName"/>
-        <module name="FinalClass"/>
         <module name="FinalParameters"/>
+        <module name="FinalClass"/>
+        <module name="FinalLocalVariable"/>
     </module>
 </module>
