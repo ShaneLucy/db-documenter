@@ -4,6 +4,7 @@ TODOs
 2. Convert character varying to varchar
 3. Handle enum types
 4. Fix issues with relationships
+5. Toggle checkstyle  `<property name="severity" value="warning"/>` back to error
 5. Add legend
 6. Customisation 
    - theme customisation
