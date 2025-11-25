@@ -32,6 +32,10 @@ public abstract class DatabaseTestEnvironment<T extends JdbcDatabaseContainer<T>
     // no op
   }
 
+  public T getContainer() {
+    return this.container;
+  }
+
   protected abstract T createContainer();
 
   protected void initialiseDatabase(final Connection connection, final String sqlResourcePath)

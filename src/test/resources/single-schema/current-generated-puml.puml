@@ -3,112 +3,112 @@ hide methods
 hide stereotypes
 
 package "public" {
-        entity "app_user" as app_user {
-                **id: uuid**
-                username: character varying(50)
-                email: character varying(255)
-                display_name: character varying(100)?
-                birth_date: date?
-                created_at: timestamp with time zone
-                profile: jsonb?
-                is_active: boolean
-        }
+	entity "app_user" as app_user {
+		**id: uuid**
+		username: character varying(50)
+		email: character varying(255)
+		display_name: character varying(100)?
+		birth_date: date?
+		created_at: timestamp with time zone
+		profile: jsonb?
+		is_active: boolean
+	}
 
-        entity "user_role" as user_role {
-                __**user_id: uuid**__ '→ app_user.id
-                __**role_id: smallint**__ '→ role.id
-                assigned_at: timestamp with time zone
-                __assigned_by: uuid__ '→ app_user.id?
-        }
+	entity "user_role" as user_role {
+		__**user_id: uuid**__ '→ app_user.id
+		__**role_id: smallint**__ '→ role.id
+		assigned_at: timestamp with time zone
+		__assigned_by: uuid__ '→ app_user.id?
+	}
 
-        entity "role" as role {
-                **id: smallint**
-                code: character varying(50)
-                description: character varying(255)?
-        }
+	entity "role" as role {
+		**id: smallint**
+		code: character varying(50)
+		description: character varying(255)?
+	}
 
-        entity "address" as address {
-                **id: bigint**
-                __user_id: uuid__ '→ app_user.id
-                line1: character varying(200)
-                line2: character varying(200)?
-                city: character varying(100)
-                state: character varying(100)?
-                postal_code: character varying(20)?
-                country: character(2)
-                created_at: timestamp with time zone
-        }
+	entity "address" as address {
+		**id: bigint**
+		__user_id: uuid__ '→ app_user.id
+		line1: character varying(200)
+		line2: character varying(200)?
+		city: character varying(100)
+		state: character varying(100)?
+		postal_code: character varying(20)?
+		country: character(2)
+		created_at: timestamp with time zone
+	}
 
-        entity "product" as product {
-                **id: bigint**
-                sku: character varying(30)
-                name: character varying(200)
-                description: text?
-                price: numeric
-                attributes: jsonb?
-                created_at: timestamp without time zone
-                stock: integer
-        }
+	entity "product" as product {
+		**id: bigint**
+		sku: character varying(30)
+		name: character varying(200)
+		description: text?
+		price: numeric
+		attributes: jsonb?
+		created_at: timestamp without time zone
+		stock: integer
+	}
 
-        entity "product_category" as product_category {
-                __**product_id: bigint**__ '→ product.id
-                __**category_id: smallint**__ '→ category.id
-                assigned_at: timestamp with time zone
-        }
+	entity "product_category" as product_category {
+		__**product_id: bigint**__ '→ product.id
+		__**category_id: smallint**__ '→ category.id
+		assigned_at: timestamp with time zone
+	}
 
-        entity "category" as category {
-                **id: smallint**
-                slug: character varying(80)
-                title: character varying(120)
-                metadata: jsonb?
-        }
+	entity "category" as category {
+		**id: smallint**
+		slug: character varying(80)
+		title: character varying(120)
+		metadata: jsonb?
+	}
 
-        entity "customer_order" as customer_order {
-                **id: bigint**
-                __user_id: uuid__ '→ app_user.id?
-                order_number: character varying(30)
-                order_date: timestamp with time zone
-                ship_date: timestamp without time zone?
-                __shipping_address_id: bigint__ '→ address.id?
-                status: USER-DEFINED
-                total: numeric
-                metadata: jsonb?
-        }
+	entity "customer_order" as customer_order {
+		**id: bigint**
+		__user_id: uuid__ '→ app_user.id?
+		order_number: character varying(30)
+		order_date: timestamp with time zone
+		ship_date: timestamp without time zone?
+		__shipping_address_id: bigint__ '→ address.id?
+		status: USER-DEFINED
+		total: numeric
+		metadata: jsonb?
+	}
 
-        entity "order_item" as order_item {
-                **id: bigint**
-                __order_id: bigint__ '→ customer_order.id
-                __product_id: bigint__ '→ product.id
-                product_snapshot: jsonb
-                unit_price: numeric
-                quantity: integer
-                line_total: numeric
-        }
+	entity "order_item" as order_item {
+		**id: bigint**
+		__order_id: bigint__ '→ customer_order.id
+		__product_id: bigint__ '→ product.id
+		product_snapshot: jsonb
+		unit_price: numeric
+		quantity: integer
+		line_total: numeric
+	}
 
-        entity "payment" as payment {
-                **id: uuid**
-                __order_id: bigint__ '→ customer_order.id
-                paid_at: timestamp with time zone
-                amount: numeric
-                method: character varying(50)
-                provider_transaction_id: character varying(255)?
-                raw_response: jsonb?
-        }
+	entity "payment" as payment {
+		**id: uuid**
+		__order_id: bigint__ '→ customer_order.id
+		paid_at: timestamp with time zone
+		amount: numeric
+		method: character varying(50)
+		provider_transaction_id: character varying(255)?
+		raw_response: jsonb?
+	}
 
-        entity "audit_log" as audit_log {
-                **id: bigint**
-                entity_type: character varying(100)
-                entity_id: text
-                action: character varying(50)
-                __performed_by: uuid__ '→ app_user.id?
-                performed_at: timestamp with time zone
-                details: jsonb?
-        }
+	entity "audit_log" as audit_log {
+		**id: bigint**
+		entity_type: character varying(100)
+		entity_id: text
+		action: character varying(50)
+		__performed_by: uuid__ '→ app_user.id?
+		performed_at: timestamp with time zone
+		details: jsonb?
+	}
 
-        entity "tag_log" as tag_log {
-                tag_id: character varying(50)
-                logged_at: timestamp with time zone
-        }
+	entity "tag_log" as tag_log {
+		tag_id: character varying(50)
+		logged_at: timestamp with time zone
+	}
 
 }
 user_role::user_id --> app_user::id : user_role_user_id_fkey
