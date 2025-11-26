@@ -1,6 +1,6 @@
 package db.documenter;
 
-import db.documenter.internal.models.db.RdmsTypes;
+import db.documenter.internal.models.db.RdbmsTypes;
 import db.documenter.internal.validation.Validators;
 import java.util.List;
 
@@ -13,7 +13,7 @@ public record DbDocumenterConfig(
     boolean useSsl,
     String username,
     String password,
-    RdmsTypes rdmsType) {
+    RdbmsTypes rdbmsType) {
 
   /**
    * Validates the required configuration fields.
@@ -25,7 +25,7 @@ public record DbDocumenterConfig(
    * @param useSsl If the database connection should use ssl, defaults to TRUE.
    * @param username The username of the user used to connect to the database, must not be blank.
    * @param password The password of the user used to connect to the database, must not be blank.
-   * @param rdmsType The type of database being used, defaults to Postgresql
+   * @param rdbmsType The type of database being used, defaults to Postgresql
    */
   public DbDocumenterConfig {
     Validators.containsAtLeast1Item(schemas, "schemas");
@@ -33,7 +33,7 @@ public record DbDocumenterConfig(
     Validators.isNotBlank(databaseName, "databaseName");
     Validators.isNotBlank(username, "username");
     Validators.isNotBlank(password, "password");
-    Validators.isNotNull(rdmsType, "rdmsType");
+    Validators.isNotNull(rdbmsType, "rdbmsType");
     schemas = List.copyOf(schemas);
   }
 
@@ -51,7 +51,7 @@ public record DbDocumenterConfig(
     private boolean useSsl = true;
     private String username;
     private String password;
-    private RdmsTypes rdmsType = RdmsTypes.POSTGRESQL;
+    private RdbmsTypes rdbmsTypes = RdbmsTypes.POSTGRESQL;
 
     /**
      * Convenience method for supplying a {@link DbDocumenterConfig} object with a list of schema
@@ -134,13 +134,14 @@ public record DbDocumenterConfig(
 
     /**
      * Convenience method for supplying a {@link DbDocumenterConfig} object with a {@link
-     * RdmsTypes}.
+     * RdbmsTypes}.
      *
-     * @param rdmsType The password of the user used to connect to the database, must not be blank.
+     * @param rdbmsTypes The password of the user used to connect to the database, must not be
+     *     blank.
      * @return {@link Builder}
      */
-    public Builder rdmsType(final RdmsTypes rdmsType) {
-      this.rdmsType = rdmsType;
+    public Builder rdbmsTypes(final RdbmsTypes rdbmsTypes) {
+      this.rdbmsTypes = rdbmsTypes;
       return this;
     }
 
@@ -153,7 +154,14 @@ public record DbDocumenterConfig(
     public DbDocumenterConfig build() {
       validate();
       return new DbDocumenterConfig(
-          schemas, databaseHost, databasePort, databaseName, useSsl, username, password, rdmsType);
+          schemas,
+          databaseHost,
+          databasePort,
+          databaseName,
+          useSsl,
+          username,
+          password,
+          rdbmsTypes);
     }
 
     private void validate() {
@@ -162,7 +170,7 @@ public record DbDocumenterConfig(
       Validators.isNotBlank(databaseName, "databaseName");
       Validators.isNotBlank(username, "username");
       Validators.isNotBlank(password, "password");
-      Validators.isNotNull(rdmsType, "rdmsType");
+      Validators.isNotNull(rdbmsTypes, "rdbmsType");
     }
   }
 }

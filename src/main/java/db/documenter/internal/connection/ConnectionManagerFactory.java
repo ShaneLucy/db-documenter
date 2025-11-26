@@ -13,7 +13,7 @@ public final class ConnectionManagerFactory {
   }
 
   public ConnectionManager createConnectionManager() {
-    return switch (dbDocumenterConfig.rdmsType()) {
+    return switch (dbDocumenterConfig.rdbmsType()) {
       case POSTGRESQL -> new PostgresConnectionManager(dbDocumenterConfig);
     };
   }

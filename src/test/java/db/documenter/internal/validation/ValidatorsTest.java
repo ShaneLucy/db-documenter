@@ -48,9 +48,23 @@ class ValidatorsTest {
 
     @Test
     void itThrowsExceptionWhenListIsEmpty() {
+      final var emptyList = Collections.emptyList();
       assertThrows(
-          ValidationException.class,
-          () -> Validators.containsAtLeast1Item(Collections.emptyList(), "test"));
+          ValidationException.class, () -> Validators.containsAtLeast1Item(emptyList, "test"));
+    }
+  }
+
+  @Nested
+  class IsNotNullTests {
+
+    @Test
+    void itDoesNotThrowExceptionWhenValueIsNotNull() {
+      assertDoesNotThrow(() -> Validators.isNotNull(new Object(), "test"));
+    }
+
+    @Test
+    void itThrowsExceptionWhenValueIsNull() {
+      assertThrows(ValidationException.class, () -> Validators.isNotNull(null, "test"));
     }
   }
 }

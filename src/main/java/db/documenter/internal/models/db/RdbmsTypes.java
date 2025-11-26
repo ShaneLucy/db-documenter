@@ -1,5 +1,5 @@
 package db.documenter.internal.models.db;
 
-public enum RdmsTypes {
+public enum RdbmsTypes {
   POSTGRESQL
 }
