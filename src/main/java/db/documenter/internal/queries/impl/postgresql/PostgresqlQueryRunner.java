@@ -24,8 +24,7 @@ public final class PostgresqlQueryRunner implements QueryRunner {
   private static final String GET_TABLE_INFO_QUERY =
       """
            SELECT
-             table_name,
-             table_type
+             table_name
            FROM information_schema.tables
            WHERE table_schema = ?;
            """;

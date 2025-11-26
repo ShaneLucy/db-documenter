@@ -17,11 +17,7 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
   public List<Table> mapToTables(final ResultSet resultSet) throws SQLException {
     final List<Table> tables = new ArrayList<>();
     while (resultSet.next()) {
-      tables.add(
-          Table.builder()
-              .name(resultSet.getString("table_name"))
-              .type(resultSet.getString("table_type"))
-              .build());
+      tables.add(Table.builder().name(resultSet.getString("table_name")).build());
     }
     return tables;
   }

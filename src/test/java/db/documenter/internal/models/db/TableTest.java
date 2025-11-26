@@ -42,7 +42,7 @@ class TableTest {
                 .targetTable("table2")
                 .targetColumn("id")
                 .build());
-    baseTable = Table.builder().name("my_table").type("BASE TABLE").build();
+    baseTable = Table.builder().name("my_table").build();
   }
 
   @Test
@@ -51,7 +51,6 @@ class TableTest {
         Table.combineTableColumnsPrimaryAndForeignKeys(baseTable, columns, primaryKey, foreignKeys);
 
     assertEquals(baseTable.name(), result.name());
-    assertEquals(baseTable.type(), result.type());
 
     // Columns, PK, and FKs are preserved
     assertSame(columns, result.columns());
