@@ -19,7 +19,6 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
     while (resultSet.next()) {
       tables.add(
           Table.builder()
-              .schema(resultSet.getString("table_schema"))
               .name(resultSet.getString("table_name"))
               .type(resultSet.getString("table_type"))
               .build());

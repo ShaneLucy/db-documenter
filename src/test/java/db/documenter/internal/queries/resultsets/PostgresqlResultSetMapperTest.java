@@ -35,13 +35,11 @@ class PostgresqlResultSetMapperTest {
   @Nested
   class MapToTablesTests {
     private String tableNameValue;
-    private String tableSchemaValue;
     private String tableTypeValue;
 
     @BeforeEach
     void setUp() {
       tableNameValue = "some table name";
-      tableSchemaValue = "some schema";
       tableTypeValue = "some table type";
     }
 
@@ -49,7 +47,6 @@ class PostgresqlResultSetMapperTest {
     void itMapsItemInResultSetCorrectly() throws SQLException {
       when(resultSet.next()).thenReturn(true, false);
       when(resultSet.getString("table_name")).thenReturn(tableNameValue);
-      when(resultSet.getString("table_schema")).thenReturn(tableSchemaValue);
       when(resultSet.getString("table_type")).thenReturn(tableTypeValue);
 
       final var result = postgresqlResultSetMapper.mapToTables(resultSet);
@@ -57,7 +54,6 @@ class PostgresqlResultSetMapperTest {
       assertEquals(1, result.size());
 
       assertEquals(tableNameValue, result.getFirst().name());
-      assertEquals(tableSchemaValue, result.getFirst().schema());
       assertEquals(tableTypeValue, result.getFirst().type());
 
       verifyNoMoreInteractions(resultSet);
@@ -66,27 +62,22 @@ class PostgresqlResultSetMapperTest {
     @Test
     void itMapsAllItemsInResultSetCorrectly() throws SQLException {
       final List<String> tableNames = List.of(tableNameValue, "second name value");
-      final List<String> tableSchemas = List.of(tableSchemaValue, "second schema value");
       final List<String> tableTypes = List.of(tableTypeValue, "second type value");
 
       final Iterator<String> namesIt = tableNames.iterator();
-      final Iterator<String> schemasIt = tableSchemas.iterator();
       final Iterator<String> typesIt = tableTypes.iterator();
 
       when(resultSet.next()).thenReturn(true, true, false);
       when(resultSet.getString("table_name")).thenAnswer(invocation -> namesIt.next());
-      when(resultSet.getString("table_schema")).thenAnswer(invocation -> schemasIt.next());
       when(resultSet.getString("table_type")).thenAnswer(invocation -> typesIt.next());
 
       final var result = postgresqlResultSetMapper.mapToTables(resultSet);
 
       assertEquals(2, result.size());
       assertEquals(tableNameValue, result.getFirst().name());
-      assertEquals(tableSchemaValue, result.getFirst().schema());
       assertEquals(tableTypeValue, result.getFirst().type());
 
       assertEquals("second name value", result.get(1).name());
-      assertEquals("second schema value", result.get(1).schema());
       assertEquals("second type value", result.get(1).type());
       verifyNoMoreInteractions(resultSet);
     }

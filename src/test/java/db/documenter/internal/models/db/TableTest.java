@@ -42,7 +42,7 @@ class TableTest {
                 .targetTable("table2")
                 .targetColumn("id")
                 .build());
-    baseTable = Table.builder().schema("public").name("my_table").type("BASE TABLE").build();
+    baseTable = Table.builder().name("my_table").type("BASE TABLE").build();
   }
 
   @Test
@@ -50,7 +50,6 @@ class TableTest {
     final Table result =
         Table.combineTableColumnsPrimaryAndForeignKeys(baseTable, columns, primaryKey, foreignKeys);
 
-    assertEquals(baseTable.schema(), result.schema());
     assertEquals(baseTable.name(), result.name());
     assertEquals(baseTable.type(), result.type());
 

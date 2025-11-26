@@ -79,7 +79,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        appUser = Table.builder().schema("public").name("app_user").build();
+        appUser = Table.builder().name("app_user").build();
       }
 
       @Test
@@ -210,7 +210,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        roleTable = Table.builder().schema("public").name("role").build();
+        roleTable = Table.builder().name("role").build();
       }
 
       @Test
@@ -292,7 +292,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        userRole = Table.builder().schema("public").name("user_role").build();
+        userRole = Table.builder().name("user_role").build();
       }
 
       @Test
@@ -383,7 +383,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        address = Table.builder().schema("public").name("address").build();
+        address = Table.builder().name("address").build();
       }
 
       @Test
@@ -523,7 +523,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        product = Table.builder().schema("public").name("product").build();
+        product = Table.builder().name("product").build();
       }
 
       @Test
@@ -647,7 +647,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        category = Table.builder().schema("public").name("category").build();
+        category = Table.builder().name("category").build();
       }
 
       @Test
@@ -737,7 +737,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        productCategory = Table.builder().schema("public").name("product_category").build();
+        productCategory = Table.builder().name("product_category").build();
       }
 
       @Test
@@ -820,7 +820,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        customerOrder = Table.builder().schema("public").name("customer_order").build();
+        customerOrder = Table.builder().name("customer_order").build();
       }
 
       @Test
@@ -960,7 +960,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        orderItem = Table.builder().schema("public").name("order_item").build();
+        orderItem = Table.builder().name("order_item").build();
       }
 
       @Test
@@ -1082,7 +1082,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        payment = Table.builder().schema("public").name("payment").build();
+        payment = Table.builder().name("payment").build();
       }
 
       @Test
@@ -1204,7 +1204,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        auditLog = Table.builder().schema("public").name("audit_log").build();
+        auditLog = Table.builder().name("audit_log").build();
       }
 
       @Test
@@ -1326,7 +1326,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        tagLog = Table.builder().schema("public").name("tag_log").build();
+        tagLog = Table.builder().name("tag_log").build();
       }
 
       @Test
@@ -1404,7 +1404,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        appUser = Table.builder().schema("public").name("app_user").build();
+        appUser = Table.builder().name("app_user").build();
       }
 
       @Test
@@ -1430,7 +1430,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        role = Table.builder().schema("public").name("role").build();
+        role = Table.builder().name("role").build();
       }
 
       @Test
@@ -1456,7 +1456,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        userRole = Table.builder().schema("public").name("user_role").build();
+        userRole = Table.builder().name("user_role").build();
       }
 
       @Test
@@ -1483,7 +1483,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        address = Table.builder().schema("public").name("address").build();
+        address = Table.builder().name("address").build();
       }
 
       @Test
@@ -1509,7 +1509,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        product = Table.builder().schema("public").name("product").build();
+        product = Table.builder().name("product").build();
       }
 
       @Test
@@ -1535,7 +1535,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        category = Table.builder().schema("public").name("category").build();
+        category = Table.builder().name("category").build();
       }
 
       @Test
@@ -1561,7 +1561,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        productCategory = Table.builder().schema("public").name("product_category").build();
+        productCategory = Table.builder().name("product_category").build();
       }
 
       @Test
@@ -1590,7 +1590,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        customerOrder = Table.builder().schema("public").name("customer_order").build();
+        customerOrder = Table.builder().name("customer_order").build();
       }
 
       @Test
@@ -1618,7 +1618,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        orderItem = Table.builder().schema("public").name("order_item").build();
+        orderItem = Table.builder().name("order_item").build();
       }
 
       @Test
@@ -1644,7 +1644,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        payment = Table.builder().schema("public").name("payment").build();
+        payment = Table.builder().name("payment").build();
       }
 
       @Test
@@ -1670,7 +1670,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        auditLog = Table.builder().schema("public").name("audit_log").build();
+        auditLog = Table.builder().name("audit_log").build();
       }
 
       @Test
@@ -1696,7 +1696,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        tagLog = Table.builder().schema("public").name("tag_log").build();
+        tagLog = Table.builder().name("tag_log").build();
       }
 
       @Test
@@ -1717,7 +1717,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        appUser = Table.builder().schema("public").name("app_user").build();
+        appUser = Table.builder().name("app_user").build();
       }
 
       @Test
@@ -1735,7 +1735,7 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      address = Table.builder().schema("public").name("address").build();
+      address = Table.builder().name("address").build();
     }
 
     @Test
@@ -1758,7 +1758,7 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      product = Table.builder().schema("public").name("product").build();
+      product = Table.builder().name("product").build();
     }
 
     @Test
@@ -1775,7 +1775,7 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      category = Table.builder().schema("public").name("category").build();
+      category = Table.builder().name("category").build();
     }
 
     @Test
@@ -1791,7 +1791,7 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      productCategory = Table.builder().schema("public").name("product_category").build();
+      productCategory = Table.builder().name("product_category").build();
     }
 
     @Test
@@ -1830,7 +1830,7 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      customerOrder = Table.builder().schema("public").name("customer_order").build();
+      customerOrder = Table.builder().name("customer_order").build();
     }
 
     @Test
@@ -1867,7 +1867,7 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      orderItem = Table.builder().schema("public").name("order_item").build();
+      orderItem = Table.builder().name("order_item").build();
     }
 
     @Test
@@ -1901,7 +1901,7 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      payment = Table.builder().schema("public").name("payment").build();
+      payment = Table.builder().name("payment").build();
     }
 
     @Test
@@ -1923,7 +1923,7 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      auditLog = Table.builder().schema("public").name("audit_log").build();
+      auditLog = Table.builder().name("audit_log").build();
     }
 
     @Test
@@ -1949,7 +1949,7 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      tagLog = Table.builder().schema("public").name("tag_log").build();
+      tagLog = Table.builder().name("tag_log").build();
     }
 
     @Test
