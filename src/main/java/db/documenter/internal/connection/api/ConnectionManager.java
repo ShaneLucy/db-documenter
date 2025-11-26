@@ -1,4 +1,4 @@
-package db.documenter.internal.db.api;
+package db.documenter.internal.connection.api;
 
 import java.sql.Connection;
 import java.sql.SQLException;

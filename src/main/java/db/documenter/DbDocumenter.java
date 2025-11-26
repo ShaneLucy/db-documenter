@@ -1,7 +1,7 @@
 package db.documenter;
 
-import db.documenter.internal.db.api.ConnectionManager;
-import db.documenter.internal.db.impl.PostgresConnectionManager;
+import db.documenter.internal.connection.ConnectionManagerFactory;
+import db.documenter.internal.connection.api.ConnectionManager;
 import db.documenter.internal.formatter.impl.CompositeLineFormatter;
 import db.documenter.internal.formatter.impl.DefaultLineFormatter;
 import db.documenter.internal.formatter.impl.ForeignKeyLineFormatter;
@@ -25,7 +25,8 @@ public final class DbDocumenter {
   private final QueryRunnerFactory queryRunnerFactory;
 
   public DbDocumenter(final DbDocumenterConfig dbDocumenterConfig) {
-    this.connectionManager = new PostgresConnectionManager(dbDocumenterConfig);
+    this.connectionManager =
+        new ConnectionManagerFactory(dbDocumenterConfig).createConnectionManager();
     this.queryRunnerFactory = new QueryRunnerFactory(dbDocumenterConfig);
     this.dbDocumenterConfig = dbDocumenterConfig;
   }

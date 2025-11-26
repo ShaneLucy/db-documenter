@@ -1,7 +1,7 @@
-package db.documenter.internal.db.impl;
+package db.documenter.internal.connection.impl.postgresql;
 
 import db.documenter.DbDocumenterConfig;
-import db.documenter.internal.db.api.ConnectionManager;
+import db.documenter.internal.connection.api.ConnectionManager;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -9,7 +9,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PostgresConnectionManager implements ConnectionManager {
+public final class PostgresConnectionManager implements ConnectionManager {
 
   private static final Logger LOGGER = Logger.getLogger(PostgresConnectionManager.class.getName());
   private static final String BASE_CONNECTION_STRING = "jdbc:postgresql://%s:%s/%s";
