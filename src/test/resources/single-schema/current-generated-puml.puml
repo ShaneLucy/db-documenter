@@ -5,6 +5,7 @@ hide stereotypes
 package "public" {
 	entity "app_user" as app_user {
 		**id: uuid**
+		--
 		username: character varying(50)
 		email: character varying(255)
 		display_name: character varying(100)?
@@ -17,18 +18,21 @@ package "public" {
 	entity "user_role" as user_role {
 		__**user_id: uuid**__ '→ app_user.id
 		__**role_id: smallint**__ '→ role.id
+		--
 		assigned_at: timestamp with time zone
 		__assigned_by: uuid__ '→ app_user.id?
 	}
 
 	entity "role" as role {
 		**id: smallint**
+		--
 		code: character varying(50)
 		description: character varying(255)?
 	}
 
 	entity "address" as address {
 		**id: bigint**
+		--
 		__user_id: uuid__ '→ app_user.id
 		line1: character varying(200)
 		line2: character varying(200)?
@@ -41,6 +45,7 @@ package "public" {
 
 	entity "product" as product {
 		**id: bigint**
+		--
 		sku: character varying(30)
 		name: character varying(200)
 		description: text?
@@ -53,11 +58,13 @@ package "public" {
 	entity "product_category" as product_category {
 		__**product_id: bigint**__ '→ product.id
 		__**category_id: smallint**__ '→ category.id
+		--
 		assigned_at: timestamp with time zone
 	}
 
 	entity "category" as category {
 		**id: smallint**
+		--
 		slug: character varying(80)
 		title: character varying(120)
 		metadata: jsonb?
@@ -65,6 +72,7 @@ package "public" {
 
 	entity "customer_order" as customer_order {
 		**id: bigint**
+		--
 		__user_id: uuid__ '→ app_user.id?
 		order_number: character varying(30)
 		order_date: timestamp with time zone
@@ -77,6 +85,7 @@ package "public" {
 
 	entity "order_item" as order_item {
 		**id: bigint**
+		--
 		__order_id: bigint__ '→ customer_order.id
 		__product_id: bigint__ '→ product.id
 		product_snapshot: jsonb
@@ -87,6 +96,7 @@ package "public" {
 
 	entity "payment" as payment {
 		**id: uuid**
+		--
 		__order_id: bigint__ '→ customer_order.id
 		paid_at: timestamp with time zone
 		amount: numeric
@@ -97,6 +107,7 @@ package "public" {
 
 	entity "audit_log" as audit_log {
 		**id: bigint**
+		--
 		entity_type: character varying(100)
 		entity_id: text
 		action: character varying(50)
@@ -111,6 +122,7 @@ package "public" {
 	}
 
 }
+
 user_role::user_id --> app_user::id : user_role_user_id_fkey
 user_role::role_id --> role::id : user_role_role_id_fkey
 user_role::assigned_by --> app_user::id : user_role_assigned_by_fkey

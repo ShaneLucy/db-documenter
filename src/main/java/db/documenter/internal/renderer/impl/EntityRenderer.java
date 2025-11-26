@@ -1,8 +1,10 @@
 package db.documenter.internal.renderer.impl;
 
 import db.documenter.internal.formatter.api.LineFormatter;
+import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.Table;
 import db.documenter.internal.renderer.api.PumlRenderer;
+import java.util.List;
 
 public class EntityRenderer implements PumlRenderer<Table> {
 
@@ -17,13 +19,34 @@ public class EntityRenderer implements PumlRenderer<Table> {
     final var stringBuilder = new StringBuilder();
     stringBuilder.append(String.format("\tentity \"%s\" as %s {%n", table.name(), table.name()));
 
-    table
-        .columns()
-        .forEach(
-            column -> {
-              final var formattedLine = lineFormatter.format(table, column, null);
-              stringBuilder.append("\t\t").append(formattedLine).append("\n");
-            });
+    final List<String> primaryKeyNames =
+        table.primaryKey() != null && table.primaryKey().columnNames() != null
+            ? table.primaryKey().columnNames()
+            : List.of();
+
+    final List<Column> primaryKeyColumns =
+        table.columns().stream().filter(column -> primaryKeyNames.contains(column.name())).toList();
+
+    final List<Column> nonPrimaryKeyColumns =
+        table.columns().stream()
+            .filter(column -> !primaryKeyNames.contains(column.name()))
+            .toList();
+
+    primaryKeyColumns.forEach(
+        column -> {
+          final var formattedLine = lineFormatter.format(table, column, null);
+          stringBuilder.append("\t\t").append(formattedLine).append("\n");
+        });
+
+    if (!primaryKeyColumns.isEmpty() && !nonPrimaryKeyColumns.isEmpty()) {
+      stringBuilder.append("\t\t--\n");
+    }
+
+    nonPrimaryKeyColumns.forEach(
+        column -> {
+          final var formattedLine = lineFormatter.format(table, column, null);
+          stringBuilder.append("\t\t").append(formattedLine).append("\n");
+        });
 
     stringBuilder.append("\t}\n");
     return stringBuilder.toString();
