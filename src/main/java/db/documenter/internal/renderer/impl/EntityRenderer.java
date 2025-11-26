@@ -6,7 +6,7 @@ import db.documenter.internal.models.db.Table;
 import db.documenter.internal.renderer.api.PumlRenderer;
 import java.util.List;
 
-public class EntityRenderer implements PumlRenderer<Table> {
+public final class EntityRenderer implements PumlRenderer<Table> {
 
   private final LineFormatter lineFormatter;
 

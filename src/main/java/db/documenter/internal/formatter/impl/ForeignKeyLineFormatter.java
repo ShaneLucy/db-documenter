@@ -5,7 +5,7 @@ import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.Table;
 
-public class ForeignKeyLineFormatter implements LineFormatter {
+public final class ForeignKeyLineFormatter implements LineFormatter {
 
   @Override
   public String format(final Table table, final Column column, final String current) {

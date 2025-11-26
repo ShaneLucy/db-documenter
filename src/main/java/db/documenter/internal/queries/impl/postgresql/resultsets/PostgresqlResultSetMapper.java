@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class PostgresqlResultSetMapper implements ResultSetMapper {
+public final class PostgresqlResultSetMapper implements ResultSetMapper {
 
   @Override
   public List<Table> mapToTables(final ResultSet resultSet) throws SQLException {

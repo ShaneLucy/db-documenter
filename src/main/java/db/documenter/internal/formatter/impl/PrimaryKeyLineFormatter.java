@@ -5,7 +5,7 @@ import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.Table;
 import java.util.List;
 
-public class PrimaryKeyLineFormatter implements LineFormatter {
+public final class PrimaryKeyLineFormatter implements LineFormatter {
 
   @Override
   public String format(final Table table, final Column column, final String current) {

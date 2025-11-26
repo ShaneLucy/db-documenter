@@ -5,7 +5,7 @@ import db.documenter.internal.queries.api.PreparedStatementMapper;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class PostgresqlPreparedStatementMapper implements PreparedStatementMapper {
+public final class PostgresqlPreparedStatementMapper implements PreparedStatementMapper {
 
   @Override
   public void prepareTableInfoStatement(

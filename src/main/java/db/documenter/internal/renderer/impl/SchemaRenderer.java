@@ -4,7 +4,7 @@ import db.documenter.internal.models.db.Schema;
 import db.documenter.internal.renderer.api.PumlRenderer;
 import java.util.List;
 
-public class SchemaRenderer implements PumlRenderer<List<Schema>> {
+public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
   private final EntityRenderer entityRenderer;
   private final RelationshipRenderer relationshipRenderer;
 

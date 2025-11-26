@@ -8,7 +8,7 @@ import db.documenter.internal.models.db.Table;
  * A {@link LineFormatter} implementation which creates the basic structure of a line in a puml
  * file.
  */
-public class DefaultLineFormatter implements LineFormatter {
+public final class DefaultLineFormatter implements LineFormatter {
 
   /**
    * Formats a default line in a puml file. When current is null this will return a formatted string

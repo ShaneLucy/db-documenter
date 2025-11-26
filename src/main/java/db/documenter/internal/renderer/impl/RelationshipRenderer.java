@@ -5,7 +5,7 @@ import db.documenter.internal.models.db.Table;
 import db.documenter.internal.renderer.api.PumlRenderer;
 import java.util.List;
 
-public class RelationshipRenderer implements PumlRenderer<List<Table>> {
+public final class RelationshipRenderer implements PumlRenderer<List<Table>> {
 
   @Override
   public String render(final List<Table> tables) {
