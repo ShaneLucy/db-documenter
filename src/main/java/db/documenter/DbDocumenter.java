@@ -7,16 +7,15 @@ import db.documenter.internal.formatter.impl.DefaultLineFormatter;
 import db.documenter.internal.formatter.impl.ForeignKeyLineFormatter;
 import db.documenter.internal.formatter.impl.NullableLineFormatter;
 import db.documenter.internal.formatter.impl.PrimaryKeyLineFormatter;
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.Schema;
-import db.documenter.internal.models.db.Table;
+import db.documenter.internal.models.db.*;
 import db.documenter.internal.queries.QueryRunnerFactory;
 import db.documenter.internal.renderer.impl.EntityRenderer;
+import db.documenter.internal.renderer.impl.EnumRenderer;
 import db.documenter.internal.renderer.impl.RelationshipRenderer;
 import db.documenter.internal.renderer.impl.SchemaRenderer;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 /** Entrypoint to the DbDocumenter application. */
 public final class DbDocumenter {
@@ -46,7 +45,9 @@ public final class DbDocumenter {
             .build();
     final var entityRenderer = new EntityRenderer(formatter);
     final var relationShipRenderer = new RelationshipRenderer();
-    final var schemaRenderer = new SchemaRenderer(entityRenderer, relationShipRenderer);
+    final var enumRenderer = new EnumRenderer();
+    final var schemaRenderer =
+        new SchemaRenderer(entityRenderer, relationShipRenderer, enumRenderer);
     final List<Schema> schemas = buildSchemas();
 
     return schemaRenderer.render(schemas);
@@ -57,7 +58,12 @@ public final class DbDocumenter {
         .map(
             schema -> {
               try {
-                return Schema.builder().name(schema).tables(buildTables(schema)).build();
+                final List<DbEnum> dbEnums = buildDbEnums(schema);
+                return Schema.builder()
+                    .name(schema)
+                    .tables(buildTables(schema, dbEnums))
+                    .dbEnums(dbEnums)
+                    .build();
               } catch (SQLException e) {
                 throw new RuntimeException(e);
               }
@@ -65,7 +71,8 @@ public final class DbDocumenter {
         .toList();
   }
 
-  private List<Table> buildTables(final String schema) throws SQLException {
+  private List<Table> buildTables(final String schema, final List<DbEnum> dbEnums)
+      throws SQLException {
     try (final var connection = connectionManager.getConnection()) {
       final var queryRunner = queryRunnerFactory.createQueryRunner(connection);
       final var tables = queryRunner.getTableInfo(schema);
@@ -74,7 +81,17 @@ public final class DbDocumenter {
           .map(
               table -> {
                 try {
-                  final List<Column> columns = queryRunner.getColumnInfo(schema, table);
+                  final List<Column> columns =
+                      queryRunner.getColumnInfo(schema, table).stream()
+                          .map(
+                              column -> {
+                                if (!Objects.equals(column.dataType(), "USER-DEFINED")) {
+                                  return column;
+                                }
+
+                                return Column.mapUserDefinedToEnumType(column, dbEnums);
+                              })
+                          .toList();
 
                   final var primaryKey = queryRunner.getPrimaryKeyInfo(schema, table);
 
@@ -82,6 +99,29 @@ public final class DbDocumenter {
 
                   return Table.combineTableColumnsPrimaryAndForeignKeys(
                       table, columns, primaryKey, foreignKeys);
+                } catch (SQLException e) {
+                  throw new RuntimeException(e);
+                }
+              })
+          .toList();
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private List<DbEnum> buildDbEnums(final String schema) throws SQLException {
+    try (final var connection = connectionManager.getConnection()) {
+      final var queryRunner = queryRunnerFactory.createQueryRunner(connection);
+
+      final List<DbEnum> dbEnums = queryRunner.getEnumInfo(schema);
+
+      return dbEnums.stream()
+          .map(
+              dbEnum -> {
+                try {
+                  final List<String> dbEnumValues = queryRunner.getEnumValues(schema, dbEnum);
+                  return DbEnum.combineDbEnumValuesAndInfo(dbEnum, dbEnumValues);
                 } catch (SQLException e) {
                   throw new RuntimeException(e);
                 }

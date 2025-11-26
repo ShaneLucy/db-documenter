@@ -1,9 +1,6 @@
 package db.documenter.internal.queries.impl.postgresql.resultsets;
 
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.PrimaryKey;
-import db.documenter.internal.models.db.Table;
+import db.documenter.internal.models.db.*;
 import db.documenter.internal.queries.api.ResultSetMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -73,5 +70,31 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
     }
 
     return foreignKeys;
+  }
+
+  @Override
+  public List<DbEnum> mapToDbEnumInfo(final ResultSet resultSet) throws SQLException {
+    final List<DbEnum> dbEnums = new ArrayList<>();
+
+    while (resultSet.next()) {
+      dbEnums.add(
+          DbEnum.builder()
+              .columnName(resultSet.getString("column_name"))
+              .enumName(resultSet.getString("udt_name"))
+              .build());
+    }
+
+    return dbEnums;
+  }
+
+  @Override
+  public List<String> mapToDbEnumValues(final ResultSet resultSet) throws SQLException {
+    final List<String> dbEnumValues = new ArrayList<>();
+
+    while (resultSet.next()) {
+      dbEnumValues.add(resultSet.getString("enumlabel"));
+    }
+
+    return dbEnumValues;
   }
 }

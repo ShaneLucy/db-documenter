@@ -1,5 +1,8 @@
 package db.documenter.internal.models.db;
 
+import java.util.List;
+
+// TODO remove ordinal position
 public record Column(
     String name, int ordinalPosition, boolean isNullable, String dataType, int maximumLength) {
 
@@ -42,5 +45,22 @@ public record Column(
     public Column build() {
       return new Column(name, ordinalPosition, isNullable, dataType, maximumLength);
     }
+  }
+
+  public static Column mapUserDefinedToEnumType(final Column column, final List<DbEnum> dbEnums) {
+    final var dataType =
+        dbEnums.stream()
+            .filter(dbEnum -> dbEnum.columnName().equals(column.name))
+            .findFirst()
+            .map(DbEnum::enumName)
+            .orElse(column.dataType());
+
+    return Column.builder()
+        .name(column.name())
+        .ordinalPosition(column.ordinalPosition())
+        .isNullable(column.isNullable())
+        .dataType(dataType)
+        .maximumLength(column.maximumLength())
+        .build();
   }
 }

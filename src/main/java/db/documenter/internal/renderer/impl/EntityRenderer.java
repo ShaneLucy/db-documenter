@@ -17,7 +17,7 @@ public final class EntityRenderer implements PumlRenderer<Table> {
   @Override
   public String render(final Table table) {
     final var stringBuilder = new StringBuilder();
-    stringBuilder.append(String.format("\tentity \"%s\" as %s {%n", table.name(), table.name()));
+    stringBuilder.append(String.format("\tentity \"%s\" {%n", table.name()));
 
     final List<String> primaryKeyNames =
         table.primaryKey() != null && table.primaryKey().columnNames() != null

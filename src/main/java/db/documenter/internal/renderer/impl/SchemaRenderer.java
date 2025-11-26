@@ -7,11 +7,15 @@ import java.util.List;
 public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
   private final EntityRenderer entityRenderer;
   private final RelationshipRenderer relationshipRenderer;
+  private final EnumRenderer enumRenderer;
 
   public SchemaRenderer(
-      final EntityRenderer entityRenderer, final RelationshipRenderer relationshipRenderer) {
+      final EntityRenderer entityRenderer,
+      final RelationshipRenderer relationshipRenderer,
+      final EnumRenderer enumRenderer) {
     this.entityRenderer = entityRenderer;
     this.relationshipRenderer = relationshipRenderer;
+    this.enumRenderer = enumRenderer;
   }
 
   @Override
@@ -23,7 +27,11 @@ public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
     schemas.forEach(
         schema -> {
           stringBuilder.append(String.format("package \"%s\" {%n", schema.name()));
-          // Entities
+
+          schema
+              .dbEnums()
+              .forEach(dbEnum -> stringBuilder.append(enumRenderer.render(dbEnum)).append("\n"));
+
           schema
               .tables()
               .forEach(table -> stringBuilder.append(entityRenderer.render(table)).append("\n"));
@@ -32,7 +40,7 @@ public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
         });
 
     stringBuilder.append("\n");
-    // Relationships
+
     schemas.forEach(schema -> stringBuilder.append(relationshipRenderer.render(schema.tables())));
 
     stringBuilder.append("@enduml\n");

@@ -1,9 +1,6 @@
 package db.documenter.internal.queries.impl.postgresql;
 
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.PrimaryKey;
-import db.documenter.internal.models.db.Table;
+import db.documenter.internal.models.db.*;
 import db.documenter.internal.queries.api.PreparedStatementMapper;
 import db.documenter.internal.queries.api.QueryRunner;
 import db.documenter.internal.queries.api.ResultSetMapper;
@@ -75,6 +72,28 @@ public final class PostgresqlQueryRunner implements QueryRunner {
             WHERE tc.constraint_type = 'FOREIGN KEY'
               AND tc.table_schema = ? AND tc.table_name = ?;
             """;
+
+  private static final String GET_ENUMS_QUERY =
+      """
+          SELECT
+            column_name,
+            udt_name
+          FROM information_schema.columns
+          WHERE table_schema = ?
+          AND data_type = 'USER-DEFINED';
+          """;
+
+  private static final String GET_ENUM_FIELDS_QUERY =
+      """
+          SELECT
+              e.enumlabel
+          FROM pg_type t
+          JOIN pg_enum e ON t.oid = e.enumtypid
+          JOIN pg_namespace n ON n.oid = t.typnamespace
+          WHERE n.nspname = ?
+            AND t.typname = ?
+          ORDER BY e.enumsortorder;
+          """;
 
   public PostgresqlQueryRunner(
       final PreparedStatementMapper postgresqlPreparedStatementMapper,
@@ -156,6 +175,49 @@ public final class PostgresqlQueryRunner implements QueryRunner {
             new Object[] {foreignKeys.size(), table.name(), schema});
       }
       return foreignKeys;
+    }
+  }
+
+  @Override
+  public List<DbEnum> getEnumInfo(final String schema) throws SQLException {
+    try (final var preparedStatement =
+        connectionHolder.connection().prepareStatement(GET_ENUMS_QUERY)) {
+      postgresqlPreparedStatementMapper.prepareEnumInfoStatement(preparedStatement, schema);
+
+      final var resultSet = preparedStatement.executeQuery();
+
+      final List<DbEnum> dbEnums = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
+
+      if (LOGGER.isLoggable(Level.INFO)) {
+        LOGGER.log(
+            Level.INFO,
+            "Discovered: {0} enums in schema: {1}",
+            new Object[] {dbEnums.size(), schema});
+      }
+
+      return dbEnums;
+    }
+  }
+
+  @Override
+  public List<String> getEnumValues(final String schema, final DbEnum dbEnum) throws SQLException {
+    try (final var preparedStatement =
+        connectionHolder.connection().prepareStatement(GET_ENUM_FIELDS_QUERY)) {
+      postgresqlPreparedStatementMapper.prepareEnumValuesStatement(
+          preparedStatement, schema, dbEnum.enumName());
+
+      final var resultSet = preparedStatement.executeQuery();
+
+      final List<String> dbEnumValues = postgresqlResultSetMapper.mapToDbEnumValues(resultSet);
+
+      if (LOGGER.isLoggable(Level.INFO)) {
+        LOGGER.log(
+            Level.INFO,
+            "Discovered: {0} values for enum {1} in schema: {2}",
+            new Object[] {dbEnumValues.size(), dbEnum.enumName(), schema});
+      }
+
+      return dbEnumValues;
     }
   }
 

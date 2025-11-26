@@ -1,6 +1,7 @@
 package db.documenter.internal.queries.api;
 
 import db.documenter.internal.models.db.Column;
+import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
@@ -16,4 +17,8 @@ public interface QueryRunner {
   PrimaryKey getPrimaryKeyInfo(String schema, Table table) throws SQLException;
 
   List<ForeignKey> getForeignKeyInfo(String schema, Table table) throws SQLException;
+
+  List<DbEnum> getEnumInfo(String schema) throws SQLException;
+
+  List<String> getEnumValues(String schema, DbEnum dbEnums) throws SQLException;
 }

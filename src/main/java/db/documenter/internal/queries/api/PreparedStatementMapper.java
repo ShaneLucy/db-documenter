@@ -17,4 +17,10 @@ public interface PreparedStatementMapper {
 
   void prepareForeignKeyInfoStatement(
       PreparedStatement preparedStatement, String schema, Table table) throws SQLException;
+
+  void prepareEnumInfoStatement(PreparedStatement preparedStatement, String schema)
+      throws SQLException;
+
+  void prepareEnumValuesStatement(
+      PreparedStatement preparedStatement, String schema, String enumName) throws SQLException;
 }

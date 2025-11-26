@@ -3,7 +3,15 @@ hide methods
 hide stereotypes
 
 package "public" {
-	entity "app_user" as app_user {
+	entity "order_status" <<enum>> {
+		pending
+		paid
+		shipped
+		cancelled
+		refunded
+	}
+
+	entity "app_user" {
 		**id: uuid**
 		--
 		username: character varying(50)
@@ -15,7 +23,7 @@ package "public" {
 		is_active: boolean
 	}
 
-	entity "user_role" as user_role {
+	entity "user_role" {
 		__**user_id: uuid**__ '→ app_user.id
 		__**role_id: smallint**__ '→ role.id
 		--
@@ -23,14 +31,14 @@ package "public" {
 		__assigned_by: uuid__ '→ app_user.id?
 	}
 
-	entity "role" as role {
+	entity "role" {
 		**id: smallint**
 		--
 		code: character varying(50)
 		description: character varying(255)?
 	}
 
-	entity "address" as address {
+	entity "address" {
 		**id: bigint**
 		--
 		__user_id: uuid__ '→ app_user.id
@@ -43,7 +51,7 @@ package "public" {
 		created_at: timestamp with time zone
 	}
 
-	entity "product" as product {
+	entity "product" {
 		**id: bigint**
 		--
 		sku: character varying(30)
@@ -55,14 +63,14 @@ package "public" {
 		stock: integer
 	}
 
-	entity "product_category" as product_category {
+	entity "product_category" {
 		__**product_id: bigint**__ '→ product.id
 		__**category_id: smallint**__ '→ category.id
 		--
 		assigned_at: timestamp with time zone
 	}
 
-	entity "category" as category {
+	entity "category" {
 		**id: smallint**
 		--
 		slug: character varying(80)
@@ -70,7 +78,7 @@ package "public" {
 		metadata: jsonb?
 	}
 
-	entity "customer_order" as customer_order {
+	entity "customer_order" {
 		**id: bigint**
 		--
 		__user_id: uuid__ '→ app_user.id?
@@ -78,12 +86,12 @@ package "public" {
 		order_date: timestamp with time zone
 		ship_date: timestamp without time zone?
 		__shipping_address_id: bigint__ '→ address.id?
-		status: USER-DEFINED
+		status: order_status
 		total: numeric
 		metadata: jsonb?
 	}
 
-	entity "order_item" as order_item {
+	entity "order_item" {
 		**id: bigint**
 		--
 		__order_id: bigint__ '→ customer_order.id
@@ -94,7 +102,7 @@ package "public" {
 		line_total: numeric
 	}
 
-	entity "payment" as payment {
+	entity "payment" {
 		**id: uuid**
 		--
 		__order_id: bigint__ '→ customer_order.id
@@ -105,7 +113,7 @@ package "public" {
 		raw_response: jsonb?
 	}
 
-	entity "audit_log" as audit_log {
+	entity "audit_log" {
 		**id: bigint**
 		--
 		entity_type: character varying(100)
@@ -116,7 +124,7 @@ package "public" {
 		details: jsonb?
 	}
 
-	entity "tag_log" as tag_log {
+	entity "tag_log" {
 		tag_id: character varying(50)
 		logged_at: timestamp with time zone
 	}
