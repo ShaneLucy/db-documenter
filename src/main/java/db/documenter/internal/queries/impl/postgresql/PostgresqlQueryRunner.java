@@ -1,24 +1,25 @@
-package db.documenter.internal.queries;
+package db.documenter.internal.queries.impl.postgresql;
 
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
-import db.documenter.internal.queries.preparedstatements.PreparedStatementMapper;
-import db.documenter.internal.queries.resultsets.ResultSetMapper;
+import db.documenter.internal.queries.api.PreparedStatementMapper;
+import db.documenter.internal.queries.api.QueryRunner;
+import db.documenter.internal.queries.api.ResultSetMapper;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class QueryRunner {
+public final class PostgresqlQueryRunner implements QueryRunner {
 
-  private final PreparedStatementMapper preparedStatementMapper;
-  private final ResultSetMapper resultSetMapper;
+  private final PreparedStatementMapper postgresqlPreparedStatementMapper;
+  private final ResultSetMapper postgresqlResultSetMapper;
   private final ConnectionHolder connectionHolder;
 
-  private static final Logger LOGGER = Logger.getLogger(QueryRunner.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(PostgresqlQueryRunner.class.getName());
 
   private static final String GET_TABLE_INFO_QUERY =
       """
@@ -77,22 +78,23 @@ public class QueryRunner {
               AND tc.table_schema = ? AND tc.table_name = ?;
             """;
 
-  public QueryRunner(
-      final PreparedStatementMapper preparedStatementMapper,
-      final ResultSetMapper resultSetMapper,
+  public PostgresqlQueryRunner(
+      final PreparedStatementMapper postgresqlPreparedStatementMapper,
+      final ResultSetMapper postgresqlResultSetMapper,
       final Connection connection) {
-    this.preparedStatementMapper = preparedStatementMapper;
-    this.resultSetMapper = resultSetMapper;
+    this.postgresqlPreparedStatementMapper = postgresqlPreparedStatementMapper;
+    this.postgresqlResultSetMapper = postgresqlResultSetMapper;
     this.connectionHolder = new ConnectionHolder(connection);
   }
 
+  @Override
   public List<Table> getTableInfo(final String schema) throws SQLException {
     try (final var preparedStatement =
         connectionHolder.connection().prepareStatement(GET_TABLE_INFO_QUERY)) {
-      preparedStatementMapper.prepareTableInfoStatement(preparedStatement, schema);
+      postgresqlPreparedStatementMapper.prepareTableInfoStatement(preparedStatement, schema);
 
       final var resultSet = preparedStatement.executeQuery();
-      final List<Table> tables = resultSetMapper.mapToTables(resultSet);
+      final List<Table> tables = postgresqlResultSetMapper.mapToTables(resultSet);
 
       if (LOGGER.isLoggable(Level.INFO)) {
         LOGGER.log(
@@ -104,13 +106,15 @@ public class QueryRunner {
     }
   }
 
+  @Override
   public List<Column> getColumnInfo(final String schema, final Table table) throws SQLException {
     try (final var preparedStatement =
         connectionHolder.connection().prepareStatement(GET_COLUMN_INFO_QUERY)) {
-      preparedStatementMapper.prepareColumnInfoStatement(preparedStatement, schema, table.name());
+      postgresqlPreparedStatementMapper.prepareColumnInfoStatement(
+          preparedStatement, schema, table.name());
 
       final var resultSet = preparedStatement.executeQuery();
-      final List<Column> columns = resultSetMapper.mapToColumns(resultSet);
+      final List<Column> columns = postgresqlResultSetMapper.mapToColumns(resultSet);
 
       if (LOGGER.isLoggable(Level.INFO)) {
         LOGGER.log(
@@ -122,26 +126,30 @@ public class QueryRunner {
     }
   }
 
+  @Override
   public PrimaryKey getPrimaryKeyInfo(final String schema, final Table table) throws SQLException {
     try (final var preparedStatement =
         connectionHolder.connection().prepareStatement(GET_PRIMARY_KEY_INFO_QUERY)) {
-      preparedStatementMapper.preparePrimaryKeyInfoStatement(preparedStatement, schema, table);
+      postgresqlPreparedStatementMapper.preparePrimaryKeyInfoStatement(
+          preparedStatement, schema, table);
 
       final var resultSet = preparedStatement.executeQuery();
 
-      return resultSetMapper.mapToPrimaryKey(resultSet);
+      return postgresqlResultSetMapper.mapToPrimaryKey(resultSet);
     }
   }
 
+  @Override
   public List<ForeignKey> getForeignKeyInfo(final String schema, final Table table)
       throws SQLException {
     try (final var preparedStatement =
         connectionHolder.connection().prepareStatement(GET_FOREIGN_KEY_INFO)) {
-      preparedStatementMapper.prepareForeignKeyInfoStatement(preparedStatement, schema, table);
+      postgresqlPreparedStatementMapper.prepareForeignKeyInfoStatement(
+          preparedStatement, schema, table);
 
       final var resultSet = preparedStatement.executeQuery();
 
-      final List<ForeignKey> foreignKeys = resultSetMapper.mapToForeignKeys(resultSet);
+      final List<ForeignKey> foreignKeys = postgresqlResultSetMapper.mapToForeignKeys(resultSet);
 
       if (LOGGER.isLoggable(Level.INFO)) {
         LOGGER.log(

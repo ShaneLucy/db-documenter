@@ -1,17 +1,19 @@
-package db.documenter.internal.queries.resultsets;
+package db.documenter.internal.queries.impl.postgresql.resultsets;
 
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
+import db.documenter.internal.queries.api.ResultSetMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ResultSetMapper {
+public class PostgresqlResultSetMapper implements ResultSetMapper {
 
+  @Override
   public List<Table> mapToTables(final ResultSet resultSet) throws SQLException {
     final List<Table> tables = new ArrayList<>();
     while (resultSet.next()) {
@@ -25,6 +27,7 @@ public class ResultSetMapper {
     return tables;
   }
 
+  @Override
   public List<Column> mapToColumns(final ResultSet resultSet) throws SQLException {
     final List<Column> columns = new ArrayList<>();
     while (resultSet.next()) {
@@ -40,6 +43,7 @@ public class ResultSetMapper {
     return columns;
   }
 
+  @Override
   public PrimaryKey mapToPrimaryKey(final ResultSet resultSet) throws SQLException {
     if (!resultSet.next()) {
       return null;
@@ -58,6 +62,7 @@ public class ResultSetMapper {
     return primaryKeyBuilder.columnNames(columnNames).build();
   }
 
+  @Override
   public List<ForeignKey> mapToForeignKeys(final ResultSet resultSet) throws SQLException {
     final List<ForeignKey> foreignKeys = new ArrayList<>();
 

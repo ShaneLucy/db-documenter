@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.PrimaryKey;
+import db.documenter.internal.queries.impl.postgresql.resultsets.PostgresqlResultSetMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -19,16 +20,16 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class ResultSetMapperTest {
+class PostgresqlResultSetMapperTest {
 
   @Mock private ResultSet resultSet;
 
-  private ResultSetMapper resultSetMapper;
+  private PostgresqlResultSetMapper postgresqlResultSetMapper;
 
   @BeforeEach
   void setUp() {
     Mockito.reset(resultSet);
-    resultSetMapper = new ResultSetMapper();
+    postgresqlResultSetMapper = new PostgresqlResultSetMapper();
   }
 
   @Nested
@@ -51,7 +52,7 @@ class ResultSetMapperTest {
       when(resultSet.getString("table_schema")).thenReturn(tableSchemaValue);
       when(resultSet.getString("table_type")).thenReturn(tableTypeValue);
 
-      final var result = resultSetMapper.mapToTables(resultSet);
+      final var result = postgresqlResultSetMapper.mapToTables(resultSet);
 
       assertEquals(1, result.size());
 
@@ -77,7 +78,7 @@ class ResultSetMapperTest {
       when(resultSet.getString("table_schema")).thenAnswer(invocation -> schemasIt.next());
       when(resultSet.getString("table_type")).thenAnswer(invocation -> typesIt.next());
 
-      final var result = resultSetMapper.mapToTables(resultSet);
+      final var result = postgresqlResultSetMapper.mapToTables(resultSet);
 
       assertEquals(2, result.size());
       assertEquals(tableNameValue, result.getFirst().name());
@@ -94,7 +95,7 @@ class ResultSetMapperTest {
     void ifResultSetIsEmptyItReturnsEmptyArray() throws SQLException {
       when(resultSet.next()).thenReturn(false);
 
-      final var result = resultSetMapper.mapToTables(resultSet);
+      final var result = postgresqlResultSetMapper.mapToTables(resultSet);
 
       assertTrue(result.isEmpty());
       verifyNoMoreInteractions(resultSet);
@@ -138,7 +139,7 @@ class ResultSetMapperTest {
       when(resultSet.getString("data_type")).thenReturn(dataType1);
       when(resultSet.getInt("character_maximum_length")).thenReturn(maxLength1);
 
-      final List<Column> result = resultSetMapper.mapToColumns(resultSet);
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
       assertEquals(1, result.size());
       final var col = result.getFirst();
@@ -172,7 +173,7 @@ class ResultSetMapperTest {
       when(resultSet.getString("data_type")).thenAnswer(invocation -> typeIt.next());
       when(resultSet.getInt("character_maximum_length")).thenAnswer(invocation -> lengthIt.next());
 
-      final List<Column> result = resultSetMapper.mapToColumns(resultSet);
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
       assertEquals(2, result.size());
 
@@ -196,7 +197,7 @@ class ResultSetMapperTest {
     void ifResultSetIsEmptyItReturnsEmptyList() throws SQLException {
       when(resultSet.next()).thenReturn(false);
 
-      final List<Column> result = resultSetMapper.mapToColumns(resultSet);
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
       assertTrue(result.isEmpty());
       verifyNoMoreInteractions(resultSet);
@@ -214,7 +215,7 @@ class ResultSetMapperTest {
     void itReturnsNullIfResultSetIsEmpty() throws SQLException {
       when(resultSet.next()).thenReturn(false);
 
-      final PrimaryKey result = resultSetMapper.mapToPrimaryKey(resultSet);
+      final PrimaryKey result = postgresqlResultSetMapper.mapToPrimaryKey(resultSet);
 
       assertNull(result);
     }
@@ -225,7 +226,7 @@ class ResultSetMapperTest {
       when(resultSet.getString("constraint_name")).thenReturn(constraintName1);
       when(resultSet.getString("column_name")).thenReturn(column1);
 
-      final PrimaryKey result = resultSetMapper.mapToPrimaryKey(resultSet);
+      final PrimaryKey result = postgresqlResultSetMapper.mapToPrimaryKey(resultSet);
 
       assertEquals(constraintName1, result.constraintName());
       assertEquals(List.of(column1), result.columnNames());
@@ -241,7 +242,7 @@ class ResultSetMapperTest {
       when(resultSet.getString("constraint_name")).thenReturn(constraintName1);
       when(resultSet.getString("column_name")).thenAnswer(invocation -> columnIt.next());
 
-      final PrimaryKey result = resultSetMapper.mapToPrimaryKey(resultSet);
+      final PrimaryKey result = postgresqlResultSetMapper.mapToPrimaryKey(resultSet);
 
       assertEquals(constraintName1, result.constraintName());
       assertEquals(columnNames, result.columnNames());
@@ -272,7 +273,7 @@ class ResultSetMapperTest {
       when(resultSet.getString("referenced_table")).thenReturn(targetTable1);
       when(resultSet.getString("referenced_column")).thenReturn(targetColumn1);
 
-      final List<ForeignKey> result = resultSetMapper.mapToForeignKeys(resultSet);
+      final List<ForeignKey> result = postgresqlResultSetMapper.mapToForeignKeys(resultSet);
 
       assertEquals(1, result.size());
       final ForeignKey foreignKey = result.getFirst();
@@ -306,7 +307,7 @@ class ResultSetMapperTest {
       when(resultSet.getString("referenced_column"))
           .thenAnswer(invocation -> targetColumnIt.next());
 
-      final List<ForeignKey> result = resultSetMapper.mapToForeignKeys(resultSet);
+      final List<ForeignKey> result = postgresqlResultSetMapper.mapToForeignKeys(resultSet);
 
       assertEquals(2, result.size());
 
@@ -329,7 +330,7 @@ class ResultSetMapperTest {
     void ifResultSetIsEmptyItReturnsEmptyList() throws SQLException {
       when(resultSet.next()).thenReturn(false);
 
-      final List<ForeignKey> result = resultSetMapper.mapToForeignKeys(resultSet);
+      final List<ForeignKey> result = postgresqlResultSetMapper.mapToForeignKeys(resultSet);
 
       assertTrue(result.isEmpty());
     }

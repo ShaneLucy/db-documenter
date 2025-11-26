@@ -31,6 +31,7 @@ public class SchemaRenderer implements PumlRenderer<List<Schema>> {
           stringBuilder.append("}\n");
         });
 
+    stringBuilder.append("\n");
     // Relationships
     schemas.forEach(schema -> stringBuilder.append(relationshipRenderer.render(schema.tables())));
 

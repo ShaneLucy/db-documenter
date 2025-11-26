@@ -4,6 +4,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import db.documenter.internal.models.db.Table;
+import db.documenter.internal.queries.impl.postgresql.preparedstatements.PostgresqlPreparedStatementMapper;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,15 +16,15 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class PreparedStatementMapperTest {
-  private PreparedStatementMapper mapper;
+class PostgresqlPreparedStatementMapperTest {
+  private PostgresqlPreparedStatementMapper mapper;
 
   @Mock private PreparedStatement preparedStatement;
 
   @BeforeEach
   void setUp() {
     Mockito.reset(preparedStatement);
-    mapper = new PreparedStatementMapper();
+    mapper = new PostgresqlPreparedStatementMapper();
   }
 
   @Nested

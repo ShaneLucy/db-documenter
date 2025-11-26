@@ -1,5 +1,6 @@
 package db.documenter;
 
+import db.documenter.internal.models.db.RdmsTypes;
 import db.documenter.internal.validation.Validators;
 import java.util.List;
 
@@ -11,7 +12,8 @@ public record DbDocumenterConfig(
     String databaseName,
     boolean useSsl,
     String username,
-    String password) {
+    String password,
+    RdmsTypes rdmsType) {
 
   /**
    * Validates the required configuration fields.
@@ -23,6 +25,7 @@ public record DbDocumenterConfig(
    * @param useSsl If the database connection should use ssl, defaults to TRUE.
    * @param username The username of the user used to connect to the database, must not be blank.
    * @param password The password of the user used to connect to the database, must not be blank.
+   * @param rdmsType The type of database being used, defaults to Postgresql
    */
   public DbDocumenterConfig {
     Validators.containsAtLeast1Item(schemas, "schemas");
@@ -30,6 +33,7 @@ public record DbDocumenterConfig(
     Validators.isNotBlank(databaseName, "databaseName");
     Validators.isNotBlank(username, "username");
     Validators.isNotBlank(password, "password");
+    Validators.isNotNull(rdmsType, "rdmsType");
     schemas = List.copyOf(schemas);
   }
 
@@ -47,6 +51,7 @@ public record DbDocumenterConfig(
     private boolean useSsl = true;
     private String username;
     private String password;
+    private RdmsTypes rdmsType = RdmsTypes.POSTGRESQL;
 
     /**
      * Convenience method for supplying a {@link DbDocumenterConfig} object with a list of schema
@@ -128,6 +133,18 @@ public record DbDocumenterConfig(
     }
 
     /**
+     * Convenience method for supplying a {@link DbDocumenterConfig} object with a {@link
+     * RdmsTypes}.
+     *
+     * @param rdmsType The password of the user used to connect to the database, must not be blank.
+     * @return {@link Builder}
+     */
+    public Builder rdmsType(final RdmsTypes rdmsType) {
+      this.rdmsType = rdmsType;
+      return this;
+    }
+
+    /**
      * Creates a {@link DbDocumenterConfig} from the parameters provided to the {@link Builder}.
      * Also validates the provided properties
      *
@@ -136,7 +153,7 @@ public record DbDocumenterConfig(
     public DbDocumenterConfig build() {
       validate();
       return new DbDocumenterConfig(
-          schemas, databaseHost, databasePort, databaseName, useSsl, username, password);
+          schemas, databaseHost, databasePort, databaseName, useSsl, username, password, rdmsType);
     }
 
     private void validate() {
@@ -145,6 +162,7 @@ public record DbDocumenterConfig(
       Validators.isNotBlank(databaseName, "databaseName");
       Validators.isNotBlank(username, "username");
       Validators.isNotBlank(password, "password");
+      Validators.isNotNull(rdmsType, "rdmsType");
     }
   }
 }

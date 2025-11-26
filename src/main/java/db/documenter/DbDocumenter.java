@@ -11,9 +11,7 @@ import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.Schema;
 import db.documenter.internal.models.db.Table;
-import db.documenter.internal.queries.QueryRunner;
-import db.documenter.internal.queries.preparedstatements.PreparedStatementMapper;
-import db.documenter.internal.queries.resultsets.ResultSetMapper;
+import db.documenter.internal.queries.QueryRunnerFactory;
 import db.documenter.internal.renderer.impl.EntityRenderer;
 import db.documenter.internal.renderer.impl.RelationshipRenderer;
 import db.documenter.internal.renderer.impl.SchemaRenderer;
@@ -21,12 +19,14 @@ import java.sql.SQLException;
 import java.util.List;
 
 /** Entrypoint to the DbDocumenter application. */
-public class DbDocumenter {
+public final class DbDocumenter {
   private final ConnectionManager connectionManager;
   private final DbDocumenterConfig dbDocumenterConfig;
+  private final QueryRunnerFactory queryRunnerFactory;
 
   public DbDocumenter(final DbDocumenterConfig dbDocumenterConfig) {
     this.connectionManager = new PostgresConnectionManager(dbDocumenterConfig);
+    this.queryRunnerFactory = new QueryRunnerFactory(dbDocumenterConfig);
     this.dbDocumenterConfig = dbDocumenterConfig;
   }
 
@@ -66,8 +66,7 @@ public class DbDocumenter {
 
   private List<Table> buildTables(final String schema) throws SQLException {
     try (final var connection = connectionManager.getConnection()) {
-      final var queryRunner =
-          new QueryRunner(new PreparedStatementMapper(), new ResultSetMapper(), connection);
+      final var queryRunner = queryRunnerFactory.createQueryRunner(connection);
       final var tables = queryRunner.getTableInfo(schema);
 
       return tables.stream()
