@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import db.documenter.internal.models.db.Column;
+import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.queries.impl.postgresql.resultsets.PostgresqlResultSetMapper;
@@ -315,6 +316,118 @@ class PostgresqlResultSetMapperTest {
       final List<ForeignKey> result = postgresqlResultSetMapper.mapToForeignKeys(resultSet);
 
       assertTrue(result.isEmpty());
+    }
+  }
+
+  @Nested
+  class MapToDbEnumInfoTest {
+
+    @Test
+    void returnsEmptyListWhenResultSetHasNoRows() throws Exception {
+      when(resultSet.next()).thenReturn(false);
+
+      List<DbEnum> result = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
+
+      assertEquals(0, result.size());
+    }
+
+    @Test
+    void mapsSingleRow() throws Exception {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("col1");
+      when(resultSet.getString("udt_name")).thenReturn("enum1");
+
+      List<DbEnum> result = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
+
+      assertEquals(1, result.size());
+      assertEquals("col1", result.getFirst().columnName());
+      assertEquals("enum1", result.getFirst().enumName());
+    }
+
+    @Test
+    void mapsMultipleRows() throws Exception {
+      when(resultSet.next()).thenReturn(true, true, false);
+      when(resultSet.getString("column_name")).thenReturn("col1", "col2");
+      when(resultSet.getString("udt_name")).thenReturn("enum1", "enum2");
+
+      List<DbEnum> result = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
+
+      assertEquals(2, result.size());
+      assertEquals("col1", result.getFirst().columnName());
+      assertEquals("enum1", result.getFirst().enumName());
+      assertEquals("col2", result.get(1).columnName());
+      assertEquals("enum2", result.get(1).enumName());
+    }
+
+    @Test
+    void handlesNullValues() throws Exception {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn(null);
+      when(resultSet.getString("udt_name")).thenReturn(null);
+
+      List<DbEnum> result = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
+
+      assertEquals(1, result.size());
+      assertNull(result.getFirst().columnName());
+      assertNull(result.getFirst().enumName());
+    }
+
+    @Test
+    void itDoesNotSetDbEnumValues() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("col1");
+      when(resultSet.getString("udt_name")).thenReturn("enum1");
+
+      List<DbEnum> result = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
+
+      assertEquals(0, result.getFirst().enumValues().size());
+    }
+  }
+
+  @Nested
+  class MapToDbEnumValuesTest {
+
+    @Test
+    void emptyResultSetReturnsEmptyList() throws SQLException {
+      when(resultSet.next()).thenReturn(false);
+
+      List<String> result = postgresqlResultSetMapper.mapToDbEnumValues(resultSet);
+
+      assertEquals(0, result.size());
+    }
+
+    @Test
+    void mapsSingleValue() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("enumlabel")).thenReturn("A");
+
+      List<String> result = postgresqlResultSetMapper.mapToDbEnumValues(resultSet);
+
+      assertEquals("A", result.getFirst());
+      assertEquals(1, result.size());
+    }
+
+    @Test
+    void mapsMultipleValues() throws SQLException {
+      when(resultSet.next()).thenReturn(true, true, false);
+      when(resultSet.getString("enumlabel")).thenReturn("A", "B");
+
+      List<String> result = postgresqlResultSetMapper.mapToDbEnumValues(resultSet);
+
+      assertEquals("A", result.getFirst());
+      assertEquals("B", result.get(1));
+      assertEquals(2, result.size());
+    }
+
+    @Test
+    void allowsNullValues() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("enumlabel")).thenReturn(null);
+
+      List<String> result = postgresqlResultSetMapper.mapToDbEnumValues(resultSet);
+
+      assertNull(result.getFirst());
+      assertEquals(1, result.size());
     }
   }
 }

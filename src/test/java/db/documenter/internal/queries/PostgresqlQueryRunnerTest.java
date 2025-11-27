@@ -2,10 +2,7 @@ package db.documenter.internal.queries;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.PrimaryKey;
-import db.documenter.internal.models.db.Table;
+import db.documenter.internal.models.db.*;
 import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
 import db.documenter.internal.queries.impl.postgresql.preparedstatements.PostgresqlPreparedStatementMapper;
 import db.documenter.internal.queries.impl.postgresql.resultsets.PostgresqlResultSetMapper;
@@ -1471,7 +1468,7 @@ class PostgresqlQueryRunnerTest {
         final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", userRole);
 
         assertEquals(2, primaryKey.columnNames().size());
-        assertEquals("user_id", primaryKey.columnNames().get(0));
+        assertEquals("user_id", primaryKey.columnNames().getFirst());
         assertEquals("role_id", primaryKey.columnNames().get(1));
       }
     }
@@ -1578,7 +1575,7 @@ class PostgresqlQueryRunnerTest {
             postgresqlQueryRunner.getPrimaryKeyInfo("public", productCategory);
 
         assertEquals(2, primaryKey.columnNames().size());
-        assertEquals("product_id", primaryKey.columnNames().get(0));
+        assertEquals("product_id", primaryKey.columnNames().getFirst());
         assertEquals("category_id", primaryKey.columnNames().get(1));
       }
     }
@@ -1959,6 +1956,39 @@ class PostgresqlQueryRunnerTest {
 
       assertNotNull(foreignKeys);
       assertTrue(foreignKeys.isEmpty(), "tag_log should not have any foreign keys");
+    }
+  }
+
+  @Nested
+  class EnumInfoTests {
+
+    @Test
+    void itIdentifiesTheOrderStatusEnumNameAndColumnName() throws SQLException {
+      List<DbEnum> result = postgresqlQueryRunner.getEnumInfo("public");
+
+      assertEquals(1, result.size());
+      DbEnum info = result.getFirst();
+
+      assertEquals("status", info.columnName());
+      assertEquals("order_status", info.enumName());
+    }
+  }
+
+  @Nested
+  class EnumValueTests {
+
+    @Test
+    void itIdentifiesTheOrderStatusEnumValues() throws SQLException {
+      final var dbEnum = DbEnum.builder().columnName("status").enumName("order_status").build();
+
+      List<String> values = postgresqlQueryRunner.getEnumValues("public", dbEnum);
+
+      assertEquals(5, values.size());
+      assertEquals("pending", values.getFirst());
+      assertEquals("paid", values.get(1));
+      assertEquals("shipped", values.get(2));
+      assertEquals("cancelled", values.get(3));
+      assertEquals("refunded", values.get(4));
     }
   }
 }

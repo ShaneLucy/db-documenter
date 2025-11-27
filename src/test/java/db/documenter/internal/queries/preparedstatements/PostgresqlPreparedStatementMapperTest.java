@@ -84,4 +84,32 @@ class PostgresqlPreparedStatementMapperTest {
       verifyNoMoreInteractions(preparedStatement);
     }
   }
+
+  @Nested
+  class PrepareEnumInfoStatementTests {
+
+    @Test
+    void itSetsSchemaParameterCorrectly() throws SQLException {
+      final String schema = "public";
+      mapper.prepareEnumInfoStatement(preparedStatement, schema);
+
+      verify(preparedStatement).setString(1, schema);
+      verifyNoMoreInteractions(preparedStatement);
+    }
+  }
+
+  @Nested
+  class PrepareEnumValuesStatementTests {
+
+    @Test
+    void itSetsSchemaAndEnumNameParametersCorrectly() throws SQLException {
+      final String schema = "public";
+      final String enumName = "some enum name";
+      mapper.prepareEnumValuesStatement(preparedStatement, schema, enumName);
+
+      verify(preparedStatement).setString(1, schema);
+      verify(preparedStatement).setString(2, enumName);
+      verifyNoMoreInteractions(preparedStatement);
+    }
+  }
 }
