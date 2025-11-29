@@ -1,4 +1,4 @@
-package db.documenter.internal.formatter.impl;
+package db.documenter.internal.formatter.impl.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;

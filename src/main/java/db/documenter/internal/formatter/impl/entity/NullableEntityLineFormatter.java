@@ -1,4 +1,4 @@
-package db.documenter.internal.formatter.impl;
+package db.documenter.internal.formatter.impl.entity;
 
 import db.documenter.internal.formatter.api.EntityLineFormatter;
 import db.documenter.internal.models.db.Column;
