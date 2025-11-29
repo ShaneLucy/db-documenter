@@ -11,15 +11,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-class ForeignKeyLineFormatterTest {
+class ForeignKeyEntityLineFormatterTest {
 
-  private ForeignKeyLineFormatter foreignKeyLineFormatter;
+  private ForeignKeyEntityLineFormatter foreignKeyEntityLineFormatter;
   private Table.Builder tableBuilder;
   private Column.Builder columnBuilder;
 
   @BeforeEach
   void setUp() {
-    foreignKeyLineFormatter = new ForeignKeyLineFormatter();
+    foreignKeyEntityLineFormatter = new ForeignKeyEntityLineFormatter();
     tableBuilder = Table.builder();
     columnBuilder = Column.builder().name("col").dataType("varchar");
   }
@@ -30,7 +30,8 @@ class ForeignKeyLineFormatterTest {
     @Test
     void ifNoForeignKeysReturnsCurrent() {
       final var table = tableBuilder.build();
-      final var result = foreignKeyLineFormatter.format(table, columnBuilder.build(), "value");
+      final var result =
+          foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "value");
       assertEquals("value", result);
     }
 
@@ -44,7 +45,8 @@ class ForeignKeyLineFormatterTest {
               .build();
 
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
-      final var result = foreignKeyLineFormatter.format(table, columnBuilder.build(), "value");
+      final var result =
+          foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "value");
 
       assertEquals("__value__ '→ target_table.target_col", result);
     }
@@ -55,7 +57,7 @@ class ForeignKeyLineFormatterTest {
           ForeignKey.builder().sourceColumn("COL").targetTable("t").targetColumn("c").build();
 
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
-      final var result = foreignKeyLineFormatter.format(table, columnBuilder.build(), "v");
+      final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "v");
 
       assertEquals("__v__ '→ t.c", result);
     }
@@ -69,7 +71,7 @@ class ForeignKeyLineFormatterTest {
           ForeignKey.builder().sourceColumn("col").targetTable("B").targetColumn("b").build();
 
       final var table = tableBuilder.foreignKeys(List.of(fk1, fk2)).build();
-      final var result = foreignKeyLineFormatter.format(table, columnBuilder.build(), "x");
+      final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "x");
 
       assertEquals("__x__ '→ A.a", result);
     }
@@ -80,7 +82,7 @@ class ForeignKeyLineFormatterTest {
           ForeignKey.builder().sourceColumn("different").targetTable("t").targetColumn("c").build();
 
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
-      final var result = foreignKeyLineFormatter.format(table, columnBuilder.build(), "orig");
+      final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "orig");
 
       assertEquals("orig", result);
     }
@@ -91,7 +93,7 @@ class ForeignKeyLineFormatterTest {
           ForeignKey.builder().sourceColumn("col").targetTable("t").targetColumn("c").build();
 
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
-      final var result = foreignKeyLineFormatter.format(table, columnBuilder.build(), null);
+      final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), null);
 
       assertEquals("__null__ '→ t.c", result);
     }
@@ -102,7 +104,7 @@ class ForeignKeyLineFormatterTest {
           ForeignKey.builder().sourceColumn("col").targetTable("t").targetColumn("c").build();
 
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
-      final var result = foreignKeyLineFormatter.format(table, columnBuilder.build(), "");
+      final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "");
 
       assertEquals("____ '→ t.c", result);
     }
@@ -113,7 +115,7 @@ class ForeignKeyLineFormatterTest {
           ForeignKey.builder().sourceColumn("col").targetTable("t").targetColumn("c").build();
 
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
-      final var result = foreignKeyLineFormatter.format(table, columnBuilder.build(), "  ");
+      final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "  ");
 
       assertEquals("__  __ '→ t.c", result);
     }
@@ -124,7 +126,7 @@ class ForeignKeyLineFormatterTest {
           ForeignKey.builder().sourceColumn("col").targetTable(null).targetColumn("x").build();
 
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
-      final var result = foreignKeyLineFormatter.format(table, columnBuilder.build(), "v");
+      final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "v");
 
       assertEquals("__v__ '→ null.x", result);
     }
@@ -135,7 +137,7 @@ class ForeignKeyLineFormatterTest {
           ForeignKey.builder().sourceColumn("col").targetTable("t").targetColumn(null).build();
 
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
-      final var result = foreignKeyLineFormatter.format(table, columnBuilder.build(), "v");
+      final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "v");
 
       assertEquals("__v__ '→ t.null", result);
     }
@@ -148,7 +150,8 @@ class ForeignKeyLineFormatterTest {
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
       final var column = columnBuilder.build();
       assertThrows(
-          NullPointerException.class, () -> foreignKeyLineFormatter.format(table, column, "v"));
+          NullPointerException.class,
+          () -> foreignKeyEntityLineFormatter.format(table, column, "v"));
     }
 
     @Test
@@ -158,7 +161,7 @@ class ForeignKeyLineFormatterTest {
 
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
       final var column = Column.builder().name(null).build();
-      final var result = foreignKeyLineFormatter.format(table, column, "v");
+      final var result = foreignKeyEntityLineFormatter.format(table, column, "v");
 
       assertEquals("v", result);
     }
@@ -167,7 +170,8 @@ class ForeignKeyLineFormatterTest {
     void ifTableIsNullThrowsNullPointerException() {
       final var column = columnBuilder.build();
       assertThrows(
-          NullPointerException.class, () -> foreignKeyLineFormatter.format(null, column, "v"));
+          NullPointerException.class,
+          () -> foreignKeyEntityLineFormatter.format(null, column, "v"));
     }
 
     @Test
@@ -177,7 +181,7 @@ class ForeignKeyLineFormatterTest {
 
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
       assertThrows(
-          NullPointerException.class, () -> foreignKeyLineFormatter.format(table, null, "v"));
+          NullPointerException.class, () -> foreignKeyEntityLineFormatter.format(table, null, "v"));
     }
   }
 }

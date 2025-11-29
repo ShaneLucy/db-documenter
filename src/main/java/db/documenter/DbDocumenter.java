@@ -2,11 +2,14 @@ package db.documenter;
 
 import db.documenter.internal.connection.ConnectionManagerFactory;
 import db.documenter.internal.connection.api.ConnectionManager;
-import db.documenter.internal.formatter.impl.CompositeLineFormatter;
-import db.documenter.internal.formatter.impl.DefaultLineFormatter;
-import db.documenter.internal.formatter.impl.ForeignKeyLineFormatter;
-import db.documenter.internal.formatter.impl.NullableLineFormatter;
-import db.documenter.internal.formatter.impl.PrimaryKeyLineFormatter;
+import db.documenter.internal.formatter.impl.CardinalityFormatter;
+import db.documenter.internal.formatter.impl.CompositeEntityLineFormatter;
+import db.documenter.internal.formatter.impl.CompositeMultiplicityFormatter;
+import db.documenter.internal.formatter.impl.DefaultEntityLineFormatter;
+import db.documenter.internal.formatter.impl.DefaultMultiplicityFormatter;
+import db.documenter.internal.formatter.impl.ForeignKeyEntityLineFormatter;
+import db.documenter.internal.formatter.impl.NullableEntityLineFormatter;
+import db.documenter.internal.formatter.impl.PrimaryKeyEntityLineFormatter;
 import db.documenter.internal.models.db.*;
 import db.documenter.internal.queries.QueryRunnerFactory;
 import db.documenter.internal.renderer.impl.EntityRenderer;
@@ -37,14 +40,19 @@ public final class DbDocumenter {
    */
   public String generatePuml() {
     final var formatter =
-        CompositeLineFormatter.builder()
-            .addFormatter(new DefaultLineFormatter())
-            .addFormatter(new PrimaryKeyLineFormatter())
-            .addFormatter(new ForeignKeyLineFormatter())
-            .addFormatter(new NullableLineFormatter())
+        CompositeEntityLineFormatter.builder()
+            .addFormatter(new DefaultEntityLineFormatter())
+            .addFormatter(new PrimaryKeyEntityLineFormatter())
+            .addFormatter(new ForeignKeyEntityLineFormatter())
+            .addFormatter(new NullableEntityLineFormatter())
+            .build();
+    final var multiplicityFormatter =
+        CompositeMultiplicityFormatter.builder()
+            .addFormatter(new DefaultMultiplicityFormatter())
+            .addFormatter(new CardinalityFormatter())
             .build();
     final var entityRenderer = new EntityRenderer(formatter);
-    final var relationShipRenderer = new RelationshipRenderer();
+    final var relationShipRenderer = new RelationshipRenderer(multiplicityFormatter);
     final var enumRenderer = new EnumRenderer();
     final var schemaRenderer =
         new SchemaRenderer(entityRenderer, relationShipRenderer, enumRenderer);
@@ -95,7 +103,24 @@ public final class DbDocumenter {
 
                   final var primaryKey = queryRunner.getPrimaryKeyInfo(schema, table);
 
-                  final List<ForeignKey> foreignKeys = queryRunner.getForeignKeyInfo(schema, table);
+                  final List<ForeignKey> foreignKeys =
+                      queryRunner.getForeignKeyInfo(schema, table).stream()
+                          .map(
+                              foreignKey -> {
+                                final var optionalColumn =
+                                    columns.stream()
+                                        .filter(
+                                            column ->
+                                                column.name().equals(foreignKey.sourceColumn()))
+                                        .findFirst();
+                                if (optionalColumn.isEmpty()) {
+                                  return foreignKey;
+                                }
+
+                                return ForeignKey.combineForeignKeyAndIsNullable(
+                                    foreignKey, optionalColumn.get().isNullable());
+                              })
+                          .toList();
 
                   return Table.combineTableColumnsPrimaryAndForeignKeys(
                       table, columns, primaryKey, foreignKeys);

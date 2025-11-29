@@ -8,15 +8,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-class NullableLineFormatterTest {
+class NullableEntityLineFormatterTest {
 
-  private NullableLineFormatter nullableLineFormatter;
+  private NullableEntityLineFormatter nullableEntityLineFormatter;
   private Column.Builder columnBuilder;
   private Table table;
 
   @BeforeEach
   void setUp() {
-    nullableLineFormatter = new NullableLineFormatter();
+    nullableEntityLineFormatter = new NullableEntityLineFormatter();
     table = Table.builder().build();
     columnBuilder = Column.builder().name("col").dataType("varchar");
   }
@@ -27,55 +27,56 @@ class NullableLineFormatterTest {
     @Test
     void ifColumnIsNullableAppendsQuestionMark() {
       final var column = columnBuilder.isNullable(true).build();
-      final var result = nullableLineFormatter.format(table, column, "value");
+      final var result = nullableEntityLineFormatter.format(table, column, "value");
       assertEquals("value?", result);
     }
 
     @Test
     void ifColumnIsNotNullableReturnsCurrentAsIs() {
       final var column = columnBuilder.isNullable(false).build();
-      final var result = nullableLineFormatter.format(table, column, "value");
+      final var result = nullableEntityLineFormatter.format(table, column, "value");
       assertEquals("value", result);
     }
 
     @Test
     void ifCurrentIsNullAndColumnIsNullableAppendsQuestionMark() {
       final var column = columnBuilder.isNullable(true).build();
-      final var result = nullableLineFormatter.format(table, column, null);
+      final var result = nullableEntityLineFormatter.format(table, column, null);
       assertEquals("null?", result);
     }
 
     @Test
     void ifCurrentIsNullAndColumnIsNotNullableReturnsNull() {
       final var column = columnBuilder.isNullable(false).build();
-      final var result = nullableLineFormatter.format(table, column, null);
+      final var result = nullableEntityLineFormatter.format(table, column, null);
       assertNull(result);
     }
 
     @Test
     void ifCurrentIsEmptyStringAndColumnIsNullableAppendsQuestionMark() {
       final var column = columnBuilder.isNullable(true).build();
-      final var result = nullableLineFormatter.format(table, column, "");
+      final var result = nullableEntityLineFormatter.format(table, column, "");
       assertEquals("?", result);
     }
 
     @Test
     void ifCurrentIsWhitespaceAndColumnIsNullableAppendsQuestionMark() {
       final var column = columnBuilder.isNullable(true).build();
-      final var result = nullableLineFormatter.format(table, column, "  ");
+      final var result = nullableEntityLineFormatter.format(table, column, "  ");
       assertEquals("  ?", result);
     }
 
     @Test
     void ifColumnIsNullThrowsNullPointerException() {
       assertThrows(
-          NullPointerException.class, () -> nullableLineFormatter.format(table, null, "value"));
+          NullPointerException.class,
+          () -> nullableEntityLineFormatter.format(table, null, "value"));
     }
 
     @Test
     void ifTableIsNullDoesNotThrow() {
       final var column = columnBuilder.isNullable(true).build();
-      assertDoesNotThrow(() -> nullableLineFormatter.format(null, column, "value"));
+      assertDoesNotThrow(() -> nullableEntityLineFormatter.format(null, column, "value"));
     }
   }
 }

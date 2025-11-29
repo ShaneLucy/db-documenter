@@ -31,6 +31,15 @@ mvn spotless:apply
 mvn checkstyle:check spotbugs:check pmd:check spotless:check
 ```
 
+**IMPORTANT**: After making any code changes, always run `mvn spotless:apply` to format the code before running tests. The recommended workflow is:
+
+```bash
+# After writing/editing code
+mvn spotless:apply && mvn test
+```
+
+This ensures code is properly formatted and prevents spotless check failures during `mvn verify`.
+
 ## Code Quality Standards
 
 This project enforces strict code quality standards:
@@ -81,32 +90,49 @@ To add support for a new database:
 
 ### Formatter Chain Pattern
 
-Column formatting uses the Composite pattern via `CompositeLineFormatter`:
+The application uses two separate formatter chains for different purposes:
+
+**Entity Column Formatting** uses `EntityLineFormatter` via `CompositeEntityLineFormatter`:
 
 ```java
-CompositeLineFormatter.builder()
+CompositeEntityLineFormatter.builder()
     .addFormatter(new DefaultLineFormatter())        // Base: name + dataType
     .addFormatter(new PrimaryKeyLineFormatter())     // Adds PK indicator
     .addFormatter(new ForeignKeyLineFormatter())     // Adds FK indicator
     .addFormatter(new NullableLineFormatter())       // Adds nullability
-    .addFormatter(new MultiplicityLineFormatter())   // Adds cardinality
     .build();
 ```
 
-Each `LineFormatter` implementation:
+Each `EntityLineFormatter` implementation:
 - Receives the current formatted string
 - Appends additional notation
 - Returns the enhanced string
 - Follows functional interface pattern: `format(Table, Column, String) -> String`
+
+**Relationship Formatting** uses `MultiplicityFormatter` via `CompositeMultiplicityFormatter`:
+
+```java
+CompositeMultiplicityFormatter.builder()
+    .addFormatter(new DefaultMultiplicityFormatter())  // Base: target -- source
+    .addFormatter(new CardinalityFormatter())          // Adds crow's foot notation
+    .build();
+```
+
+Each `MultiplicityFormatter` implementation:
+- Receives the current formatted string
+- Appends or transforms relationship notation
+- Returns the enhanced string
+- Follows functional interface pattern: `format(ForeignKey, String) -> String`
+- Uses crow's foot notation: `||--o{` (nullable/zero-or-many) or `||--|{` (non-nullable/one-or-many)
 
 ### PlantUML Rendering
 
 The rendering layer uses `PumlRenderer<T>` interface:
 
 - `SchemaRenderer`: Top-level renderer, outputs @startuml/@enduml wrapper and packages
-- `EntityRenderer`: Renders individual tables/entities
+- `EntityRenderer`: Renders individual tables/entities using `EntityLineFormatter`
 - `EnumRenderer`: Renders database enum types
-- `RelationshipRenderer`: Generates relationship lines between entities
+- `RelationshipRenderer`: Generates relationship lines between entities using `MultiplicityFormatter`
 
 ### Testing Strategy
 
@@ -116,6 +142,72 @@ Tests use Testcontainers for database integration tests:
 - `PostgresTestEnvironment`: PostgreSQL-specific test setup with SQL initialization
 - Integration tests validate the entire flow from database connection through PlantUML generation
 - Formatter tests are isolated unit tests with mocked dependencies
+
+## Writing Tests
+
+All tests follow consistent patterns. When writing new tests:
+
+### Test Class Structure
+
+1. **Use `@BeforeEach` for setup**: Create new instances of the class under test in a setup method
+   ```java
+   private MyFormatter myFormatter;
+
+   @BeforeEach
+   void setUp() {
+       myFormatter = new MyFormatter();
+   }
+   ```
+
+2. **Use `@Nested` classes**: Group related tests logically
+   ```java
+   @Nested
+   class FormatTests {
+       @Test
+       void testCase1() { ... }
+   }
+   ```
+
+3. **Descriptive test names**: Use full sentences that describe the behavior
+   - Good: `whenCurrentIsNullReturnsFormattedRelationship`
+   - Bad: `testFormat`, `test1`
+
+4. **Follow existing patterns**: Look at similar test files for guidance
+   - Entity formatter tests: See `DefaultLineFormatterTest`, `PrimaryKeyLineFormatterTest`
+   - Multiplicity formatter tests: See `DefaultMultiplicityFormatterTest`, `CardinalityFormatterTest`
+   - Composite formatter tests: See `CompositeEntityLineFormatterTest`, `CompositeMultiplicityFormatterTest`
+
+### Test Coverage Requirements
+
+- Test the happy path (normal operation)
+- Test edge cases (nulls, empty strings, whitespace)
+- Test decorator pattern (when `current` is null vs not null)
+- For composite formatters: test empty list, single formatter, multiple formatters
+- Use Mockito for testing composite formatters (`@Mock`, `@ExtendWith(MockitoExtension.class)`)
+
+### Workflow After Writing Tests
+
+Always format code and run tests together:
+
+```bash
+mvn spotless:apply && mvn test
+```
+
+This ensures:
+1. Code is formatted according to Google Java Style
+2. Tests pass
+3. No spotless check failures will occur during `mvn verify`
+
+### Builder Pattern in Tests
+
+Use builder pattern for creating test data:
+```java
+final var fk = ForeignKey.builder()
+    .sourceTable("orders")
+    .targetTable("users")
+    .isNullable(true)
+    .build();
+```
 
 ## Working with Enums
 
@@ -131,5 +223,7 @@ The application handles database-specific enum types (e.g., PostgreSQL `CREATE T
 Foreign keys track nullability to determine relationship cardinality:
 
 - `ForeignKey.combineForeignKeyAndIsNullable()` merges FK metadata with column nullability
-- Used by `MultiplicityLineFormatter` to add cardinality notation
+- Used by `CardinalityFormatter` to add crow's foot notation
+- Format: `target_table ||--o{ source_table` (nullable) or `target_table ||--|{ source_table` (non-nullable)
+- Target table (referenced table) appears on the left, source table (FK holder) on the right
 - Enables accurate one-to-many, one-to-one, etc. relationship rendering

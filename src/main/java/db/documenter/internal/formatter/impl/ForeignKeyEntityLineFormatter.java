@@ -1,11 +1,11 @@
 package db.documenter.internal.formatter.impl;
 
-import db.documenter.internal.formatter.api.LineFormatter;
+import db.documenter.internal.formatter.api.EntityLineFormatter;
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.Table;
 
-public final class ForeignKeyLineFormatter implements LineFormatter {
+public final class ForeignKeyEntityLineFormatter implements EntityLineFormatter {
 
   @Override
   public String format(final Table table, final Column column, final String current) {

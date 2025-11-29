@@ -1,6 +1,6 @@
 package db.documenter.internal.renderer.impl;
 
-import db.documenter.internal.formatter.api.LineFormatter;
+import db.documenter.internal.formatter.api.EntityLineFormatter;
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.Table;
 import db.documenter.internal.renderer.api.PumlRenderer;
@@ -8,9 +8,9 @@ import java.util.List;
 
 public final class EntityRenderer implements PumlRenderer<Table> {
 
-  private final LineFormatter lineFormatter;
+  private final EntityLineFormatter lineFormatter;
 
-  public EntityRenderer(final LineFormatter lineFormatter) {
+  public EntityRenderer(final EntityLineFormatter lineFormatter) {
     this.lineFormatter = lineFormatter;
   }
 

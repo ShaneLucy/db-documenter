@@ -1,7 +1,12 @@
 package db.documenter.internal.models.db;
 
 public record ForeignKey(
-    String name, String sourceTable, String sourceColumn, String targetTable, String targetColumn) {
+    String name,
+    String sourceTable,
+    String sourceColumn,
+    String targetTable,
+    String targetColumn,
+    boolean isNullable) {
   public static Builder builder() {
     return new Builder();
   }
@@ -12,6 +17,7 @@ public record ForeignKey(
     private String sourceColumn;
     private String targetTable;
     private String targetColumn;
+    private boolean isNullable;
 
     public Builder name(final String name) {
       this.name = name;
@@ -38,8 +44,25 @@ public record ForeignKey(
       return this;
     }
 
-    public ForeignKey build() {
-      return new ForeignKey(name, sourceTable, sourceColumn, targetTable, targetColumn);
+    public Builder isNullable(final boolean isNullable) {
+      this.isNullable = isNullable;
+      return this;
     }
+
+    public ForeignKey build() {
+      return new ForeignKey(name, sourceTable, sourceColumn, targetTable, targetColumn, isNullable);
+    }
+  }
+
+  public static ForeignKey combineForeignKeyAndIsNullable(
+      final ForeignKey foreignKey, final boolean isNullable) {
+    return ForeignKey.builder()
+        .name(foreignKey.name())
+        .sourceTable(foreignKey.sourceTable())
+        .sourceColumn(foreignKey.sourceColumn())
+        .targetTable(foreignKey.targetTable())
+        .targetColumn(foreignKey.targetColumn())
+        .isNullable(isNullable)
+        .build();
   }
 }

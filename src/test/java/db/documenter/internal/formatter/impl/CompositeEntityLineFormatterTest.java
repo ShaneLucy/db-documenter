@@ -3,7 +3,7 @@ package db.documenter.internal.formatter.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-import db.documenter.internal.formatter.api.LineFormatter;
+import db.documenter.internal.formatter.api.EntityLineFormatter;
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.Table;
 import java.util.List;
@@ -16,13 +16,13 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class CompositeLineFormatterTest {
+class CompositeEntityLineFormatterTest {
 
   private Table table;
   private Column column;
-  @Mock private LineFormatter lineFormatter1;
-  @Mock private LineFormatter lineFormatter2;
-  @Mock private LineFormatter lineFormatter3;
+  @Mock private EntityLineFormatter lineFormatter1;
+  @Mock private EntityLineFormatter lineFormatter2;
+  @Mock private EntityLineFormatter lineFormatter3;
 
   @BeforeEach
   void setUp() {
@@ -36,7 +36,7 @@ class CompositeLineFormatterTest {
 
     @Test
     void ifNoFormattersReturnsCurrent() {
-      final var composite = new CompositeLineFormatter(List.of());
+      final var composite = new CompositeEntityLineFormatter(List.of());
       final var result = composite.format(table, column, "value");
       assertEquals("value", result);
     }
@@ -45,7 +45,7 @@ class CompositeLineFormatterTest {
     void appliesSingleFormatter() {
       when(lineFormatter1.format(table, column, "value")).thenReturn("formatted");
 
-      final var composite = new CompositeLineFormatter(List.of(lineFormatter1));
+      final var composite = new CompositeEntityLineFormatter(List.of(lineFormatter1));
       final var result = composite.format(table, column, "value");
 
       assertEquals("formatted", result);
@@ -59,7 +59,7 @@ class CompositeLineFormatterTest {
       when(lineFormatter3.format(table, column, "v2")).thenReturn("v3");
 
       final var composite =
-          new CompositeLineFormatter(List.of(lineFormatter1, lineFormatter2, lineFormatter3));
+          new CompositeEntityLineFormatter(List.of(lineFormatter1, lineFormatter2, lineFormatter3));
       final var result = composite.format(table, column, "value");
 
       assertEquals("v3", result);
@@ -74,7 +74,7 @@ class CompositeLineFormatterTest {
       when(lineFormatter2.format(table, column, "step1")).thenReturn("step2");
 
       final var composite =
-          CompositeLineFormatter.builder()
+          CompositeEntityLineFormatter.builder()
               .addFormatter(lineFormatter1)
               .addFormatter(lineFormatter2)
               .build();
@@ -88,7 +88,7 @@ class CompositeLineFormatterTest {
 
     @Test
     void handlesNullFormatterListAsEmpty() {
-      final var composite = new CompositeLineFormatter(null);
+      final var composite = new CompositeEntityLineFormatter(null);
       final var result = composite.format(table, column, "val");
       assertEquals("val", result);
     }
@@ -97,7 +97,7 @@ class CompositeLineFormatterTest {
     void currentCanBeNull() {
       when(lineFormatter1.format(table, column, null)).thenReturn("filled");
 
-      final var composite = new CompositeLineFormatter(List.of(lineFormatter1));
+      final var composite = new CompositeEntityLineFormatter(List.of(lineFormatter1));
       final var result = composite.format(table, column, null);
 
       assertEquals("filled", result);
@@ -108,7 +108,7 @@ class CompositeLineFormatterTest {
     void tableCanBeNull() {
       when(lineFormatter1.format(null, column, "val")).thenReturn("out");
 
-      final var composite = new CompositeLineFormatter(List.of(lineFormatter1));
+      final var composite = new CompositeEntityLineFormatter(List.of(lineFormatter1));
       final var result = composite.format(null, column, "val");
 
       assertEquals("out", result);
@@ -119,7 +119,7 @@ class CompositeLineFormatterTest {
     void columnCanBeNull() {
       when(lineFormatter1.format(table, null, "val")).thenReturn("out");
 
-      final var composite = new CompositeLineFormatter(List.of(lineFormatter1));
+      final var composite = new CompositeEntityLineFormatter(List.of(lineFormatter1));
       final var result = composite.format(table, null, "val");
 
       assertEquals("out", result);

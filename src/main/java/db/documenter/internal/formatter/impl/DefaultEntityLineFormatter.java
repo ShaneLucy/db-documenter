@@ -1,14 +1,14 @@
 package db.documenter.internal.formatter.impl;
 
-import db.documenter.internal.formatter.api.LineFormatter;
+import db.documenter.internal.formatter.api.EntityLineFormatter;
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.Table;
 
 /**
- * A {@link LineFormatter} implementation which creates the basic structure of a line in a puml
- * file.
+ * A {@link EntityLineFormatter} implementation which creates the basic structure of a line in a
+ * puml file.
  */
-public final class DefaultLineFormatter implements LineFormatter {
+public final class DefaultEntityLineFormatter implements EntityLineFormatter {
 
   /**
    * Formats a default line in a puml file. When current is null this will return a formatted string

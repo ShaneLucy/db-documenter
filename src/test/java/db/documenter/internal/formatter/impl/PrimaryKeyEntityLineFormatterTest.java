@@ -11,15 +11,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-class PrimaryKeyLineFormatterTest {
+class PrimaryKeyEntityLineFormatterTest {
 
-  private PrimaryKeyLineFormatter primaryKeyLineFormatter;
+  private PrimaryKeyEntityLineFormatter primaryKeyEntityLineFormatter;
   private Column.Builder columnBuilder;
   private Table.Builder tableBuilder;
 
   @BeforeEach
   void setUp() {
-    primaryKeyLineFormatter = new PrimaryKeyLineFormatter();
+    primaryKeyEntityLineFormatter = new PrimaryKeyEntityLineFormatter();
     columnBuilder = Column.builder().name("col").dataType("varchar");
     tableBuilder = Table.builder();
   }
@@ -33,7 +33,7 @@ class PrimaryKeyLineFormatterTest {
       final var pk = PrimaryKey.builder().columnNames(List.of("col")).build();
       final var table = tableBuilder.primaryKey(pk).build();
 
-      final var result = primaryKeyLineFormatter.format(table, column, "value");
+      final var result = primaryKeyEntityLineFormatter.format(table, column, "value");
 
       assertEquals("**value**", result);
     }
@@ -44,7 +44,7 @@ class PrimaryKeyLineFormatterTest {
       final var pk = PrimaryKey.builder().columnNames(List.of("other")).build();
       final var table = tableBuilder.primaryKey(pk).build();
 
-      final var result = primaryKeyLineFormatter.format(table, column, "value");
+      final var result = primaryKeyEntityLineFormatter.format(table, column, "value");
 
       assertEquals("value", result);
     }
@@ -54,7 +54,7 @@ class PrimaryKeyLineFormatterTest {
       final var column = columnBuilder.build();
       final var table = tableBuilder.build();
 
-      final var result = primaryKeyLineFormatter.format(table, column, "value");
+      final var result = primaryKeyEntityLineFormatter.format(table, column, "value");
 
       assertEquals("value", result);
     }
@@ -65,7 +65,7 @@ class PrimaryKeyLineFormatterTest {
       final var pk = PrimaryKey.builder().columnNames(List.of("col")).build();
       final var table = tableBuilder.primaryKey(pk).build();
 
-      final var result = primaryKeyLineFormatter.format(table, column, null);
+      final var result = primaryKeyEntityLineFormatter.format(table, column, null);
 
       assertEquals("**null**", result);
     }
@@ -76,7 +76,7 @@ class PrimaryKeyLineFormatterTest {
       final var pk = PrimaryKey.builder().columnNames(List.of("col")).build();
       final var table = tableBuilder.primaryKey(pk).build();
 
-      final var result = primaryKeyLineFormatter.format(table, column, "");
+      final var result = primaryKeyEntityLineFormatter.format(table, column, "");
 
       assertEquals("****", result);
     }
@@ -87,7 +87,7 @@ class PrimaryKeyLineFormatterTest {
       final var pk = PrimaryKey.builder().columnNames(List.of("col")).build();
       final var table = tableBuilder.primaryKey(pk).build();
 
-      final var result = primaryKeyLineFormatter.format(table, column, "  ");
+      final var result = primaryKeyEntityLineFormatter.format(table, column, "  ");
 
       assertEquals("**  **", result);
     }
@@ -96,14 +96,16 @@ class PrimaryKeyLineFormatterTest {
     void ifColumnIsNullThrowsNullPointerException() {
       final var table = tableBuilder.build();
       assertThrows(
-          NullPointerException.class, () -> primaryKeyLineFormatter.format(table, null, "value"));
+          NullPointerException.class,
+          () -> primaryKeyEntityLineFormatter.format(table, null, "value"));
     }
 
     @Test
     void ifTableIsNullThrowsNullPointerException() {
       final var column = columnBuilder.build();
       assertThrows(
-          NullPointerException.class, () -> primaryKeyLineFormatter.format(null, column, "value"));
+          NullPointerException.class,
+          () -> primaryKeyEntityLineFormatter.format(null, column, "value"));
     }
 
     @Test
@@ -112,7 +114,7 @@ class PrimaryKeyLineFormatterTest {
       final var pk = PrimaryKey.builder().columnNames(List.of("col")).build();
       final var table = tableBuilder.primaryKey(pk).build();
 
-      final var result = primaryKeyLineFormatter.format(table, column, "   ");
+      final var result = primaryKeyEntityLineFormatter.format(table, column, "   ");
 
       assertEquals("**   **", result);
     }
