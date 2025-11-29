@@ -28,15 +28,47 @@ public final class PostgresqlQueryRunner implements QueryRunner {
 
   private static final String GET_COLUMN_INFO_QUERY =
       """
-           SELECT
-             column_name,
-             ordinal_position,
-             is_nullable,
-             data_type,
-             character_maximum_length
-           FROM information_schema.columns
-           WHERE table_schema = ?
-             AND table_name = ?;
+           SELECT DISTINCT
+             c.column_name,
+             c.ordinal_position,
+             c.is_nullable,
+             c.data_type,
+             c.character_maximum_length,
+             c.column_default,
+             CASE
+               WHEN COUNT(DISTINCT uc.constraint_name) > 0 THEN true
+               ELSE false
+             END AS is_unique,
+             STRING_AGG(DISTINCT cc.check_clause, ' AND ') AS check_constraint,
+             CASE
+               WHEN c.column_default LIKE 'nextval%' THEN true
+               ELSE false
+             END AS is_auto_increment
+           FROM information_schema.columns c
+           LEFT JOIN information_schema.key_column_usage kcu
+             ON c.table_schema = kcu.table_schema
+             AND c.table_name = kcu.table_name
+             AND c.column_name = kcu.column_name
+           LEFT JOIN information_schema.table_constraints uc
+             ON kcu.constraint_name = uc.constraint_name
+             AND kcu.table_schema = uc.table_schema
+             AND uc.constraint_type = 'UNIQUE'
+           LEFT JOIN information_schema.constraint_column_usage ccu
+             ON c.table_schema = ccu.table_schema
+             AND c.table_name = ccu.table_name
+             AND c.column_name = ccu.column_name
+           LEFT JOIN information_schema.check_constraints cc
+             ON ccu.constraint_name = cc.constraint_name
+             AND EXISTS (
+               SELECT 1 FROM information_schema.table_constraints tc
+               WHERE tc.constraint_name = cc.constraint_name
+               AND tc.constraint_type = 'CHECK'
+             )
+           WHERE c.table_schema = ?
+             AND c.table_name = ?
+           GROUP BY c.column_name, c.ordinal_position, c.is_nullable, c.data_type,
+                    c.character_maximum_length, c.column_default
+           ORDER BY c.ordinal_position;
            """;
 
   private static final String GET_PRIMARY_KEY_INFO_QUERY =

@@ -60,6 +60,39 @@ All checks run during `mvn verify`. Code must pass all checks before committing.
 - Public methods require Javadoc
 - No star imports
 
+### Defensive Copying
+
+To prevent SpotBugs EI_EXPOSE_REP and EI_EXPOSE_REP2 violations, use defensive copying for mutable collection fields:
+
+**In Record Compact Constructors:**
+```java
+public record Column(String name, List<Constraint> constraints) {
+  public Column {
+    // Defensive copy: prevents external modification
+    constraints = constraints == null ? List.of() : List.copyOf(constraints);
+  }
+}
+```
+
+**In Builder Methods:**
+```java
+public Builder constraints(final List<Constraint> constraints) {
+  // Defensive copy in builder
+  this.constraints = constraints == null ? List.of() : List.copyOf(constraints);
+  return this;
+}
+```
+
+**When to Use Defensive Copying:**
+- Records/classes that expose `List`, `Set`, `Map`, or other mutable collections
+- Builder pattern methods that accept mutable collections
+- Any public method that stores a reference to a mutable object
+
+**When NOT to Use Defensive Copying:**
+- Immutable types (`String`, `Integer`, primitives, enums)
+- Internal private methods where mutation is controlled
+- Performance-critical paths where immutability is guaranteed by design
+
 ## Architecture
 
 The codebase follows a layered architecture with clear separation of concerns:
@@ -96,10 +129,11 @@ The application uses two separate formatter chains for different purposes:
 
 ```java
 CompositeEntityLineFormatter.builder()
-    .addFormatter(new DefaultLineFormatter())        // Base: name + dataType
-    .addFormatter(new PrimaryKeyLineFormatter())     // Adds PK indicator
-    .addFormatter(new ForeignKeyLineFormatter())     // Adds FK indicator
-    .addFormatter(new NullableLineFormatter())       // Adds nullability
+    .addFormatter(new DefaultEntityLineFormatter())        // Base: name + dataType
+    .addFormatter(new PrimaryKeyEntityLineFormatter())     // Adds PK indicator
+    .addFormatter(new ForeignKeyEntityLineFormatter())     // Adds FK indicator
+    .addFormatter(new NullableEntityLineFormatter())       // Adds nullability
+    .addFormatter(new ConstraintEntityLineFormatter())     // Adds constraints (UNIQUE, CHECK, DEFAULT, AUTO_INCREMENT)
     .build();
 ```
 
@@ -108,6 +142,7 @@ Each `EntityLineFormatter` implementation:
 - Appends additional notation
 - Returns the enhanced string
 - Follows functional interface pattern: `format(Table, Column, String) -> String`
+- Example output: `id: uuid <<DEFAULT,AUTO_INCREMENT>>`
 
 **Relationship Formatting** uses `MultiplicityFormatter` via `CompositeMultiplicityFormatter`:
 
@@ -187,16 +222,19 @@ All tests follow consistent patterns. When writing new tests:
 
 ### Workflow After Writing Tests
 
-Always format code and run tests together:
+Always format code and run full verification:
 
 ```bash
-mvn spotless:apply && mvn test
+mvn spotless:apply && mvn clean verify
 ```
 
 This ensures:
 1. Code is formatted according to Google Java Style
 2. Tests pass
-3. No spotless check failures will occur during `mvn verify`
+3. All static analysis checks pass (Checkstyle, SpotBugs, PMD)
+4. No issues will occur during the full build
+
+For faster iteration during development, you can use `mvn spotless:apply && mvn test`, but always run the full `mvn clean verify` before committing.
 
 ### Builder Pattern in Tests
 
@@ -217,6 +255,29 @@ The application handles database-specific enum types (e.g., PostgreSQL `CREATE T
 2. `QueryRunner.getEnumValues()` fetches allowed values for each enum
 3. Columns with `dataType="USER-DEFINED"` are mapped to their enum types via `Column.mapUserDefinedToEnumType()`
 4. `EnumRenderer` outputs PlantUML enum notation
+
+## Column Constraints
+
+The application detects and renders database constraints in PlantUML using inline `<<>>` notation:
+
+**Supported Constraints:**
+- `UNIQUE`: Columns with unique constraints
+- `CHECK`: Columns with validation rules (e.g., `age > 0`)
+- `DEFAULT`: Columns with default values
+- `AUTO_INCREMENT`: Serial/auto-incrementing columns (PostgreSQL: detects `nextval` sequences)
+
+**Architecture:**
+1. `PostgresqlQueryRunner.GET_COLUMN_INFO_QUERY` fetches constraint metadata from `information_schema`
+2. `PostgresqlResultSetMapper.buildConstraints()` maps raw SQL results to `List<Constraint>` enum
+3. `Column` record stores constraints as an immutable list (defensive copy in compact constructor)
+4. `ConstraintEntityLineFormatter` formats constraints as comma-separated values: `<<UNIQUE,CHECK,DEFAULT>>`
+
+**Example Output:**
+```
+id: uuid <<DEFAULT,AUTO_INCREMENT>>
+email: varchar <<UNIQUE>>
+age: integer <<CHECK>>
+```
 
 ## Foreign Key Multiplicity
 

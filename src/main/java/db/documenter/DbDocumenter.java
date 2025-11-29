@@ -3,6 +3,7 @@ package db.documenter;
 import db.documenter.internal.connection.ConnectionManagerFactory;
 import db.documenter.internal.connection.api.ConnectionManager;
 import db.documenter.internal.formatter.impl.entity.CompositeEntityLineFormatter;
+import db.documenter.internal.formatter.impl.entity.ConstraintEntityLineFormatter;
 import db.documenter.internal.formatter.impl.entity.DefaultEntityLineFormatter;
 import db.documenter.internal.formatter.impl.entity.ForeignKeyEntityLineFormatter;
 import db.documenter.internal.formatter.impl.entity.NullableEntityLineFormatter;
@@ -45,6 +46,7 @@ public final class DbDocumenter {
             .addFormatter(new PrimaryKeyEntityLineFormatter())
             .addFormatter(new ForeignKeyEntityLineFormatter())
             .addFormatter(new NullableEntityLineFormatter())
+            .addFormatter(new ConstraintEntityLineFormatter())
             .build();
     final var multiplicityFormatter =
         CompositeMultiplicityFormatter.builder()

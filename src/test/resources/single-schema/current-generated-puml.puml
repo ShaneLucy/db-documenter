@@ -12,34 +12,34 @@ package "public" {
 	}
 
 	entity "app_user" {
-		**id: uuid**
+		**id: uuid** <<DEFAULT>>
 		--
-		username: character varying(50)
-		email: character varying(255)
+		username: character varying(50) <<UNIQUE,CHECK>>
+		email: character varying(255) <<UNIQUE>>
 		display_name: character varying(100)?
 		birth_date: date?
-		created_at: timestamp with time zone
-		profile: jsonb?
-		is_active: boolean
+		created_at: timestamp with time zone <<DEFAULT>>
+		profile: jsonb? <<DEFAULT>>
+		is_active: boolean <<DEFAULT>>
 	}
 
 	entity "user_role" {
 		**user_id: uuid** <<FK>>
 		**role_id: smallint** <<FK>>
 		--
-		assigned_at: timestamp with time zone
+		assigned_at: timestamp with time zone <<DEFAULT>>
 		assigned_by: uuid <<FK>>?
 	}
 
 	entity "role" {
-		**id: smallint**
+		**id: smallint** <<DEFAULT,AUTO_INCREMENT>>
 		--
-		code: character varying(50)
+		code: character varying(50) <<UNIQUE>>
 		description: character varying(255)?
 	}
 
 	entity "address" {
-		**id: bigint**
+		**id: bigint** <<DEFAULT,AUTO_INCREMENT>>
 		--
 		user_id: uuid <<FK>>
 		line1: character varying(200)
@@ -47,86 +47,86 @@ package "public" {
 		city: character varying(100)
 		state: character varying(100)?
 		postal_code: character varying(20)?
-		country: character(2)
-		created_at: timestamp with time zone
+		country: character(2) <<CHECK>>
+		created_at: timestamp with time zone <<DEFAULT>>
 	}
 
 	entity "product" {
-		**id: bigint**
+		**id: bigint** <<DEFAULT,AUTO_INCREMENT>>
 		--
-		sku: character varying(30)
+		sku: character varying(30) <<UNIQUE>>
 		name: character varying(200)
 		description: text?
-		price: numeric
-		attributes: jsonb?
-		created_at: timestamp without time zone
-		stock: integer
+		price: numeric <<CHECK>>
+		attributes: jsonb? <<DEFAULT>>
+		created_at: timestamp without time zone <<DEFAULT>>
+		stock: integer <<DEFAULT>>
 	}
 
 	entity "product_category" {
 		**product_id: bigint** <<FK>>
 		**category_id: smallint** <<FK>>
 		--
-		assigned_at: timestamp with time zone
+		assigned_at: timestamp with time zone <<DEFAULT>>
 	}
 
 	entity "category" {
-		**id: smallint**
+		**id: smallint** <<DEFAULT,AUTO_INCREMENT>>
 		--
-		slug: character varying(80)
+		slug: character varying(80) <<UNIQUE>>
 		title: character varying(120)
-		metadata: jsonb?
+		metadata: jsonb? <<DEFAULT>>
 	}
 
 	entity "customer_order" {
-		**id: bigint**
+		**id: bigint** <<DEFAULT,AUTO_INCREMENT>>
 		--
 		user_id: uuid <<FK>>?
-		order_number: character varying(30)
-		order_date: timestamp with time zone
+		order_number: character varying(30) <<UNIQUE>>
+		order_date: timestamp with time zone <<DEFAULT>>
 		ship_date: timestamp without time zone?
 		shipping_address_id: bigint <<FK>>?
-		status: order_status
-		total: numeric
-		metadata: jsonb?
+		status: order_status <<DEFAULT>>
+		total: numeric <<CHECK>>
+		metadata: jsonb? <<DEFAULT>>
 	}
 
 	entity "order_item" {
-		**id: bigint**
+		**id: bigint** <<DEFAULT,AUTO_INCREMENT>>
 		--
-		order_id: bigint <<FK>>
-		product_id: bigint <<FK>>
+		order_id: bigint <<FK>> <<UNIQUE>>
+		product_id: bigint <<FK>> <<UNIQUE>>
 		product_snapshot: jsonb
-		unit_price: numeric
-		quantity: integer
-		line_total: numeric
+		unit_price: numeric <<CHECK>>
+		quantity: integer <<CHECK>>
+		line_total: numeric <<CHECK>>
 	}
 
 	entity "payment" {
-		**id: uuid**
+		**id: uuid** <<DEFAULT>>
 		--
 		order_id: bigint <<FK>>
-		paid_at: timestamp with time zone
-		amount: numeric
+		paid_at: timestamp with time zone <<DEFAULT>>
+		amount: numeric <<CHECK>>
 		method: character varying(50)
 		provider_transaction_id: character varying(255)?
 		raw_response: jsonb?
 	}
 
 	entity "audit_log" {
-		**id: bigint**
+		**id: bigint** <<DEFAULT,AUTO_INCREMENT>>
 		--
 		entity_type: character varying(100)
 		entity_id: text
 		action: character varying(50)
 		performed_by: uuid <<FK>>?
-		performed_at: timestamp with time zone
+		performed_at: timestamp with time zone <<DEFAULT>>
 		details: jsonb?
 	}
 
 	entity "tag_log" {
 		tag_id: character varying(50)
-		logged_at: timestamp with time zone
+		logged_at: timestamp with time zone <<DEFAULT>>
 	}
 
 }

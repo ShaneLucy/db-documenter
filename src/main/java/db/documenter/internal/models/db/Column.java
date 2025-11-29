@@ -4,7 +4,16 @@ import java.util.List;
 
 // TODO remove ordinal position
 public record Column(
-    String name, int ordinalPosition, boolean isNullable, String dataType, int maximumLength) {
+    String name,
+    int ordinalPosition,
+    boolean isNullable,
+    String dataType,
+    int maximumLength,
+    List<Constraint> constraints) {
+
+  public Column {
+    constraints = constraints == null ? List.of() : List.copyOf(constraints);
+  }
 
   public static Builder builder() {
     return new Builder();
@@ -16,6 +25,7 @@ public record Column(
     private boolean isNullable;
     private String dataType;
     private int maximumLength;
+    private List<Constraint> constraints;
 
     public Builder name(final String name) {
       this.name = name;
@@ -42,8 +52,13 @@ public record Column(
       return this;
     }
 
+    public Builder constraints(final List<Constraint> constraints) {
+      this.constraints = List.copyOf(constraints);
+      return this;
+    }
+
     public Column build() {
-      return new Column(name, ordinalPosition, isNullable, dataType, maximumLength);
+      return new Column(name, ordinalPosition, isNullable, dataType, maximumLength, constraints);
     }
   }
 
@@ -61,6 +76,7 @@ public record Column(
         .isNullable(column.isNullable())
         .dataType(dataType)
         .maximumLength(column.maximumLength())
+        .constraints(column.constraints())
         .build();
   }
 }

@@ -23,6 +23,8 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
   public List<Column> mapToColumns(final ResultSet resultSet) throws SQLException {
     final List<Column> columns = new ArrayList<>();
     while (resultSet.next()) {
+      final List<Constraint> constraints = buildConstraints(resultSet);
+
       columns.add(
           Column.builder()
               .name(resultSet.getString("column_name"))
@@ -30,9 +32,34 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
               .isNullable(Objects.equals(resultSet.getString("is_nullable"), "YES"))
               .dataType(resultSet.getString("data_type"))
               .maximumLength(resultSet.getInt("character_maximum_length"))
+              .constraints(constraints)
               .build());
     }
     return columns;
+  }
+
+  private List<Constraint> buildConstraints(final ResultSet resultSet) throws SQLException {
+    final List<Constraint> constraints = new ArrayList<>();
+
+    if (resultSet.getBoolean("is_unique")) {
+      constraints.add(Constraint.UNIQUE);
+    }
+
+    final var checkConstraint = resultSet.getString("check_constraint");
+    if (checkConstraint != null && !checkConstraint.isBlank()) {
+      constraints.add(Constraint.CHECK);
+    }
+
+    final var defaultValue = resultSet.getString("column_default");
+    if (defaultValue != null && !defaultValue.isBlank()) {
+      constraints.add(Constraint.DEFAULT);
+    }
+
+    if (resultSet.getBoolean("is_auto_increment")) {
+      constraints.add(Constraint.AUTO_INCREMENT);
+    }
+
+    return constraints;
   }
 
   @Override

@@ -1,6 +1,6 @@
 TODOs
 1. Finish formatter tests
-2. Handle constraints
+2. Change nullable from ? to use NULLABLE constraint
 2. remove ordinal position from Column
 2. Handle primary keys & foreign keys (group related tables together)
 5. Toggle checkstyle  `<property name="severity" value="warning"/>` back to error

@@ -121,6 +121,10 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("is_nullable")).thenReturn(nullable1);
       when(resultSet.getString("data_type")).thenReturn(dataType1);
       when(resultSet.getInt("character_maximum_length")).thenReturn(maxLength1);
+      when(resultSet.getBoolean("is_unique")).thenReturn(false);
+      when(resultSet.getString("check_constraint")).thenReturn(null);
+      when(resultSet.getString("column_default")).thenReturn(null);
+      when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -143,18 +147,32 @@ class PostgresqlResultSetMapperTest {
       final List<String> nullables = List.of(nullable1, nullable2);
       final List<String> dataTypes = List.of(dataType1, dataType2);
       final List<Integer> maxLengths = List.of(maxLength1, maxLength2);
+      final List<Boolean> isUniques = List.of(false, false);
+      final List<String> checkConstraints = java.util.Arrays.asList(null, null);
+      final List<String> columnDefaults = java.util.Arrays.asList(null, null);
+      final List<Boolean> isAutoIncrements = List.of(false, false);
 
       final Iterator<String> nameIt = names.iterator();
       final Iterator<Integer> ordinalIt = ordinals.iterator();
       final Iterator<String> nullableIt = nullables.iterator();
       final Iterator<String> typeIt = dataTypes.iterator();
       final Iterator<Integer> lengthIt = maxLengths.iterator();
+      final Iterator<Boolean> isUniqueIt = isUniques.iterator();
+      final Iterator<String> checkConstraintIt = checkConstraints.iterator();
+      final Iterator<String> columnDefaultIt = columnDefaults.iterator();
+      final Iterator<Boolean> isAutoIncrementIt = isAutoIncrements.iterator();
 
       when(resultSet.getString("column_name")).thenAnswer(invocation -> nameIt.next());
       when(resultSet.getInt("ordinal_position")).thenAnswer(invocation -> ordinalIt.next());
       when(resultSet.getString("is_nullable")).thenAnswer(invocation -> nullableIt.next());
       when(resultSet.getString("data_type")).thenAnswer(invocation -> typeIt.next());
       when(resultSet.getInt("character_maximum_length")).thenAnswer(invocation -> lengthIt.next());
+      when(resultSet.getBoolean("is_unique")).thenAnswer(invocation -> isUniqueIt.next());
+      when(resultSet.getString("check_constraint"))
+          .thenAnswer(invocation -> checkConstraintIt.next());
+      when(resultSet.getString("column_default")).thenAnswer(invocation -> columnDefaultIt.next());
+      when(resultSet.getBoolean("is_auto_increment"))
+          .thenAnswer(invocation -> isAutoIncrementIt.next());
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
