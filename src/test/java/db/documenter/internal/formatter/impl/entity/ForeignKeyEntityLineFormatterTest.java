@@ -48,7 +48,7 @@ class ForeignKeyEntityLineFormatterTest {
       final var result =
           foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "value");
 
-      assertEquals("__value__ '→ target_table.target_col", result);
+      assertEquals("value <<FK>>", result);
     }
 
     @Test
@@ -59,7 +59,7 @@ class ForeignKeyEntityLineFormatterTest {
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
       final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "v");
 
-      assertEquals("__v__ '→ t.c", result);
+      assertEquals("v <<FK>>", result);
     }
 
     @Test
@@ -73,7 +73,7 @@ class ForeignKeyEntityLineFormatterTest {
       final var table = tableBuilder.foreignKeys(List.of(fk1, fk2)).build();
       final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "x");
 
-      assertEquals("__x__ '→ A.a", result);
+      assertEquals("x <<FK>>", result);
     }
 
     @Test
@@ -95,7 +95,7 @@ class ForeignKeyEntityLineFormatterTest {
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
       final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), null);
 
-      assertEquals("__null__ '→ t.c", result);
+      assertEquals("null <<FK>>", result);
     }
 
     @Test
@@ -106,7 +106,7 @@ class ForeignKeyEntityLineFormatterTest {
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
       final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "");
 
-      assertEquals("____ '→ t.c", result);
+      assertEquals(" <<FK>>", result);
     }
 
     @Test
@@ -117,7 +117,7 @@ class ForeignKeyEntityLineFormatterTest {
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
       final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "  ");
 
-      assertEquals("__  __ '→ t.c", result);
+      assertEquals("   <<FK>>", result);
     }
 
     @Test
@@ -128,7 +128,7 @@ class ForeignKeyEntityLineFormatterTest {
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
       final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "v");
 
-      assertEquals("__v__ '→ null.x", result);
+      assertEquals("v <<FK>>", result);
     }
 
     @Test
@@ -139,7 +139,7 @@ class ForeignKeyEntityLineFormatterTest {
       final var table = tableBuilder.foreignKeys(List.of(fk)).build();
       final var result = foreignKeyEntityLineFormatter.format(table, columnBuilder.build(), "v");
 
-      assertEquals("__v__ '→ t.null", result);
+      assertEquals("v <<FK>>", result);
     }
 
     @Test

@@ -12,11 +12,7 @@ public final class ForeignKeyEntityLineFormatter implements EntityLineFormatter 
 
     for (final ForeignKey fk : table.foreignKeys()) {
       if (fk.sourceColumn().equalsIgnoreCase(column.name())) {
-
-        final String decorated = "__" + current + "__";
-
-        // Optionally add a tooltip comment
-        return decorated + String.format(" '→ %s.%s", fk.targetTable(), fk.targetColumn());
+        return current + " <<FK>>";
       }
     }
     return current;

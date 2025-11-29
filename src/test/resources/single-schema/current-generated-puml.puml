@@ -24,11 +24,11 @@ package "public" {
 	}
 
 	entity "user_role" {
-		__**user_id: uuid**__ '→ app_user.id
-		__**role_id: smallint**__ '→ role.id
+		**user_id: uuid** <<FK>>
+		**role_id: smallint** <<FK>>
 		--
 		assigned_at: timestamp with time zone
-		__assigned_by: uuid__ '→ app_user.id?
+		assigned_by: uuid <<FK>>?
 	}
 
 	entity "role" {
@@ -41,7 +41,7 @@ package "public" {
 	entity "address" {
 		**id: bigint**
 		--
-		__user_id: uuid__ '→ app_user.id
+		user_id: uuid <<FK>>
 		line1: character varying(200)
 		line2: character varying(200)?
 		city: character varying(100)
@@ -64,8 +64,8 @@ package "public" {
 	}
 
 	entity "product_category" {
-		__**product_id: bigint**__ '→ product.id
-		__**category_id: smallint**__ '→ category.id
+		**product_id: bigint** <<FK>>
+		**category_id: smallint** <<FK>>
 		--
 		assigned_at: timestamp with time zone
 	}
@@ -81,11 +81,11 @@ package "public" {
 	entity "customer_order" {
 		**id: bigint**
 		--
-		__user_id: uuid__ '→ app_user.id?
+		user_id: uuid <<FK>>?
 		order_number: character varying(30)
 		order_date: timestamp with time zone
 		ship_date: timestamp without time zone?
-		__shipping_address_id: bigint__ '→ address.id?
+		shipping_address_id: bigint <<FK>>?
 		status: order_status
 		total: numeric
 		metadata: jsonb?
@@ -94,8 +94,8 @@ package "public" {
 	entity "order_item" {
 		**id: bigint**
 		--
-		__order_id: bigint__ '→ customer_order.id
-		__product_id: bigint__ '→ product.id
+		order_id: bigint <<FK>>
+		product_id: bigint <<FK>>
 		product_snapshot: jsonb
 		unit_price: numeric
 		quantity: integer
@@ -105,7 +105,7 @@ package "public" {
 	entity "payment" {
 		**id: uuid**
 		--
-		__order_id: bigint__ '→ customer_order.id
+		order_id: bigint <<FK>>
 		paid_at: timestamp with time zone
 		amount: numeric
 		method: character varying(50)
@@ -119,7 +119,7 @@ package "public" {
 		entity_type: character varying(100)
 		entity_id: text
 		action: character varying(50)
-		__performed_by: uuid__ '→ app_user.id?
+		performed_by: uuid <<FK>>?
 		performed_at: timestamp with time zone
 		details: jsonb?
 	}
