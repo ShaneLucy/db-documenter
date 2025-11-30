@@ -15,6 +15,7 @@ import db.documenter.internal.renderer.impl.EntityRenderer;
 import db.documenter.internal.renderer.impl.EnumRenderer;
 import db.documenter.internal.renderer.impl.RelationshipRenderer;
 import db.documenter.internal.renderer.impl.SchemaRenderer;
+import java.sql.SQLException;
 import java.util.List;
 
 /** Entrypoint to the DbDocumenter application. */
@@ -46,8 +47,9 @@ public final class DbDocumenter {
    * Inspects the provided database schema(s) to generate a puml file.
    *
    * @return a formatted {@link String} representation of the database schema.
+   * @throws SQLException if database access fails
    */
-  public String generatePuml() {
+  public String generatePuml() throws SQLException {
     final var entityFormatter = formatterConfigurer.createEntityLineFormatter();
     final var multiplicityFormatter = formatterConfigurer.createMultiplicityFormatter();
 

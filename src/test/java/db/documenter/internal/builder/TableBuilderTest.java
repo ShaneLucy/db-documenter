@@ -189,20 +189,19 @@ class TableBuilderTest {
     }
 
     @Test
-    void wrapsRuntimeExceptionFromGetColumnInfo() throws SQLException {
+    void propagatesSQLExceptionFromGetColumnInfo() throws SQLException {
       final Table table = Table.builder().name("users").build();
 
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of(table));
       when(queryRunner.getColumnInfo("test_schema", table))
           .thenThrow(new SQLException("Failed to fetch columns"));
 
-      final RuntimeException exception =
+      final SQLException exception =
           assertThrows(
-              RuntimeException.class,
+              SQLException.class,
               () -> tableBuilder.buildTables(queryRunner, "test_schema", List.of()));
 
-      assertTrue(exception.getCause() instanceof SQLException);
-      assertEquals("Failed to fetch columns", exception.getCause().getMessage());
+      assertEquals("Failed to fetch columns", exception.getMessage());
     }
   }
 }

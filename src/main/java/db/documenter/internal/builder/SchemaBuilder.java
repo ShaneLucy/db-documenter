@@ -6,10 +6,15 @@ import db.documenter.internal.models.db.Schema;
 import db.documenter.internal.models.db.Table;
 import db.documenter.internal.queries.QueryRunnerFactory;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Builds database schema information by orchestrating table and enum builders. */
 public final class SchemaBuilder {
+  private static final Logger LOGGER = Logger.getLogger(SchemaBuilder.class.getName());
+
   private final ConnectionManager connectionManager;
   private final QueryRunnerFactory queryRunnerFactory;
   private final EnumBuilder enumBuilder;
@@ -31,23 +36,27 @@ public final class SchemaBuilder {
    *
    * @param schemaNames the list of schema names to build
    * @return list of {@link Schema} instances
+   * @throws SQLException if database access fails
    */
-  public List<Schema> buildSchemas(final List<String> schemaNames) {
-    return schemaNames.stream()
-        .map(
-            schemaName -> {
-              try (final var connection = connectionManager.getConnection()) {
-                final var queryRunner = queryRunnerFactory.createQueryRunner(connection);
+  public List<Schema> buildSchemas(final List<String> schemaNames) throws SQLException {
+    final List<Schema> result = new ArrayList<>();
 
-                final List<DbEnum> dbEnums = enumBuilder.buildEnums(queryRunner, schemaName);
-                final List<Table> tables =
-                    tableBuilder.buildTables(queryRunner, schemaName, dbEnums);
+    for (final String schemaName : schemaNames) {
+      try (final var connection = connectionManager.getConnection()) {
+        final var queryRunner = queryRunnerFactory.createQueryRunner(connection);
 
-                return Schema.builder().name(schemaName).tables(tables).dbEnums(dbEnums).build();
-              } catch (SQLException e) {
-                throw new RuntimeException(e);
-              }
-            })
-        .toList();
+        final List<DbEnum> dbEnums = enumBuilder.buildEnums(queryRunner, schemaName);
+        final List<Table> tables = tableBuilder.buildTables(queryRunner, schemaName, dbEnums);
+
+        result.add(Schema.builder().name(schemaName).tables(tables).dbEnums(dbEnums).build());
+      } catch (final SQLException e) {
+        if (LOGGER.isLoggable(Level.SEVERE)) {
+          LOGGER.severe("Failed to build schema: " + schemaName + " - " + e.getMessage());
+        }
+        throw e;
+      }
+    }
+
+    return result;
   }
 }

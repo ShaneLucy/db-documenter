@@ -10,6 +10,7 @@ import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
 import db.documenter.internal.queries.api.QueryRunner;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /** Builds database table information from schema metadata. */
@@ -40,27 +41,22 @@ public final class TableBuilder {
       final QueryRunner queryRunner, final String schema, final List<DbEnum> dbEnums)
       throws SQLException {
     final List<Table> tables = queryRunner.getTableInfo(schema);
+    final List<Table> result = new ArrayList<>();
 
-    return tables.stream()
-        .map(
-            table -> {
-              try {
-                final List<Column> rawColumns = queryRunner.getColumnInfo(schema, table);
-                final List<Column> columns = columnMapper.mapUserDefinedTypes(rawColumns, dbEnums);
+    for (final Table table : tables) {
+      final List<Column> rawColumns = queryRunner.getColumnInfo(schema, table);
+      final List<Column> columns = columnMapper.mapUserDefinedTypes(rawColumns, dbEnums);
 
-                final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo(schema, table);
+      final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo(schema, table);
 
-                final List<ForeignKey> rawForeignKeys =
-                    queryRunner.getForeignKeyInfo(schema, table);
-                final List<ForeignKey> foreignKeys =
-                    foreignKeyMapper.enrichWithNullability(rawForeignKeys, columns);
+      final List<ForeignKey> rawForeignKeys = queryRunner.getForeignKeyInfo(schema, table);
+      final List<ForeignKey> foreignKeys =
+          foreignKeyMapper.enrichWithNullability(rawForeignKeys, columns);
 
-                return tableMapper.combineTableComponents(
-                    table.name(), columns, primaryKey, foreignKeys);
-              } catch (SQLException e) {
-                throw new RuntimeException(e);
-              }
-            })
-        .toList();
+      result.add(
+          tableMapper.combineTableComponents(table.name(), columns, primaryKey, foreignKeys));
+    }
+
+    return result;
   }
 }

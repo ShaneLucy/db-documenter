@@ -53,7 +53,7 @@ class DbDocumenterTest {
   class GeneratePuml {
 
     @Test
-    void itWorksCorrectlyForASingleSchema() throws IOException {
+    void itWorksCorrectlyForASingleSchema() throws IOException, SQLException {
       final var expected =
           Files.readString(Path.of("src/test/resources/single-schema/current-generated-puml.puml"));
       final var expectedLines = expected.lines().toList();

@@ -61,6 +61,67 @@ All checks run during `mvn verify`. Code must pass all checks before committing.
 - No star imports
 - Prefer Java Streams API over enhanced for loops for collection processing
 
+### Logging Patterns
+
+Use `java.util.logging.Logger` for all logging in this project:
+
+**Logger Declaration:**
+```java
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public final class MyClass {
+  private static final Logger LOGGER = Logger.getLogger(MyClass.class.getName());
+
+  // ... rest of class
+}
+```
+
+**Important Logging Rules:**
+
+1. **Check Log Level Before Logging**: Always check if the log level is enabled before constructing expensive log messages
+   ```java
+   // Good: Only constructs message if SEVERE logging is enabled
+   if (LOGGER.isLoggable(Level.SEVERE)) {
+     LOGGER.severe("Failed to build schema: " + schemaName + " - " + e.getMessage());
+   }
+
+   // Bad: Constructs message even if logging is disabled
+   LOGGER.severe("Failed to build schema: " + schemaName + " - " + e.getMessage());
+   ```
+
+2. **Log Before Rethrowing**: When catching and rethrowing exceptions, log the error with context before rethrowing
+   ```java
+   try {
+     // ... operation
+   } catch (SQLException e) {
+     if (LOGGER.isLoggable(Level.SEVERE)) {
+       LOGGER.severe("Failed to build schema: " + schemaName + " - " + e.getMessage());
+     }
+     throw e;  // Rethrow the original exception
+   }
+   ```
+
+3. **Use Appropriate Log Levels**:
+   - `Level.SEVERE`: Error conditions that prevent normal operation
+   - `Level.WARNING`: Potential problems that don't prevent operation
+   - `Level.INFO`: Informational messages about normal operations (connections, discovery counts, processing steps)
+   - `Level.FINE/FINER/FINEST`: Debug-level details
+
+4. **Include Context**: Log messages should include relevant context (e.g., schema name, table name, counts) to aid debugging
+
+**When to Log:**
+- Before rethrowing exceptions (with context) - use SEVERE level
+- When establishing database connections - use INFO level
+- When discovering database objects (tables, enums, columns, etc.) - use INFO level
+- At key processing milestones (building schemas, tables, rendering output) - use INFO level
+- Error conditions that require investigation - use SEVERE level
+
+**When NOT to Log:**
+- Don't log-and-wrap exceptions in RuntimeException - prefer rethrowing the original exception with logging
+- Don't log in pure transformation functions (mappers) unless there's a specific reason - logging belongs in orchestration layers (builders)
+- Avoid excessive logging in tight loops - consider logging summaries instead
+
 ### Functional Programming with Streams
 
 Prefer using Java Streams API over enhanced for loops when processing collections:

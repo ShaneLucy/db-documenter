@@ -47,7 +47,7 @@ class SchemaBuilderTest {
   class BuildSchemasTests {
 
     @Test
-    void returnsEmptyListWhenNoSchemasProvided() {
+    void returnsEmptyListWhenNoSchemasProvided() throws SQLException {
       final List<Schema> result = schemaBuilder.buildSchemas(List.of());
 
       assertTrue(result.isEmpty());
@@ -155,41 +155,38 @@ class SchemaBuilderTest {
       when(enumBuilder.buildEnums(queryRunner, "test_schema"))
           .thenThrow(new SQLException("Database error"));
 
-      assertThrows(
-          RuntimeException.class, () -> schemaBuilder.buildSchemas(List.of("test_schema")));
+      assertThrows(SQLException.class, () -> schemaBuilder.buildSchemas(List.of("test_schema")));
 
       verify(connection).close();
     }
 
     @Test
-    void wrapsRuntimeExceptionFromEnumBuilder() throws SQLException {
+    void propagatesSQLExceptionFromEnumBuilder() throws SQLException {
       when(connectionManager.getConnection()).thenReturn(connection);
       when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
       when(enumBuilder.buildEnums(queryRunner, "test_schema"))
           .thenThrow(new SQLException("Failed to build enums"));
 
-      final RuntimeException exception =
+      final SQLException exception =
           assertThrows(
-              RuntimeException.class, () -> schemaBuilder.buildSchemas(List.of("test_schema")));
+              SQLException.class, () -> schemaBuilder.buildSchemas(List.of("test_schema")));
 
-      assertTrue(exception.getCause() instanceof SQLException);
-      assertEquals("Failed to build enums", exception.getCause().getMessage());
+      assertEquals("Failed to build enums", exception.getMessage());
     }
 
     @Test
-    void wrapsRuntimeExceptionFromTableBuilder() throws SQLException {
+    void propagatesSQLExceptionFromTableBuilder() throws SQLException {
       when(connectionManager.getConnection()).thenReturn(connection);
       when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
       when(enumBuilder.buildEnums(queryRunner, "test_schema")).thenReturn(List.of());
       when(tableBuilder.buildTables(queryRunner, "test_schema", List.of()))
           .thenThrow(new SQLException("Failed to build tables"));
 
-      final RuntimeException exception =
+      final SQLException exception =
           assertThrows(
-              RuntimeException.class, () -> schemaBuilder.buildSchemas(List.of("test_schema")));
+              SQLException.class, () -> schemaBuilder.buildSchemas(List.of("test_schema")));
 
-      assertTrue(exception.getCause() instanceof SQLException);
-      assertEquals("Failed to build tables", exception.getCause().getMessage());
+      assertEquals("Failed to build tables", exception.getMessage());
     }
   }
 }
