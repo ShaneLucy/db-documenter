@@ -74,9 +74,9 @@ class SchemaBuilderTest {
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("test_schema"));
 
       assertEquals(1, result.size());
-      assertEquals("test_schema", result.get(0).name());
-      assertEquals(List.of(dbEnum), result.get(0).dbEnums());
-      assertEquals(List.of(table), result.get(0).tables());
+      assertEquals("test_schema", result.getFirst().name());
+      assertEquals(List.of(dbEnum), result.getFirst().dbEnums());
+      assertEquals(List.of(table), result.getFirst().tables());
 
       verify(connection).close();
     }
@@ -105,9 +105,9 @@ class SchemaBuilderTest {
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("schema1", "schema2"));
 
       assertEquals(2, result.size());
-      assertEquals("schema1", result.get(0).name());
-      assertEquals(List.of(dbEnum1), result.get(0).dbEnums());
-      assertEquals(List.of(table1), result.get(0).tables());
+      assertEquals("schema1", result.getFirst().name());
+      assertEquals(List.of(dbEnum1), result.getFirst().dbEnums());
+      assertEquals(List.of(table1), result.getFirst().tables());
       assertEquals("schema2", result.get(1).name());
       assertEquals(List.of(dbEnum2), result.get(1).dbEnums());
       assertEquals(List.of(table2), result.get(1).tables());
@@ -127,8 +127,8 @@ class SchemaBuilderTest {
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("test_schema"));
 
       assertEquals(1, result.size());
-      assertTrue(result.get(0).dbEnums().isEmpty());
-      assertEquals(List.of(table), result.get(0).tables());
+      assertTrue(result.getFirst().dbEnums().isEmpty());
+      assertEquals(List.of(table), result.getFirst().tables());
     }
 
     @Test
@@ -144,8 +144,8 @@ class SchemaBuilderTest {
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("test_schema"));
 
       assertEquals(1, result.size());
-      assertEquals(List.of(dbEnum), result.get(0).dbEnums());
-      assertTrue(result.get(0).tables().isEmpty());
+      assertEquals(List.of(dbEnum), result.getFirst().dbEnums());
+      assertTrue(result.getFirst().tables().isEmpty());
     }
 
     @Test

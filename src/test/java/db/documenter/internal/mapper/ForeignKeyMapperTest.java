@@ -53,7 +53,7 @@ class ForeignKeyMapperTest {
           foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
 
       assertEquals(1, result.size());
-      assertTrue(result.get(0).isNullable());
+      assertTrue(result.getFirst().isNullable());
     }
 
     @Test
@@ -74,7 +74,7 @@ class ForeignKeyMapperTest {
           foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
 
       assertEquals(1, result.size());
-      assertFalse(result.get(0).isNullable());
+      assertFalse(result.getFirst().isNullable());
     }
 
     @Test
@@ -95,7 +95,7 @@ class ForeignKeyMapperTest {
           foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
 
       assertEquals(1, result.size());
-      assertFalse(result.get(0).isNullable());
+      assertFalse(result.getFirst().isNullable());
     }
 
     @Test
@@ -129,7 +129,7 @@ class ForeignKeyMapperTest {
               List.of(foreignKey1, foreignKey2), List.of(column1, column2));
 
       assertEquals(2, result.size());
-      assertTrue(result.get(0).isNullable());
+      assertTrue(result.getFirst().isNullable());
       assertFalse(result.get(1).isNullable());
     }
 
@@ -152,7 +152,7 @@ class ForeignKeyMapperTest {
           foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
 
       assertEquals(1, result.size());
-      final var enriched = result.get(0);
+      final var enriched = result.getFirst();
       assertEquals("fk_user", enriched.name());
       assertEquals("orders", enriched.sourceTable());
       assertEquals("user_id", enriched.sourceColumn());
@@ -183,7 +183,7 @@ class ForeignKeyMapperTest {
               List.of(foreignKey), List.of(column1, column2, column3));
 
       assertEquals(1, result.size());
-      assertTrue(result.get(0).isNullable());
+      assertTrue(result.getFirst().isNullable());
     }
   }
 }

@@ -34,7 +34,7 @@ class ColumnMapperTest {
           columnMapper.mapUserDefinedTypes(List.of(column1, column2), List.of());
 
       assertEquals(2, result.size());
-      assertEquals("uuid", result.get(0).dataType());
+      assertEquals("uuid", result.getFirst().dataType());
       assertEquals("varchar", result.get(1).dataType());
     }
 
@@ -48,8 +48,8 @@ class ColumnMapperTest {
           columnMapper.mapUserDefinedTypes(List.of(column), List.of(dbEnum));
 
       assertEquals(1, result.size());
-      assertEquals("order_status", result.get(0).dataType());
-      assertEquals("status", result.get(0).name());
+      assertEquals("order_status", result.getFirst().dataType());
+      assertEquals("status", result.getFirst().name());
     }
 
     @Test
@@ -63,7 +63,7 @@ class ColumnMapperTest {
           columnMapper.mapUserDefinedTypes(List.of(column), List.of(dbEnum));
 
       assertEquals(1, result.size());
-      assertEquals("USER-DEFINED", result.get(0).dataType());
+      assertEquals("USER-DEFINED", result.getFirst().dataType());
     }
 
     @Test
@@ -83,7 +83,7 @@ class ColumnMapperTest {
           columnMapper.mapUserDefinedTypes(List.of(column), List.of(dbEnum));
 
       assertEquals(1, result.size());
-      final var mapped = result.get(0);
+      final var mapped = result.getFirst();
       assertEquals("status", mapped.name());
       assertEquals(5, mapped.ordinalPosition());
       assertTrue(mapped.isNullable());
@@ -105,9 +105,10 @@ class ColumnMapperTest {
           columnMapper.enrichWithForeignKeyConstraints(List.of(column1, column2), List.of());
 
       assertEquals(2, result.size());
-      assertEquals("id", result.get(0).name());
+      assertEquals("id", result.getFirst().name());
       assertEquals("name", result.get(1).name());
-      assertTrue(result.get(0).constraints() == null || result.get(0).constraints().isEmpty());
+      assertTrue(
+          result.getFirst().constraints() == null || result.getFirst().constraints().isEmpty());
       assertTrue(result.get(1).constraints() == null || result.get(1).constraints().isEmpty());
     }
 
@@ -129,9 +130,9 @@ class ColumnMapperTest {
           columnMapper.enrichWithForeignKeyConstraints(List.of(column), List.of(foreignKey));
 
       assertEquals(1, result.size());
-      assertEquals("user_id", result.get(0).name());
-      assertEquals(1, result.get(0).constraints().size());
-      assertEquals(Constraint.FK, result.get(0).constraints().get(0));
+      assertEquals("user_id", result.getFirst().name());
+      assertEquals(1, result.getFirst().constraints().size());
+      assertEquals(Constraint.FK, result.getFirst().constraints().getFirst());
     }
 
     @Test
@@ -157,10 +158,10 @@ class ColumnMapperTest {
           columnMapper.enrichWithForeignKeyConstraints(List.of(column), List.of(foreignKey));
 
       assertEquals(1, result.size());
-      assertEquals(3, result.get(0).constraints().size());
-      assertEquals(Constraint.FK, result.get(0).constraints().get(0));
-      assertEquals(Constraint.UNIQUE, result.get(0).constraints().get(1));
-      assertEquals(Constraint.DEFAULT, result.get(0).constraints().get(2));
+      assertEquals(3, result.getFirst().constraints().size());
+      assertEquals(Constraint.FK, result.getFirst().constraints().getFirst());
+      assertEquals(Constraint.UNIQUE, result.getFirst().constraints().get(1));
+      assertEquals(Constraint.DEFAULT, result.getFirst().constraints().get(2));
     }
 
     @Test
@@ -196,14 +197,14 @@ class ColumnMapperTest {
       assertEquals(3, result.size());
 
       // user_id should have FK
-      assertEquals("user_id", result.get(0).name());
-      assertEquals(1, result.get(0).constraints().size());
-      assertEquals(Constraint.FK, result.get(0).constraints().get(0));
+      assertEquals("user_id", result.getFirst().name());
+      assertEquals(1, result.getFirst().constraints().size());
+      assertEquals(Constraint.FK, result.getFirst().constraints().getFirst());
 
       // product_id should have FK
       assertEquals("product_id", result.get(1).name());
       assertEquals(1, result.get(1).constraints().size());
-      assertEquals(Constraint.FK, result.get(1).constraints().get(0));
+      assertEquals(Constraint.FK, result.get(1).constraints().getFirst());
 
       // name should not have FK
       assertEquals("name", result.get(2).name());
@@ -228,9 +229,9 @@ class ColumnMapperTest {
           columnMapper.enrichWithForeignKeyConstraints(List.of(column), List.of(foreignKey));
 
       assertEquals(1, result.size());
-      assertEquals("USER_ID", result.get(0).name());
-      assertFalse(result.get(0).constraints().isEmpty());
-      assertEquals(Constraint.FK, result.get(0).constraints().get(0));
+      assertEquals("USER_ID", result.getFirst().name());
+      assertFalse(result.getFirst().constraints().isEmpty());
+      assertEquals(Constraint.FK, result.getFirst().constraints().getFirst());
     }
 
     @Test
@@ -258,7 +259,7 @@ class ColumnMapperTest {
           columnMapper.enrichWithForeignKeyConstraints(List.of(column), List.of(foreignKey));
 
       assertEquals(1, result.size());
-      final var enriched = result.get(0);
+      final var enriched = result.getFirst();
       assertEquals("user_id", enriched.name());
       assertEquals(3, enriched.ordinalPosition());
       assertTrue(enriched.isNullable());

@@ -47,11 +47,11 @@ class TableMapperTest {
       assertNotNull(result);
       assertEquals("orders", result.name());
       assertEquals(1, result.columns().size());
-      assertEquals("id", result.columns().get(0).name());
+      assertEquals("id", result.columns().getFirst().name());
       assertNotNull(result.primaryKey());
       assertEquals(List.of("id"), result.primaryKey().columnNames());
       assertEquals(1, result.foreignKeys().size());
-      assertEquals("fk_user", result.foreignKeys().get(0).name());
+      assertEquals("fk_user", result.foreignKeys().getFirst().name());
     }
 
     @Test
@@ -96,7 +96,7 @@ class TableMapperTest {
               "users", List.of(column1, column2, column3), primaryKey, List.of());
 
       assertEquals(3, result.columns().size());
-      assertEquals("id", result.columns().get(0).name());
+      assertEquals("id", result.columns().getFirst().name());
       assertEquals("name", result.columns().get(1).name());
       assertEquals("email", result.columns().get(2).name());
     }
@@ -131,7 +131,7 @@ class TableMapperTest {
               "orders", List.of(column), primaryKey, List.of(foreignKey1, foreignKey2));
 
       assertEquals(2, result.foreignKeys().size());
-      assertEquals("fk_user", result.foreignKeys().get(0).name());
+      assertEquals("fk_user", result.foreignKeys().getFirst().name());
       assertEquals("fk_product", result.foreignKeys().get(1).name());
     }
 
@@ -149,7 +149,7 @@ class TableMapperTest {
 
       assertNotNull(result.primaryKey());
       assertEquals(2, result.primaryKey().columnNames().size());
-      assertEquals("user_id", result.primaryKey().columnNames().get(0));
+      assertEquals("user_id", result.primaryKey().columnNames().getFirst());
       assertEquals("role_id", result.primaryKey().columnNames().get(1));
     }
 

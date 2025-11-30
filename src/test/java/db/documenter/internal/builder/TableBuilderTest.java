@@ -135,7 +135,7 @@ class TableBuilderTest {
       final List<Table> result = tableBuilder.buildTables(queryRunner, "test_schema", List.of());
 
       assertEquals(2, result.size());
-      assertEquals("users", result.get(0).name());
+      assertEquals("users", result.getFirst().name());
       assertEquals("orders", result.get(1).name());
     }
 

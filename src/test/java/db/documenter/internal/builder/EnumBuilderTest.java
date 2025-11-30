@@ -55,8 +55,8 @@ class EnumBuilderTest {
       final List<DbEnum> result = enumBuilder.buildEnums(queryRunner, "test_schema");
 
       assertEquals(2, result.size());
-      assertEquals("status", result.get(0).enumName());
-      assertEquals(List.of("active", "inactive"), result.get(0).enumValues());
+      assertEquals("status", result.getFirst().enumName());
+      assertEquals(List.of("active", "inactive"), result.getFirst().enumValues());
       assertEquals("role", result.get(1).enumName());
       assertEquals(List.of("admin", "user"), result.get(1).enumValues());
     }
@@ -71,7 +71,7 @@ class EnumBuilderTest {
       final List<DbEnum> result = enumBuilder.buildEnums(queryRunner, "test_schema");
 
       assertEquals(1, result.size());
-      assertTrue(result.get(0).enumValues().isEmpty());
+      assertTrue(result.getFirst().enumValues().isEmpty());
     }
 
     @Test
