@@ -33,7 +33,8 @@ class RelationshipRendererTest {
 
     @Test
     void returnsEmptyStringWhenSchemaHasNoTables() {
-      final var schema = Schema.builder().name("public").tables(List.of()).build();
+      final var schema =
+          Schema.builder().name("public").tables(List.of()).dbEnums(List.of()).build();
 
       final var result = relationshipRenderer.render(schema);
 
@@ -43,9 +44,16 @@ class RelationshipRendererTest {
 
     @Test
     void returnsEmptyStringWhenSchemaTablesHaveNoForeignKeys() {
-      final var table1 = Table.builder().name("users").foreignKeys(List.of()).build();
-      final var table2 = Table.builder().name("orders").foreignKeys(List.of()).build();
-      final var schema = Schema.builder().name("public").tables(List.of(table1, table2)).build();
+      final var table1 =
+          Table.builder().name("users").foreignKeys(List.of()).columns(List.of()).build();
+      final var table2 =
+          Table.builder().name("orders").foreignKeys(List.of()).columns(List.of()).build();
+      final var schema =
+          Schema.builder()
+              .name("public")
+              .tables(List.of(table1, table2))
+              .dbEnums(List.of())
+              .build();
 
       final var result = relationshipRenderer.render(schema);
 
@@ -66,8 +74,14 @@ class RelationshipRendererTest {
               .isNullable(false)
               .build();
 
-      final var table = Table.builder().name("orders").foreignKeys(List.of(foreignKey)).build();
-      final var schema = Schema.builder().name("public").tables(List.of(table)).build();
+      final var table =
+          Table.builder()
+              .name("orders")
+              .foreignKeys(List.of(foreignKey))
+              .columns(List.of())
+              .build();
+      final var schema =
+          Schema.builder().name("public").tables(List.of(table)).dbEnums(List.of()).build();
 
       when(multiplicityFormatter.format(foreignKey, "public", null))
           .thenReturn("users ||--|{ orders");
@@ -103,8 +117,13 @@ class RelationshipRendererTest {
               .build();
 
       final var table =
-          Table.builder().name("orders").foreignKeys(List.of(foreignKey1, foreignKey2)).build();
-      final var schema = Schema.builder().name("public").tables(List.of(table)).build();
+          Table.builder()
+              .name("orders")
+              .foreignKeys(List.of(foreignKey1, foreignKey2))
+              .columns(List.of())
+              .build();
+      final var schema =
+          Schema.builder().name("public").tables(List.of(table)).dbEnums(List.of()).build();
 
       when(multiplicityFormatter.format(foreignKey1, "public", null))
           .thenReturn("users ||--|{ orders");
@@ -144,8 +163,13 @@ class RelationshipRendererTest {
               .build();
 
       final var table =
-          Table.builder().name("orders").foreignKeys(List.of(foreignKey1, foreignKey2)).build();
-      final var schema = Schema.builder().name("public").tables(List.of(table)).build();
+          Table.builder()
+              .name("orders")
+              .foreignKeys(List.of(foreignKey1, foreignKey2))
+              .columns(List.of())
+              .build();
+      final var schema =
+          Schema.builder().name("public").tables(List.of(table)).dbEnums(List.of()).build();
 
       when(multiplicityFormatter.format(foreignKey1, "public", null))
           .thenReturn("users ||--|{ orders");
@@ -186,10 +210,24 @@ class RelationshipRendererTest {
               .isNullable(false)
               .build();
 
-      final var table1 = Table.builder().name("orders").foreignKeys(List.of(foreignKey1)).build();
+      final var table1 =
+          Table.builder()
+              .name("orders")
+              .foreignKeys(List.of(foreignKey1))
+              .columns(List.of())
+              .build();
       final var table2 =
-          Table.builder().name("order_items").foreignKeys(List.of(foreignKey2)).build();
-      final var schema = Schema.builder().name("public").tables(List.of(table1, table2)).build();
+          Table.builder()
+              .name("order_items")
+              .foreignKeys(List.of(foreignKey2))
+              .columns(List.of())
+              .build();
+      final var schema =
+          Schema.builder()
+              .name("public")
+              .tables(List.of(table1, table2))
+              .dbEnums(List.of())
+              .build();
 
       when(multiplicityFormatter.format(foreignKey1, "public", null))
           .thenReturn("users ||--|{ orders");
@@ -226,8 +264,13 @@ class RelationshipRendererTest {
               .build();
 
       final var table =
-          Table.builder().name("posts").foreignKeys(List.of(foreignKey1, foreignKey2)).build();
-      final var schema = Schema.builder().name("public").tables(List.of(table)).build();
+          Table.builder()
+              .name("posts")
+              .foreignKeys(List.of(foreignKey1, foreignKey2))
+              .columns(List.of())
+              .build();
+      final var schema =
+          Schema.builder().name("public").tables(List.of(table)).dbEnums(List.of()).build();
 
       when(multiplicityFormatter.format(foreignKey1, "public", null))
           .thenReturn("users ||--|{ posts");

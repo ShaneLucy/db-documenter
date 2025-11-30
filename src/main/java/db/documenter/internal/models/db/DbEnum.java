@@ -1,11 +1,17 @@
 package db.documenter.internal.models.db;
 
+import db.documenter.internal.validation.Validators;
 import java.util.List;
+import org.jspecify.annotations.NonNull;
 
-public record DbEnum(String enumName, String columnName, List<String> enumValues) {
+public record DbEnum(
+    @NonNull String enumName, @NonNull String columnName, @NonNull List<String> enumValues) {
 
   public DbEnum {
-    enumValues = enumValues == null ? List.of() : List.copyOf(enumValues);
+    Validators.isNotNull(enumName, "enumName");
+    Validators.isNotNull(columnName, "columnName");
+    Validators.isNotNull(enumValues, "enumValues");
+    enumValues = List.copyOf(enumValues);
   }
 
   public static Builder builder() {
@@ -17,17 +23,17 @@ public record DbEnum(String enumName, String columnName, List<String> enumValues
     private String columnName;
     private List<String> enumValues;
 
-    public Builder enumName(final String enumName) {
+    public Builder enumName(final @NonNull String enumName) {
       this.enumName = enumName;
       return this;
     }
 
-    public Builder columnName(final String columnName) {
+    public Builder columnName(final @NonNull String columnName) {
       this.columnName = columnName;
       return this;
     }
 
-    public Builder enumValues(final List<String> enumValues) {
+    public Builder enumValues(final @NonNull List<String> enumValues) {
       this.enumValues = List.copyOf(enumValues);
       return this;
     }

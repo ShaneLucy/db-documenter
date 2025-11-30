@@ -7,6 +7,7 @@ import db.documenter.internal.models.db.Table;
 import db.documenter.internal.queries.impl.postgresql.preparedstatements.PostgresqlPreparedStatementMapper;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -61,7 +62,8 @@ class PostgresqlPreparedStatementMapperTest {
     @Test
     void itSetsSchemaAndTableNameParametersCorrectly() throws SQLException {
       final String schema = "public";
-      final Table table = Table.builder().name("my_table").build();
+      final Table table =
+          Table.builder().name("my_table").columns(List.of()).foreignKeys(List.of()).build();
       mapper.preparePrimaryKeyInfoStatement(preparedStatement, schema, table);
 
       verify(preparedStatement).setString(1, schema);
@@ -76,7 +78,8 @@ class PostgresqlPreparedStatementMapperTest {
     @Test
     void itSetsSchemaAndTableNameParametersCorrectly() throws SQLException {
       final String schema = "public";
-      final Table table = Table.builder().name("my_table").build();
+      final Table table =
+          Table.builder().name("my_table").columns(List.of()).foreignKeys(List.of()).build();
       mapper.prepareForeignKeyInfoStatement(preparedStatement, schema, table);
 
       verify(preparedStatement).setString(1, schema);

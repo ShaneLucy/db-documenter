@@ -19,7 +19,7 @@ class ConstraintEntityLineFormatterTest {
   @BeforeEach
   void setUp() {
     constraintEntityLineFormatter = new ConstraintEntityLineFormatter();
-    table = Table.builder().build();
+    table = Table.builder().name("test_table").columns(List.of()).foreignKeys(List.of()).build();
     columnBuilder = Column.builder().name("col").dataType("varchar");
   }
 

@@ -2,7 +2,6 @@ package db.documenter.internal.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import db.documenter.internal.models.db.Column;
@@ -28,8 +27,10 @@ class TableMapperTest {
 
     @Test
     void combinesTableComponentsIntoTable() {
-      final Column column = Column.builder().name("id").dataType("uuid").build();
-      final PrimaryKey primaryKey = PrimaryKey.builder().columnNames(List.of("id")).build();
+      final Column column =
+          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+      final PrimaryKey primaryKey =
+          PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();
       final ForeignKey foreignKey =
           ForeignKey.builder()
               .name("fk_user")
@@ -48,15 +49,16 @@ class TableMapperTest {
       assertEquals("orders", result.name());
       assertEquals(1, result.columns().size());
       assertEquals("id", result.columns().getFirst().name());
-      assertNotNull(result.primaryKey());
-      assertEquals(List.of("id"), result.primaryKey().columnNames());
+      assertTrue(result.primaryKey().isPresent());
+      assertEquals(List.of("id"), result.primaryKey().get().columnNames());
       assertEquals(1, result.foreignKeys().size());
       assertEquals("fk_user", result.foreignKeys().getFirst().name());
     }
 
     @Test
     void handlesTableWithNoPrimaryKey() {
-      final Column column = Column.builder().name("tag_id").dataType("varchar").build();
+      final Column column =
+          Column.builder().name("tag_id").dataType("varchar").constraints(List.of()).build();
 
       final Table result =
           tableMapper.combineTableComponents("tag_log", List.of(column), null, List.of());
@@ -64,14 +66,16 @@ class TableMapperTest {
       assertNotNull(result);
       assertEquals("tag_log", result.name());
       assertEquals(1, result.columns().size());
-      assertNull(result.primaryKey());
+      assertTrue(result.primaryKey().isEmpty());
       assertTrue(result.foreignKeys().isEmpty());
     }
 
     @Test
     void handlesTableWithNoForeignKeys() {
-      final Column column = Column.builder().name("id").dataType("uuid").build();
-      final PrimaryKey primaryKey = PrimaryKey.builder().columnNames(List.of("id")).build();
+      final Column column =
+          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+      final PrimaryKey primaryKey =
+          PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();
 
       final Table result =
           tableMapper.combineTableComponents("users", List.of(column), primaryKey, List.of());
@@ -85,11 +89,15 @@ class TableMapperTest {
 
     @Test
     void handlesTableWithMultipleColumns() {
-      final Column column1 = Column.builder().name("id").dataType("uuid").build();
-      final Column column2 = Column.builder().name("name").dataType("varchar").build();
-      final Column column3 = Column.builder().name("email").dataType("varchar").build();
+      final Column column1 =
+          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+      final Column column2 =
+          Column.builder().name("name").dataType("varchar").constraints(List.of()).build();
+      final Column column3 =
+          Column.builder().name("email").dataType("varchar").constraints(List.of()).build();
 
-      final PrimaryKey primaryKey = PrimaryKey.builder().columnNames(List.of("id")).build();
+      final PrimaryKey primaryKey =
+          PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();
 
       final Table result =
           tableMapper.combineTableComponents(
@@ -103,8 +111,10 @@ class TableMapperTest {
 
     @Test
     void handlesTableWithMultipleForeignKeys() {
-      final Column column = Column.builder().name("id").dataType("uuid").build();
-      final PrimaryKey primaryKey = PrimaryKey.builder().columnNames(List.of("id")).build();
+      final Column column =
+          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+      final PrimaryKey primaryKey =
+          PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();
 
       final ForeignKey foreignKey1 =
           ForeignKey.builder()
@@ -137,25 +147,31 @@ class TableMapperTest {
 
     @Test
     void handlesTableWithCompositePrimaryKey() {
-      final Column column1 = Column.builder().name("user_id").dataType("uuid").build();
-      final Column column2 = Column.builder().name("role_id").dataType("smallint").build();
+      final Column column1 =
+          Column.builder().name("user_id").dataType("uuid").constraints(List.of()).build();
+      final Column column2 =
+          Column.builder().name("role_id").dataType("smallint").constraints(List.of()).build();
 
       final PrimaryKey primaryKey =
-          PrimaryKey.builder().columnNames(List.of("user_id", "role_id")).build();
+          PrimaryKey.builder()
+              .constraintName("pk_test")
+              .columnNames(List.of("user_id", "role_id"))
+              .build();
 
       final Table result =
           tableMapper.combineTableComponents(
               "user_role", List.of(column1, column2), primaryKey, List.of());
 
-      assertNotNull(result.primaryKey());
-      assertEquals(2, result.primaryKey().columnNames().size());
-      assertEquals("user_id", result.primaryKey().columnNames().getFirst());
-      assertEquals("role_id", result.primaryKey().columnNames().get(1));
+      assertTrue(result.primaryKey().isPresent());
+      assertEquals(2, result.primaryKey().get().columnNames().size());
+      assertEquals("user_id", result.primaryKey().get().columnNames().getFirst());
+      assertEquals("role_id", result.primaryKey().get().columnNames().get(1));
     }
 
     @Test
     void handlesEmptyColumnsList() {
-      final PrimaryKey primaryKey = PrimaryKey.builder().columnNames(List.of("id")).build();
+      final PrimaryKey primaryKey =
+          PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();
 
       final Table result =
           tableMapper.combineTableComponents("test_table", List.of(), primaryKey, List.of());

@@ -14,7 +14,12 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
   public List<Table> mapToTables(final ResultSet resultSet) throws SQLException {
     final List<Table> tables = new ArrayList<>();
     while (resultSet.next()) {
-      tables.add(Table.builder().name(resultSet.getString("table_name")).build());
+      tables.add(
+          Table.builder()
+              .name(resultSet.getString("table_name"))
+              .columns(List.of())
+              .foreignKeys(List.of())
+              .build());
     }
     return tables;
   }
@@ -111,6 +116,7 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
           DbEnum.builder()
               .columnName(resultSet.getString("column_name"))
               .enumName(resultSet.getString("udt_name"))
+              .enumValues(List.of())
               .build());
     }
 

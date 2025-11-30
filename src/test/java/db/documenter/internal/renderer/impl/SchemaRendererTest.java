@@ -46,7 +46,8 @@ class SchemaRendererTest {
 
     @Test
     void rendersSchemaPackageWithName() {
-      final var schema = Schema.builder().name("public").tables(List.of()).build();
+      final var schema =
+          Schema.builder().name("public").tables(List.of()).dbEnums(List.of()).build();
 
       final var result = schemaRenderer.render(List.of(schema));
 
@@ -57,8 +58,10 @@ class SchemaRendererTest {
 
     @Test
     void rendersTableUsingEntityRenderer() {
-      final var table = Table.builder().name("users").build();
-      final var schema = Schema.builder().name("public").tables(List.of(table)).build();
+      final var table =
+          Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
+      final var schema =
+          Schema.builder().name("public").tables(List.of(table)).dbEnums(List.of()).build();
 
       when(entityRenderer.render(table)).thenReturn("entity users {");
 
@@ -70,9 +73,16 @@ class SchemaRendererTest {
 
     @Test
     void rendersMultipleTables() {
-      final var table1 = Table.builder().name("users").build();
-      final var table2 = Table.builder().name("orders").build();
-      final var schema = Schema.builder().name("public").tables(List.of(table1, table2)).build();
+      final var table1 =
+          Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
+      final var table2 =
+          Table.builder().name("orders").columns(List.of()).foreignKeys(List.of()).build();
+      final var schema =
+          Schema.builder()
+              .name("public")
+              .tables(List.of(table1, table2))
+              .dbEnums(List.of())
+              .build();
 
       when(entityRenderer.render(table1)).thenReturn("entity users {");
       when(entityRenderer.render(table2)).thenReturn("entity orders {");
@@ -88,8 +98,13 @@ class SchemaRendererTest {
     @Test
     void rendersEnumUsingEnumRenderer() {
       final var dbEnum =
-          DbEnum.builder().enumName("status").enumValues(List.of("ACTIVE", "INACTIVE")).build();
-      final var schema = Schema.builder().name("public").dbEnums(List.of(dbEnum)).build();
+          DbEnum.builder()
+              .enumName("status")
+              .columnName("status")
+              .enumValues(List.of("ACTIVE", "INACTIVE"))
+              .build();
+      final var schema =
+          Schema.builder().name("public").dbEnums(List.of(dbEnum)).tables(List.of()).build();
 
       when(enumRenderer.render(dbEnum)).thenReturn("enum status {");
 
@@ -102,10 +117,23 @@ class SchemaRendererTest {
     @Test
     void rendersMultipleEnums() {
       final var dbEnum1 =
-          DbEnum.builder().enumName("status").enumValues(List.of("ACTIVE", "INACTIVE")).build();
+          DbEnum.builder()
+              .enumName("status")
+              .columnName("status")
+              .enumValues(List.of("ACTIVE", "INACTIVE"))
+              .build();
       final var dbEnum2 =
-          DbEnum.builder().enumName("role").enumValues(List.of("ADMIN", "USER")).build();
-      final var schema = Schema.builder().name("public").dbEnums(List.of(dbEnum1, dbEnum2)).build();
+          DbEnum.builder()
+              .enumName("role")
+              .columnName("role")
+              .enumValues(List.of("ADMIN", "USER"))
+              .build();
+      final var schema =
+          Schema.builder()
+              .name("public")
+              .dbEnums(List.of(dbEnum1, dbEnum2))
+              .tables(List.of())
+              .build();
 
       when(enumRenderer.render(dbEnum1)).thenReturn("enum status {");
       when(enumRenderer.render(dbEnum2)).thenReturn("enum role {");
@@ -130,8 +158,14 @@ class SchemaRendererTest {
               .referencedSchema("public")
               .build();
 
-      final var table = Table.builder().name("orders").foreignKeys(List.of(foreignKey)).build();
-      final var schema = Schema.builder().name("public").tables(List.of(table)).build();
+      final var table =
+          Table.builder()
+              .name("orders")
+              .foreignKeys(List.of(foreignKey))
+              .columns(List.of())
+              .build();
+      final var schema =
+          Schema.builder().name("public").tables(List.of(table)).dbEnums(List.of()).build();
 
       when(entityRenderer.render(table)).thenReturn("entity orders {");
       when(relationshipRenderer.render(schema)).thenReturn("users ||--|{ orders\n");
@@ -144,11 +178,15 @@ class SchemaRendererTest {
 
     @Test
     void rendersMultipleSchemas() {
-      final var table1 = Table.builder().name("users").build();
-      final var schema1 = Schema.builder().name("public").tables(List.of(table1)).build();
+      final var table1 =
+          Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
+      final var schema1 =
+          Schema.builder().name("public").tables(List.of(table1)).dbEnums(List.of()).build();
 
-      final var table2 = Table.builder().name("products").build();
-      final var schema2 = Schema.builder().name("inventory").tables(List.of(table2)).build();
+      final var table2 =
+          Table.builder().name("products").columns(List.of()).foreignKeys(List.of()).build();
+      final var schema2 =
+          Schema.builder().name("inventory").tables(List.of(table2)).dbEnums(List.of()).build();
 
       when(entityRenderer.render(table1)).thenReturn("entity users {");
       when(entityRenderer.render(table2)).thenReturn("entity products {");
@@ -167,8 +205,14 @@ class SchemaRendererTest {
 
     @Test
     void rendersEnumsBeforeTables() {
-      final var dbEnum = DbEnum.builder().enumName("status").enumValues(List.of("ACTIVE")).build();
-      final var table = Table.builder().name("users").build();
+      final var dbEnum =
+          DbEnum.builder()
+              .enumName("status")
+              .columnName("status")
+              .enumValues(List.of("ACTIVE"))
+              .build();
+      final var table =
+          Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
       final var schema =
           Schema.builder().name("public").dbEnums(List.of(dbEnum)).tables(List.of(table)).build();
 
@@ -196,8 +240,14 @@ class SchemaRendererTest {
               .referencedSchema("public")
               .build();
 
-      final var table = Table.builder().name("orders").foreignKeys(List.of(foreignKey)).build();
-      final var schema = Schema.builder().name("public").tables(List.of(table)).build();
+      final var table =
+          Table.builder()
+              .name("orders")
+              .foreignKeys(List.of(foreignKey))
+              .columns(List.of())
+              .build();
+      final var schema =
+          Schema.builder().name("public").tables(List.of(table)).dbEnums(List.of()).build();
 
       when(entityRenderer.render(table)).thenReturn("entity orders {");
       when(relationshipRenderer.render(schema)).thenReturn("users ||--|{ orders");
@@ -212,7 +262,8 @@ class SchemaRendererTest {
 
     @Test
     void includesPlantUmlStartAndEndMarkers() {
-      final var schema = Schema.builder().name("public").build();
+      final var schema =
+          Schema.builder().name("public").tables(List.of()).dbEnums(List.of()).build();
 
       final var result = schemaRenderer.render(List.of(schema));
 
@@ -222,7 +273,8 @@ class SchemaRendererTest {
 
     @Test
     void includesHideMethodsAndStereotypesDirectives() {
-      final var schema = Schema.builder().name("public").build();
+      final var schema =
+          Schema.builder().name("public").tables(List.of()).dbEnums(List.of()).build();
 
       final var result = schemaRenderer.render(List.of(schema));
 
@@ -233,9 +285,14 @@ class SchemaRendererTest {
     @Test
     void rendersCompleteSchemaWithEnumsTablesAndRelationships() {
       final var dbEnum =
-          DbEnum.builder().enumName("status").enumValues(List.of("ACTIVE", "INACTIVE")).build();
+          DbEnum.builder()
+              .enumName("status")
+              .columnName("status")
+              .enumValues(List.of("ACTIVE", "INACTIVE"))
+              .build();
 
-      final var table1 = Table.builder().name("users").build();
+      final var table1 =
+          Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
 
       final var foreignKey =
           ForeignKey.builder()
@@ -247,7 +304,12 @@ class SchemaRendererTest {
               .referencedSchema("public")
               .build();
 
-      final var table2 = Table.builder().name("orders").foreignKeys(List.of(foreignKey)).build();
+      final var table2 =
+          Table.builder()
+              .name("orders")
+              .foreignKeys(List.of(foreignKey))
+              .columns(List.of())
+              .build();
 
       final var schema =
           Schema.builder()

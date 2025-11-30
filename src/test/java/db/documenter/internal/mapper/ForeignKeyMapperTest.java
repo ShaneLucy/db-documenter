@@ -26,7 +26,8 @@ class ForeignKeyMapperTest {
 
     @Test
     void returnsEmptyListWhenNoForeignKeys() {
-      final Column column = Column.builder().name("id").build();
+      final Column column =
+          Column.builder().name("id").dataType("varchar").constraints(List.of()).build();
 
       final List<ForeignKey> result =
           foreignKeyMapper.enrichWithNullability(List.of(), List.of(column));
@@ -47,7 +48,11 @@ class ForeignKeyMapperTest {
               .build();
 
       final Column column =
-          Column.builder().name("user_id").constraints(List.of(Constraint.NULLABLE)).build();
+          Column.builder()
+              .name("user_id")
+              .dataType("varchar")
+              .constraints(List.of(Constraint.NULLABLE))
+              .build();
 
       final List<ForeignKey> result =
           foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
@@ -68,7 +73,8 @@ class ForeignKeyMapperTest {
               .referencedSchema("public")
               .build();
 
-      final Column column = Column.builder().name("user_id").build();
+      final Column column =
+          Column.builder().name("user_id").dataType("varchar").constraints(List.of()).build();
 
       final List<ForeignKey> result =
           foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
@@ -89,7 +95,8 @@ class ForeignKeyMapperTest {
               .referencedSchema("public")
               .build();
 
-      final Column column = Column.builder().name("other_column").build();
+      final Column column =
+          Column.builder().name("other_column").dataType("varchar").constraints(List.of()).build();
 
       final List<ForeignKey> result =
           foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
@@ -121,8 +128,13 @@ class ForeignKeyMapperTest {
               .build();
 
       final Column column1 =
-          Column.builder().name("user_id").constraints(List.of(Constraint.NULLABLE)).build();
-      final Column column2 = Column.builder().name("product_id").build();
+          Column.builder()
+              .name("user_id")
+              .dataType("varchar")
+              .constraints(List.of(Constraint.NULLABLE))
+              .build();
+      final Column column2 =
+          Column.builder().name("product_id").dataType("varchar").constraints(List.of()).build();
 
       final List<ForeignKey> result =
           foreignKeyMapper.enrichWithNullability(
@@ -146,7 +158,11 @@ class ForeignKeyMapperTest {
               .build();
 
       final Column column =
-          Column.builder().name("user_id").constraints(List.of(Constraint.NULLABLE)).build();
+          Column.builder()
+              .name("user_id")
+              .dataType("varchar")
+              .constraints(List.of(Constraint.NULLABLE))
+              .build();
 
       final List<ForeignKey> result =
           foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
@@ -173,10 +189,16 @@ class ForeignKeyMapperTest {
               .referencedSchema("public")
               .build();
 
-      final Column column1 = Column.builder().name("id").build();
+      final Column column1 =
+          Column.builder().name("id").dataType("varchar").constraints(List.of()).build();
       final Column column2 =
-          Column.builder().name("user_id").constraints(List.of(Constraint.NULLABLE)).build();
-      final Column column3 = Column.builder().name("product_id").build();
+          Column.builder()
+              .name("user_id")
+              .dataType("varchar")
+              .constraints(List.of(Constraint.NULLABLE))
+              .build();
+      final Column column3 =
+          Column.builder().name("product_id").dataType("varchar").constraints(List.of()).build();
 
       final List<ForeignKey> result =
           foreignKeyMapper.enrichWithNullability(

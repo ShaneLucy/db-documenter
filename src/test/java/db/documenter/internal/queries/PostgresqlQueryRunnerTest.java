@@ -77,7 +77,8 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        appUser = Table.builder().name("app_user").build();
+        appUser =
+            Table.builder().name("app_user").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -183,7 +184,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        roleTable = Table.builder().name("role").build();
+        roleTable = Table.builder().name("role").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -250,7 +251,8 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        userRole = Table.builder().name("user_role").build();
+        userRole =
+            Table.builder().name("user_role").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -324,7 +326,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        address = Table.builder().name("address").build();
+        address = Table.builder().name("address").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -437,7 +439,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        product = Table.builder().name("product").build();
+        product = Table.builder().name("product").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -536,7 +538,8 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        category = Table.builder().name("category").build();
+        category =
+            Table.builder().name("category").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -609,7 +612,12 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        productCategory = Table.builder().name("product_category").build();
+        productCategory =
+            Table.builder()
+                .name("product_category")
+                .columns(List.of())
+                .foreignKeys(List.of())
+                .build();
       }
 
       @Test
@@ -677,7 +685,12 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        customerOrder = Table.builder().name("customer_order").build();
+        customerOrder =
+            Table.builder()
+                .name("customer_order")
+                .columns(List.of())
+                .foreignKeys(List.of())
+                .build();
       }
 
       @Test
@@ -790,7 +803,8 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        orderItem = Table.builder().name("order_item").build();
+        orderItem =
+            Table.builder().name("order_item").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -889,7 +903,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        payment = Table.builder().name("payment").build();
+        payment = Table.builder().name("payment").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -988,7 +1002,8 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        auditLog = Table.builder().name("audit_log").build();
+        auditLog =
+            Table.builder().name("audit_log").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -1087,7 +1102,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        tagLog = Table.builder().name("tag_log").build();
+        tagLog = Table.builder().name("tag_log").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -1152,7 +1167,8 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        appUser = Table.builder().name("app_user").build();
+        appUser =
+            Table.builder().name("app_user").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -1178,7 +1194,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        role = Table.builder().name("role").build();
+        role = Table.builder().name("role").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -1204,7 +1220,8 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        userRole = Table.builder().name("user_role").build();
+        userRole =
+            Table.builder().name("user_role").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -1231,7 +1248,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        address = Table.builder().name("address").build();
+        address = Table.builder().name("address").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -1257,7 +1274,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        product = Table.builder().name("product").build();
+        product = Table.builder().name("product").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -1283,7 +1300,8 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        category = Table.builder().name("category").build();
+        category =
+            Table.builder().name("category").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -1309,7 +1327,12 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        productCategory = Table.builder().name("product_category").build();
+        productCategory =
+            Table.builder()
+                .name("product_category")
+                .columns(List.of())
+                .foreignKeys(List.of())
+                .build();
       }
 
       @Test
@@ -1338,7 +1361,12 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        customerOrder = Table.builder().name("customer_order").build();
+        customerOrder =
+            Table.builder()
+                .name("customer_order")
+                .columns(List.of())
+                .foreignKeys(List.of())
+                .build();
       }
 
       @Test
@@ -1366,7 +1394,8 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        orderItem = Table.builder().name("order_item").build();
+        orderItem =
+            Table.builder().name("order_item").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -1392,7 +1421,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        payment = Table.builder().name("payment").build();
+        payment = Table.builder().name("payment").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -1418,7 +1447,8 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        auditLog = Table.builder().name("audit_log").build();
+        auditLog =
+            Table.builder().name("audit_log").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -1444,7 +1474,7 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        tagLog = Table.builder().name("tag_log").build();
+        tagLog = Table.builder().name("tag_log").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -1465,7 +1495,8 @@ class PostgresqlQueryRunnerTest {
 
       @BeforeEach
       void setUp() {
-        appUser = Table.builder().name("app_user").build();
+        appUser =
+            Table.builder().name("app_user").columns(List.of()).foreignKeys(List.of()).build();
       }
 
       @Test
@@ -1483,7 +1514,7 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      address = Table.builder().name("address").build();
+      address = Table.builder().name("address").columns(List.of()).foreignKeys(List.of()).build();
     }
 
     @Test
@@ -1506,7 +1537,7 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      product = Table.builder().name("product").build();
+      product = Table.builder().name("product").columns(List.of()).foreignKeys(List.of()).build();
     }
 
     @Test
@@ -1523,7 +1554,7 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      category = Table.builder().name("category").build();
+      category = Table.builder().name("category").columns(List.of()).foreignKeys(List.of()).build();
     }
 
     @Test
@@ -1539,7 +1570,12 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      productCategory = Table.builder().name("product_category").build();
+      productCategory =
+          Table.builder()
+              .name("product_category")
+              .columns(List.of())
+              .foreignKeys(List.of())
+              .build();
     }
 
     @Test
@@ -1578,7 +1614,8 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      customerOrder = Table.builder().name("customer_order").build();
+      customerOrder =
+          Table.builder().name("customer_order").columns(List.of()).foreignKeys(List.of()).build();
     }
 
     @Test
@@ -1615,7 +1652,8 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      orderItem = Table.builder().name("order_item").build();
+      orderItem =
+          Table.builder().name("order_item").columns(List.of()).foreignKeys(List.of()).build();
     }
 
     @Test
@@ -1649,7 +1687,7 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      payment = Table.builder().name("payment").build();
+      payment = Table.builder().name("payment").columns(List.of()).foreignKeys(List.of()).build();
     }
 
     @Test
@@ -1671,7 +1709,8 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      auditLog = Table.builder().name("audit_log").build();
+      auditLog =
+          Table.builder().name("audit_log").columns(List.of()).foreignKeys(List.of()).build();
     }
 
     @Test
@@ -1697,7 +1736,7 @@ class PostgresqlQueryRunnerTest {
 
     @BeforeEach
     void setUp() {
-      tagLog = Table.builder().name("tag_log").build();
+      tagLog = Table.builder().name("tag_log").columns(List.of()).foreignKeys(List.of()).build();
     }
 
     @Test
@@ -1730,7 +1769,12 @@ class PostgresqlQueryRunnerTest {
 
     @Test
     void itIdentifiesTheOrderStatusEnumValues() throws SQLException {
-      final var dbEnum = DbEnum.builder().columnName("status").enumName("order_status").build();
+      final var dbEnum =
+          DbEnum.builder()
+              .columnName("status")
+              .enumName("order_status")
+              .enumValues(List.of())
+              .build();
 
       List<String> values = postgresqlQueryRunner.getEnumValues("public", dbEnum);
 

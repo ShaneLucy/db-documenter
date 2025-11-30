@@ -27,8 +27,11 @@ class CompositeMultiplicityFormatterTest {
     Mockito.reset(multiplicityFormatter1, multiplicityFormatter2, multiplicityFormatter3);
     foreignKey =
         ForeignKey.builder()
+            .name("fk_test")
             .sourceTable("source")
+            .sourceColumn("target_id")
             .targetTable("target")
+            .targetColumn("id")
             .referencedSchema("public")
             .build();
   }

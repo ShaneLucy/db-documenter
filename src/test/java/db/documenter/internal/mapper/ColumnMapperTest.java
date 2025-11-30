@@ -27,8 +27,10 @@ class ColumnMapperTest {
 
     @Test
     void returnsColumnsUnchangedWhenNoUserDefinedTypes() {
-      final Column column1 = Column.builder().name("id").dataType("uuid").build();
-      final Column column2 = Column.builder().name("name").dataType("varchar").build();
+      final Column column1 =
+          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+      final Column column2 =
+          Column.builder().name("name").dataType("varchar").constraints(List.of()).build();
 
       final List<Column> result =
           columnMapper.mapUserDefinedTypes(List.of(column1, column2), List.of());
@@ -40,9 +42,15 @@ class ColumnMapperTest {
 
     @Test
     void mapsUserDefinedTypeToEnumType() {
-      final DbEnum dbEnum = DbEnum.builder().columnName("status").enumName("order_status").build();
+      final DbEnum dbEnum =
+          DbEnum.builder()
+              .columnName("status")
+              .enumName("order_status")
+              .enumValues(List.of())
+              .build();
 
-      final Column column = Column.builder().name("status").dataType("USER-DEFINED").build();
+      final Column column =
+          Column.builder().name("status").dataType("USER-DEFINED").constraints(List.of()).build();
 
       final List<Column> result =
           columnMapper.mapUserDefinedTypes(List.of(column), List.of(dbEnum));
@@ -55,9 +63,14 @@ class ColumnMapperTest {
     @Test
     void keepsUserDefinedTypeWhenNoMatchingEnum() {
       final DbEnum dbEnum =
-          DbEnum.builder().columnName("other_column").enumName("other_enum").build();
+          DbEnum.builder()
+              .columnName("other_column")
+              .enumName("other_enum")
+              .enumValues(List.of())
+              .build();
 
-      final Column column = Column.builder().name("status").dataType("USER-DEFINED").build();
+      final Column column =
+          Column.builder().name("status").dataType("USER-DEFINED").constraints(List.of()).build();
 
       final List<Column> result =
           columnMapper.mapUserDefinedTypes(List.of(column), List.of(dbEnum));
@@ -68,7 +81,12 @@ class ColumnMapperTest {
 
     @Test
     void preservesOtherColumnPropertiesWhenMappingTypes() {
-      final DbEnum dbEnum = DbEnum.builder().columnName("status").enumName("order_status").build();
+      final DbEnum dbEnum =
+          DbEnum.builder()
+              .columnName("status")
+              .enumName("order_status")
+              .enumValues(List.of())
+              .build();
 
       final Column column =
           Column.builder()
@@ -96,8 +114,10 @@ class ColumnMapperTest {
 
     @Test
     void returnsColumnsUnchangedWhenNoForeignKeys() {
-      final Column column1 = Column.builder().name("id").dataType("uuid").build();
-      final Column column2 = Column.builder().name("name").dataType("varchar").build();
+      final Column column1 =
+          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+      final Column column2 =
+          Column.builder().name("name").dataType("varchar").constraints(List.of()).build();
 
       final List<Column> result =
           columnMapper.enrichWithForeignKeyConstraints(List.of(column1, column2), List.of());
@@ -112,7 +132,8 @@ class ColumnMapperTest {
 
     @Test
     void addsFKConstraintToForeignKeyColumn() {
-      final Column column = Column.builder().name("user_id").dataType("uuid").build();
+      final Column column =
+          Column.builder().name("user_id").dataType("uuid").constraints(List.of()).build();
 
       final ForeignKey foreignKey =
           ForeignKey.builder()
@@ -164,9 +185,12 @@ class ColumnMapperTest {
 
     @Test
     void handlesMultipleForeignKeyColumns() {
-      final Column column1 = Column.builder().name("user_id").dataType("uuid").build();
-      final Column column2 = Column.builder().name("product_id").dataType("bigint").build();
-      final Column column3 = Column.builder().name("name").dataType("varchar").build();
+      final Column column1 =
+          Column.builder().name("user_id").dataType("uuid").constraints(List.of()).build();
+      final Column column2 =
+          Column.builder().name("product_id").dataType("bigint").constraints(List.of()).build();
+      final Column column3 =
+          Column.builder().name("name").dataType("varchar").constraints(List.of()).build();
 
       final ForeignKey foreignKey1 =
           ForeignKey.builder()
@@ -211,7 +235,8 @@ class ColumnMapperTest {
 
     @Test
     void isCaseInsensitiveWhenMatchingColumnNames() {
-      final Column column = Column.builder().name("USER_ID").dataType("uuid").build();
+      final Column column =
+          Column.builder().name("USER_ID").dataType("uuid").constraints(List.of()).build();
 
       final ForeignKey foreignKey =
           ForeignKey.builder()

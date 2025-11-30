@@ -44,8 +44,10 @@ class EnumBuilderTest {
 
     @Test
     void buildsEnumsWithValues() throws SQLException {
-      final DbEnum dbEnum1 = DbEnum.builder().enumName("status").columnName("status").build();
-      final DbEnum dbEnum2 = DbEnum.builder().enumName("role").columnName("role").build();
+      final DbEnum dbEnum1 =
+          DbEnum.builder().enumName("status").columnName("status").enumValues(List.of()).build();
+      final DbEnum dbEnum2 =
+          DbEnum.builder().enumName("role").columnName("role").enumValues(List.of()).build();
 
       when(queryRunner.getEnumInfo("test_schema")).thenReturn(List.of(dbEnum1, dbEnum2));
       when(queryRunner.getEnumValues("test_schema", dbEnum1))
@@ -63,7 +65,8 @@ class EnumBuilderTest {
 
     @Test
     void buildsEnumWithEmptyValues() throws SQLException {
-      final DbEnum dbEnum = DbEnum.builder().enumName("empty").columnName("empty").build();
+      final DbEnum dbEnum =
+          DbEnum.builder().enumName("empty").columnName("empty").enumValues(List.of()).build();
 
       when(queryRunner.getEnumInfo("test_schema")).thenReturn(List.of(dbEnum));
       when(queryRunner.getEnumValues("test_schema", dbEnum)).thenReturn(List.of());
@@ -87,7 +90,8 @@ class EnumBuilderTest {
 
     @Test
     void propagatesSQLExceptionFromGetEnumValues() throws SQLException {
-      final DbEnum dbEnum = DbEnum.builder().enumName("status").columnName("status").build();
+      final DbEnum dbEnum =
+          DbEnum.builder().enumName("status").columnName("status").enumValues(List.of()).build();
 
       when(queryRunner.getEnumInfo("test_schema")).thenReturn(List.of(dbEnum));
       when(queryRunner.getEnumValues("test_schema", dbEnum))

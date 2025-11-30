@@ -55,16 +55,23 @@ class TableBuilderTest {
 
     @Test
     void buildsTablesWithColumnsAndKeys() throws SQLException {
-      final Table table1 = Table.builder().name("users").build();
-      final Table table2 = Table.builder().name("orders").build();
+      final Table table1 =
+          Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
+      final Table table2 =
+          Table.builder().name("orders").columns(List.of()).foreignKeys(List.of()).build();
 
-      final Column rawColumn1 = Column.builder().name("id").dataType("uuid").build();
-      final Column rawColumn2 = Column.builder().name("name").dataType("varchar").build();
+      final Column rawColumn1 =
+          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+      final Column rawColumn2 =
+          Column.builder().name("name").dataType("varchar").constraints(List.of()).build();
 
-      final Column mappedColumn1 = Column.builder().name("id").dataType("uuid").build();
-      final Column mappedColumn2 = Column.builder().name("name").dataType("varchar").build();
+      final Column mappedColumn1 =
+          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+      final Column mappedColumn2 =
+          Column.builder().name("name").dataType("varchar").constraints(List.of()).build();
 
-      final PrimaryKey primaryKey = PrimaryKey.builder().columnNames(List.of("id")).build();
+      final PrimaryKey primaryKey =
+          PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();
 
       final ForeignKey rawForeignKey =
           ForeignKey.builder()
@@ -141,13 +148,18 @@ class TableBuilderTest {
 
     @Test
     void passesDbEnumsToColumnMapper() throws SQLException {
-      final Table table = Table.builder().name("users").build();
-      final DbEnum dbEnum = DbEnum.builder().enumName("status").columnName("status").build();
+      final Table table =
+          Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
+      final DbEnum dbEnum =
+          DbEnum.builder().enumName("status").columnName("status").enumValues(List.of()).build();
 
-      final Column rawColumn = Column.builder().name("status").dataType("USER-DEFINED").build();
-      final Column mappedColumn = Column.builder().name("status").dataType("status").build();
+      final Column rawColumn =
+          Column.builder().name("status").dataType("USER-DEFINED").constraints(List.of()).build();
+      final Column mappedColumn =
+          Column.builder().name("status").dataType("status").constraints(List.of()).build();
 
-      final PrimaryKey primaryKey = PrimaryKey.builder().columnNames(List.of("id")).build();
+      final PrimaryKey primaryKey =
+          PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();
 
       final Table builtTable =
           Table.builder()
@@ -193,7 +205,8 @@ class TableBuilderTest {
 
     @Test
     void propagatesSQLExceptionFromGetColumnInfo() throws SQLException {
-      final Table table = Table.builder().name("users").build();
+      final Table table =
+          Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
 
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of(table));
       when(queryRunner.getColumnInfo("test_schema", table))

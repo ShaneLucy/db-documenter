@@ -41,7 +41,9 @@ class DefaultMultiplicityFormatterTest {
       final var fk =
           ForeignKey.builder()
               .sourceTable("orders")
+              .sourceColumn("user_id")
               .targetTable("users")
+              .targetColumn("id")
               .referencedSchema("public")
               .name("fk_test")
               .build();
@@ -117,23 +119,6 @@ class DefaultMultiplicityFormatterTest {
       final var result = defaultMultiplicityFormatter.format(fk, "public", null);
 
       assertEquals("other_schema.users -- public.orders", result);
-    }
-
-    @Test
-    void formatsNullReferencedSchemaAsCrossSchema() {
-      final var fk =
-          ForeignKey.builder()
-              .sourceTable("orders")
-              .sourceColumn("user_id")
-              .targetTable("users")
-              .targetColumn("id")
-              .referencedSchema(null)
-              .name("fk_orders_users")
-              .build();
-
-      final var result = defaultMultiplicityFormatter.format(fk, "public", null);
-
-      assertEquals("users -- orders", result);
     }
   }
 }

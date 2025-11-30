@@ -1,13 +1,23 @@
 package db.documenter.internal.models.db;
 
+import db.documenter.internal.validation.Validators;
 import java.util.List;
+import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 
 public record Table(
-    String name, List<Column> columns, PrimaryKey primaryKey, List<ForeignKey> foreignKeys) {
+    @NonNull String name,
+    @NonNull List<Column> columns,
+    @NonNull Optional<PrimaryKey> primaryKey,
+    @NonNull List<ForeignKey> foreignKeys) {
 
   public Table {
-    columns = columns == null ? List.of() : List.copyOf(columns);
-    foreignKeys = foreignKeys == null ? List.of() : List.copyOf(foreignKeys);
+    Validators.isNotNull(name, "name");
+    Validators.isNotNull(columns, "columns");
+    Validators.isNotNull(primaryKey, "primaryKey");
+    Validators.isNotNull(foreignKeys, "foreignKeys");
+    columns = List.copyOf(columns);
+    foreignKeys = List.copyOf(foreignKeys);
   }
 
   public static Builder builder() {
@@ -20,12 +30,12 @@ public record Table(
     private PrimaryKey primaryKey;
     private List<ForeignKey> foreignKeys;
 
-    public Builder name(final String name) {
+    public Builder name(final @NonNull String name) {
       this.name = name;
       return this;
     }
 
-    public Builder columns(final List<Column> columns) {
+    public Builder columns(final @NonNull List<Column> columns) {
       this.columns = List.copyOf(columns);
       return this;
     }
@@ -35,13 +45,13 @@ public record Table(
       return this;
     }
 
-    public Builder foreignKeys(final List<ForeignKey> foreignKeys) {
+    public Builder foreignKeys(final @NonNull List<ForeignKey> foreignKeys) {
       this.foreignKeys = List.copyOf(foreignKeys);
       return this;
     }
 
     public Table build() {
-      return new Table(name, columns, primaryKey, foreignKeys);
+      return new Table(name, columns, Optional.ofNullable(primaryKey), foreignKeys);
     }
   }
 }

@@ -24,7 +24,9 @@ class CardinalityFormatterTest {
       final var fk =
           ForeignKey.builder()
               .sourceTable("orders")
+              .sourceColumn("user_id")
               .targetTable("users")
+              .targetColumn("id")
               .referencedSchema("public")
               .name("fk_test")
               .isNullable(true)
@@ -40,7 +42,9 @@ class CardinalityFormatterTest {
       final var fk =
           ForeignKey.builder()
               .sourceTable("orders")
+              .sourceColumn("user_id")
               .targetTable("users")
+              .targetColumn("id")
               .referencedSchema("public")
               .name("fk_test")
               .isNullable(false)
@@ -56,7 +60,9 @@ class CardinalityFormatterTest {
       final var fk =
           ForeignKey.builder()
               .sourceTable("order_items")
+              .sourceColumn("product_id")
               .targetTable("products")
+              .targetColumn("id")
               .referencedSchema("public")
               .name("fk_items_products")
               .isNullable(true)
@@ -72,7 +78,9 @@ class CardinalityFormatterTest {
       final var fk =
           ForeignKey.builder()
               .sourceTable("source")
+              .sourceColumn("target_id")
               .targetTable("target")
+              .targetColumn("id")
               .referencedSchema("public")
               .name("fk")
               .build();
@@ -87,7 +95,9 @@ class CardinalityFormatterTest {
       final var fk =
           ForeignKey.builder()
               .sourceTable("orders")
+              .sourceColumn("user_id")
               .targetTable("users")
+              .targetColumn("id")
               .referencedSchema("public")
               .name("fk")
               .build();

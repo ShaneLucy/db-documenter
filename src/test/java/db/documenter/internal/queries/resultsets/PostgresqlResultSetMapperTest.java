@@ -464,6 +464,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("source_column")).thenReturn(sourceColumn1);
       when(resultSet.getString("referenced_table")).thenReturn(targetTable1);
       when(resultSet.getString("referenced_column")).thenReturn(targetColumn1);
+      when(resultSet.getString("referenced_schema")).thenReturn("public");
 
       final List<ForeignKey> result = postgresqlResultSetMapper.mapToForeignKeys(resultSet);
 
@@ -474,6 +475,7 @@ class PostgresqlResultSetMapperTest {
       assertEquals(sourceColumn1, foreignKey.sourceColumn());
       assertEquals(targetTable1, foreignKey.targetTable());
       assertEquals(targetColumn1, foreignKey.targetColumn());
+      assertEquals("public", foreignKey.referencedSchema());
     }
 
     @Test
@@ -485,12 +487,14 @@ class PostgresqlResultSetMapperTest {
       final List<String> sourceColumns = List.of(sourceColumn1, sourceColumn2);
       final List<String> targetTables = List.of(targetTable1, targetTable2);
       final List<String> targetColumns = List.of(targetColumn1, targetColumn2);
+      final List<String> referencedSchemas = List.of("public", "public");
 
       final Iterator<String> fkNameIt = fkNames.iterator();
       final Iterator<String> sourceTableIt = sourceTables.iterator();
       final Iterator<String> sourceColumnIt = sourceColumns.iterator();
       final Iterator<String> targetTableIt = targetTables.iterator();
       final Iterator<String> targetColumnIt = targetColumns.iterator();
+      final Iterator<String> referencedSchemaIt = referencedSchemas.iterator();
 
       when(resultSet.getString("constraint_name")).thenAnswer(invocation -> fkNameIt.next());
       when(resultSet.getString("source_table_name")).thenAnswer(invocation -> sourceTableIt.next());
@@ -498,6 +502,8 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("referenced_table")).thenAnswer(invocation -> targetTableIt.next());
       when(resultSet.getString("referenced_column"))
           .thenAnswer(invocation -> targetColumnIt.next());
+      when(resultSet.getString("referenced_schema"))
+          .thenAnswer(invocation -> referencedSchemaIt.next());
 
       final List<ForeignKey> result = postgresqlResultSetMapper.mapToForeignKeys(resultSet);
 
@@ -509,6 +515,7 @@ class PostgresqlResultSetMapperTest {
       assertEquals(sourceColumn1, first.sourceColumn());
       assertEquals(targetTable1, first.targetTable());
       assertEquals(targetColumn1, first.targetColumn());
+      assertEquals("public", first.referencedSchema());
 
       final ForeignKey second = result.get(1);
       assertEquals(fkName2, second.name());
@@ -516,6 +523,7 @@ class PostgresqlResultSetMapperTest {
       assertEquals(sourceColumn2, second.sourceColumn());
       assertEquals(targetTable2, second.targetTable());
       assertEquals(targetColumn2, second.targetColumn());
+      assertEquals("public", second.referencedSchema());
     }
 
     @Test
@@ -574,11 +582,9 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("column_name")).thenReturn(null);
       when(resultSet.getString("udt_name")).thenReturn(null);
 
-      List<DbEnum> result = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
-
-      assertEquals(1, result.size());
-      assertNull(result.getFirst().columnName());
-      assertNull(result.getFirst().enumName());
+      assertThrows(
+          db.documenter.internal.exceptions.ValidationException.class,
+          () -> postgresqlResultSetMapper.mapToDbEnumInfo(resultSet));
     }
 
     @Test

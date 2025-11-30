@@ -9,8 +9,7 @@ public final class PrimaryKeyEntityLineFormatter implements EntityLineFormatter 
 
   @Override
   public String format(final Table table, final Column column, final String current) {
-    final var primaryKeys =
-        table.primaryKey() != null ? table.primaryKey().columnNames() : List.<String>of();
+    final var primaryKeys = table.primaryKey().map(pk -> pk.columnNames()).orElse(List.of());
     if (primaryKeys.contains(column.name())) {
       return "**" + current + "**";
     }

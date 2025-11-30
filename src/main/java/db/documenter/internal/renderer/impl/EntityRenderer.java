@@ -2,6 +2,7 @@ package db.documenter.internal.renderer.impl;
 
 import db.documenter.internal.formatter.api.EntityLineFormatter;
 import db.documenter.internal.models.db.Column;
+import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
 import db.documenter.internal.renderer.api.PumlRenderer;
 import java.util.List;
@@ -20,9 +21,7 @@ public final class EntityRenderer implements PumlRenderer<Table> {
     stringBuilder.append(String.format("\tentity \"%s\" {%n", table.name()));
 
     final List<String> primaryKeyNames =
-        table.primaryKey() != null && table.primaryKey().columnNames() != null
-            ? table.primaryKey().columnNames()
-            : List.of();
+        table.primaryKey().map(PrimaryKey::columnNames).orElse(List.of());
 
     final List<Column> primaryKeyColumns =
         table.columns().stream().filter(column -> primaryKeyNames.contains(column.name())).toList();

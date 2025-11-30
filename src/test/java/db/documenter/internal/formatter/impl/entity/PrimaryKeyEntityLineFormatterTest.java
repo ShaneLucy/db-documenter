@@ -20,8 +20,8 @@ class PrimaryKeyEntityLineFormatterTest {
   @BeforeEach
   void setUp() {
     primaryKeyEntityLineFormatter = new PrimaryKeyEntityLineFormatter();
-    columnBuilder = Column.builder().name("col").dataType("varchar");
-    tableBuilder = Table.builder();
+    columnBuilder = Column.builder().name("col").dataType("varchar").constraints(List.of());
+    tableBuilder = Table.builder().name("test_table").columns(List.of()).foreignKeys(List.of());
   }
 
   @Nested
@@ -30,7 +30,8 @@ class PrimaryKeyEntityLineFormatterTest {
     @Test
     void ifColumnIsPrimaryKeyReturnsBoldedCurrent() {
       final var column = columnBuilder.build();
-      final var pk = PrimaryKey.builder().columnNames(List.of("col")).build();
+      final var pk =
+          PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("col")).build();
       final var table = tableBuilder.primaryKey(pk).build();
 
       final var result = primaryKeyEntityLineFormatter.format(table, column, "value");
@@ -41,7 +42,8 @@ class PrimaryKeyEntityLineFormatterTest {
     @Test
     void ifColumnIsNotPrimaryKeyReturnsCurrentAsIs() {
       final var column = columnBuilder.build();
-      final var pk = PrimaryKey.builder().columnNames(List.of("other")).build();
+      final var pk =
+          PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("other")).build();
       final var table = tableBuilder.primaryKey(pk).build();
 
       final var result = primaryKeyEntityLineFormatter.format(table, column, "value");
@@ -62,7 +64,8 @@ class PrimaryKeyEntityLineFormatterTest {
     @Test
     void ifCurrentIsNullAndColumnIsPrimaryKeyReturnsBoldedNull() {
       final var column = columnBuilder.build();
-      final var pk = PrimaryKey.builder().columnNames(List.of("col")).build();
+      final var pk =
+          PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("col")).build();
       final var table = tableBuilder.primaryKey(pk).build();
 
       final var result = primaryKeyEntityLineFormatter.format(table, column, null);
@@ -73,7 +76,8 @@ class PrimaryKeyEntityLineFormatterTest {
     @Test
     void ifCurrentIsEmptyStringAndColumnIsPrimaryKeyReturnsBoldedEmpty() {
       final var column = columnBuilder.build();
-      final var pk = PrimaryKey.builder().columnNames(List.of("col")).build();
+      final var pk =
+          PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("col")).build();
       final var table = tableBuilder.primaryKey(pk).build();
 
       final var result = primaryKeyEntityLineFormatter.format(table, column, "");
@@ -84,7 +88,8 @@ class PrimaryKeyEntityLineFormatterTest {
     @Test
     void ifCurrentIsWhitespaceAndColumnIsPrimaryKeyReturnsBoldedWhitespace() {
       final var column = columnBuilder.build();
-      final var pk = PrimaryKey.builder().columnNames(List.of("col")).build();
+      final var pk =
+          PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("col")).build();
       final var table = tableBuilder.primaryKey(pk).build();
 
       final var result = primaryKeyEntityLineFormatter.format(table, column, "  ");
@@ -111,7 +116,8 @@ class PrimaryKeyEntityLineFormatterTest {
     @Test
     void ifColumnIsPrimaryKeyAndCurrentIsWhitespaceOnly() {
       final var column = columnBuilder.build();
-      final var pk = PrimaryKey.builder().columnNames(List.of("col")).build();
+      final var pk =
+          PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("col")).build();
       final var table = tableBuilder.primaryKey(pk).build();
 
       final var result = primaryKeyEntityLineFormatter.format(table, column, "   ");

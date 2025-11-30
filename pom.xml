@@ -29,12 +29,21 @@
 
         <!-- Static analysis -->
         <checkstyle.version>3.6.0</checkstyle.version>
+        <jspecify.version>1.0.0</jspecify.version>
         <spotbugs.version>4.9.8.1</spotbugs.version>
         <pmd.version>3.28.0</pmd.version>
         <spotless.version>3.1.0</spotless.version>
     </properties>
 
     <dependencies>
+        <!-- Annotations -->
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>${jspecify.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -98,6 +107,19 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <!-- Compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>--add-reads</arg>
+                        <arg>db.documenter=ALL-UNNAMED</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
             <!-- Reporting -->
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -122,6 +144,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc.version}</version>
+                <configuration>
+                    <additionalOptions>
+                        <additionalOption>--add-reads</additionalOption>
+                        <additionalOption>db.documenter=ALL-UNNAMED</additionalOption>
+                    </additionalOptions>
+                </configuration>
                 <executions>
                     <execution>
                         <id>generate-html-docs</id>

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.Table;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,9 @@ class DefaultEntityLineFormatterTest {
   @BeforeEach
   void setUp() {
     defaultEntityLineFormatter = new DefaultEntityLineFormatter();
-    table = Table.builder().build();
-    columnBuilder = Column.builder().name("column_name").dataType("column_data_type");
+    table = Table.builder().name("test_table").columns(List.of()).foreignKeys(List.of()).build();
+    columnBuilder =
+        Column.builder().name("column_name").dataType("column_data_type").constraints(List.of());
   }
 
   @Nested
@@ -29,7 +31,10 @@ class DefaultEntityLineFormatterTest {
       final var currentValue = "some random current value";
 
       final var result =
-          defaultEntityLineFormatter.format(table, Column.builder().build(), currentValue);
+          defaultEntityLineFormatter.format(
+              table,
+              Column.builder().name("col").dataType("type").constraints(List.of()).build(),
+              currentValue);
 
       assertEquals(currentValue, result);
     }
@@ -80,22 +85,28 @@ class DefaultEntityLineFormatterTest {
     }
 
     @Test
-    void ifColumnNameIsNullDoesNotThrow() {
-      final var column = Column.builder().name(null).dataType("type").maximumLength(10).build();
-
-      assertDoesNotThrow(() -> defaultEntityLineFormatter.format(table, column, null));
+    void ifColumnNameIsNullThrowsValidationException() {
+      assertThrows(
+          db.documenter.internal.exceptions.ValidationException.class,
+          () -> Column.builder().name(null).dataType("type").maximumLength(10).build());
     }
 
     @Test
-    void ifColumnDataTypeIsNullDoesNotThrow() {
-      final var column = Column.builder().name("col").dataType(null).maximumLength(10).build();
-
-      assertDoesNotThrow(() -> defaultEntityLineFormatter.format(table, column, null));
+    void ifColumnDataTypeIsNullThrowsValidationException() {
+      assertThrows(
+          db.documenter.internal.exceptions.ValidationException.class,
+          () -> Column.builder().name("col").dataType(null).maximumLength(10).build());
     }
 
     @Test
     void ifColumnMaximumLengthIsNegativeTreatsAsZero() {
-      final var column = Column.builder().name("col").dataType("type").maximumLength(-1).build();
+      final var column =
+          Column.builder()
+              .name("col")
+              .dataType("type")
+              .maximumLength(-1)
+              .constraints(List.of())
+              .build();
 
       final var result = defaultEntityLineFormatter.format(table, column, null);
 
@@ -105,7 +116,12 @@ class DefaultEntityLineFormatterTest {
     @Test
     void ifColumnMaximumLengthIsVeryLargeFormatsCorrectly() {
       final var column =
-          Column.builder().name("col").dataType("type").maximumLength(Integer.MAX_VALUE).build();
+          Column.builder()
+              .name("col")
+              .dataType("type")
+              .maximumLength(Integer.MAX_VALUE)
+              .constraints(List.of())
+              .build();
 
       final var result = defaultEntityLineFormatter.format(table, column, null);
 
