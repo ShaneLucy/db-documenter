@@ -61,22 +61,4 @@ public record Column(
       return new Column(name, ordinalPosition, isNullable, dataType, maximumLength, constraints);
     }
   }
-
-  public static Column mapUserDefinedToEnumType(final Column column, final List<DbEnum> dbEnums) {
-    final var dataType =
-        dbEnums.stream()
-            .filter(dbEnum -> dbEnum.columnName().equals(column.name))
-            .findFirst()
-            .map(DbEnum::enumName)
-            .orElse(column.dataType());
-
-    return Column.builder()
-        .name(column.name())
-        .ordinalPosition(column.ordinalPosition())
-        .isNullable(column.isNullable())
-        .dataType(dataType)
-        .maximumLength(column.maximumLength())
-        .constraints(column.constraints())
-        .build();
-  }
 }

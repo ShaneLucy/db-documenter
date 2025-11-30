@@ -53,16 +53,4 @@ public record ForeignKey(
       return new ForeignKey(name, sourceTable, sourceColumn, targetTable, targetColumn, isNullable);
     }
   }
-
-  public static ForeignKey combineForeignKeyAndIsNullable(
-      final ForeignKey foreignKey, final boolean isNullable) {
-    return ForeignKey.builder()
-        .name(foreignKey.name())
-        .sourceTable(foreignKey.sourceTable())
-        .sourceColumn(foreignKey.sourceColumn())
-        .targetTable(foreignKey.targetTable())
-        .targetColumn(foreignKey.targetColumn())
-        .isNullable(isNullable)
-        .build();
-  }
 }

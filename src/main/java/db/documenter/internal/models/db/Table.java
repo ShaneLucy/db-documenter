@@ -44,17 +44,4 @@ public record Table(
       return new Table(name, columns, primaryKey, foreignKeys);
     }
   }
-
-  public static Table combineTableColumnsPrimaryAndForeignKeys(
-      final Table table,
-      final List<Column> columns,
-      final PrimaryKey primaryKey,
-      final List<ForeignKey> foreignKeys) {
-    return Table.builder()
-        .name(table.name())
-        .columns(columns)
-        .primaryKey(primaryKey)
-        .foreignKeys(foreignKeys)
-        .build();
-  }
 }

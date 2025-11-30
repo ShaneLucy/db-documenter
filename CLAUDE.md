@@ -59,6 +59,50 @@ All checks run during `mvn verify`. Code must pass all checks before committing.
 - All parameters, local variables, and fields must be `final`
 - Public methods require Javadoc
 - No star imports
+- Prefer Java Streams API over enhanced for loops for collection processing
+
+### Functional Programming with Streams
+
+Prefer using Java Streams API over enhanced for loops when processing collections:
+
+**Prefer (Stream API):**
+```java
+return items.stream()
+    .map(item -> transform(item))
+    .filter(item -> item.isValid())
+    .toList();
+```
+
+**Avoid (Enhanced for loop):**
+```java
+final List<Result> result = new ArrayList<>();
+for (final Item item : items) {
+    final var transformed = transform(item);
+    if (transformed.isValid()) {
+        result.add(transformed);
+    }
+}
+return result;
+```
+
+**Exception Handling in Streams:**
+When working with checked exceptions inside stream operations, wrap them in `RuntimeException`:
+```java
+return items.stream()
+    .map(item -> {
+        try {
+            return processWithCheckedException(item);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    })
+    .toList();
+```
+
+**When to Use For Loops:**
+- Simple iteration where streams would reduce readability
+- Performance-critical tight loops where stream overhead matters
+- Complex multi-step operations that don't map well to stream operations
 
 ### Defensive Copying
 
@@ -93,19 +137,82 @@ public Builder constraints(final List<Constraint> constraints) {
 - Internal private methods where mutation is controlled
 - Performance-critical paths where immutability is guaranteed by design
 
+### Dependency Injection
+
+All internal components use constructor-based dependency injection for better testability and flexibility:
+
+**Prefer (Constructor Injection):**
+```java
+public final class TableBuilder {
+  private final ColumnMapper columnMapper;
+  private final ForeignKeyMapper foreignKeyMapper;
+
+  public TableBuilder(
+      final ColumnMapper columnMapper,
+      final ForeignKeyMapper foreignKeyMapper) {
+    this.columnMapper = columnMapper;
+    this.foreignKeyMapper = foreignKeyMapper;
+  }
+}
+```
+
+**Avoid (Field Instantiation):**
+```java
+public final class TableBuilder {
+  private final ColumnMapper columnMapper = new ColumnMapper();
+  private final ForeignKeyMapper foreignKeyMapper = new ForeignKeyMapper();
+}
+```
+
+**Benefits of Constructor Injection:**
+- Testability: Can inject mocks for unit testing
+- Explicit dependencies: Clear what a class needs to function
+- Immutability: Dependencies are final and set at construction
+- Flexibility: Can swap implementations without changing the class
+
+**Exception - Public Entry Points (Facade Pattern):**
+For public-facing classes like `DbDocumenter`, use the facade pattern to hide internal complexity:
+- Constructor takes only essential configuration (`DbDocumenterConfig`)
+- Wire up all internal dependencies inside the constructor
+- Keeps public API simple while maintaining clean internal architecture
+
+```java
+public final class DbDocumenter {
+  private final FormatterConfigurer formatterConfigurer;
+  private final SchemaBuilder schemaBuilder;
+
+  public DbDocumenter(final DbDocumenterConfig dbDocumenterConfig) {
+    // Simple public API - only takes config
+    this.formatterConfigurer = new FormatterConfigurer();
+
+    // Wire up internal dependencies with DI
+    final ColumnMapper columnMapper = new ColumnMapper();
+    final TableBuilder tableBuilder = new TableBuilder(columnMapper, ...);
+    this.schemaBuilder = new SchemaBuilder(..., tableBuilder);
+  }
+}
+```
+
 ## Architecture
 
 The codebase follows a layered architecture with clear separation of concerns:
 
 ### Core Flow
 
-1. **Entry Point** (`DbDocumenter.java`): Orchestrates the entire generation process
+1. **Entry Point** (`DbDocumenter.java`): Facade that orchestrates the entire generation process
 2. **Configuration** (`DbDocumenterConfig`): Database connection and schema configuration with validation
 3. **Connection Layer** (`internal/connection`): Database-specific connection management
 4. **Query Layer** (`internal/queries`): Executes database-specific queries to extract metadata
-5. **Model Layer** (`internal/models/db`): Domain objects (Schema, Table, Column, ForeignKey, PrimaryKey, DbEnum)
-6. **Formatter Layer** (`internal/formatter`): Transforms column metadata into PlantUML syntax
-7. **Renderer Layer** (`internal/renderer`): Assembles formatters and models into final PlantUML output
+5. **Mapper Layer** (`internal/mapper`): Transforms raw query results into enriched domain objects
+6. **Builder Layer** (`internal/builder`): Orchestrates data fetching and transformation
+7. **Model Layer** (`internal/models/db`): Domain objects (Schema, Table, Column, ForeignKey, PrimaryKey, DbEnum)
+8. **Formatter Layer** (`internal/formatter`): Transforms column metadata into PlantUML syntax
+9. **Renderer Layer** (`internal/renderer`): Assembles formatters and models into final PlantUML output
+
+**Data Flow:**
+```
+Database → QueryRunner → Mapper → Builder → Model → Formatter → Renderer → PlantUML
+```
 
 ### Database Abstraction
 
@@ -120,6 +227,50 @@ To add support for a new database:
 2. Implement `QueryRunner` interface
 3. Add new `RdbmsTypes` enum value
 4. Update both factory classes
+
+### Builder and Mapper Layers
+
+The application separates data orchestration (builders) from data transformation (mappers):
+
+**Builder Layer** (`internal/builder`):
+- `FormatterConfigurer`: Creates and configures formatter instances
+- `SchemaBuilder`: Orchestrates schema building, manages database connections
+- `TableBuilder`: Builds tables by coordinating queries and mappers
+- `EnumBuilder`: Builds database enum types
+- Responsibilities: Query orchestration, connection lifecycle, high-level workflow
+
+**Mapper Layer** (`internal/mapper`):
+- `ColumnMapper`: Maps USER-DEFINED types to enum types
+- `ForeignKeyMapper`: Enriches foreign keys with nullability information
+- `TableMapper`: Combines table components into table instances
+- Responsibilities: Pure data transformation, no database access, stateless operations
+
+**Design Principles:**
+- Builders orchestrate and manage resources (connections, transactions)
+- Mappers are pure functions that transform data
+- Both use dependency injection for testability
+- Clear separation of concerns between fetching and transforming
+
+**Example:**
+```java
+// Builder orchestrates
+public List<Table> buildTables(QueryRunner queryRunner, String schema, List<DbEnum> dbEnums) {
+  return tableNames.stream()
+      .map(tableName -> {
+          final List<Column> rawColumns = queryRunner.getColumnInfo(schema, tableName);
+          final List<Column> columns = columnMapper.mapUserDefinedTypes(rawColumns, dbEnums);
+          // ... combine with mapper
+      })
+      .toList();
+}
+
+// Mapper transforms
+public List<Column> mapUserDefinedTypes(List<Column> rawColumns, List<DbEnum> dbEnums) {
+  return rawColumns.stream()
+      .map(column -> /* pure transformation */)
+      .toList();
+}
+```
 
 ### Formatter Chain Pattern
 
@@ -178,6 +329,24 @@ Tests use Testcontainers for database integration tests:
 - Integration tests validate the entire flow from database connection through PlantUML generation
 - Formatter tests are isolated unit tests with mocked dependencies
 
+**IMPORTANT Testing Requirements:**
+
+1. **Test-Driven Development**: When writing new functionality, write tests at the same time (not after)
+   - Write the test first or alongside the implementation
+   - Ensures code is designed for testability from the start
+   - Prevents "we'll add tests later" technical debt
+
+2. **Maintain Tests**: When changing existing functionality, check and update related tests
+   - Run affected tests after making changes
+   - Update test expectations to match new behavior
+   - Add new test cases for new edge cases or scenarios
+   - Never comment out or delete failing tests without fixing them
+
+3. **Use JUnit Assertions**: This project uses JUnit 5 assertions, NOT AssertJ
+   - Use `assertEquals()`, `assertTrue()`, `assertFalse()`, `assertNotNull()`, etc.
+   - Use `assertThrows()` for exception testing
+   - **DO NOT** use AssertJ's `assertThat()` (not a dependency in this project)
+
 ## Writing Tests
 
 All tests follow consistent patterns. When writing new tests:
@@ -204,13 +373,60 @@ All tests follow consistent patterns. When writing new tests:
    ```
 
 3. **Descriptive test names**: Use full sentences that describe the behavior
-   - Good: `whenCurrentIsNullReturnsFormattedRelationship`
-   - Bad: `testFormat`, `test1`
+   - Good: `whenCurrentIsNullReturnsFormattedRelationship`, `buildsSchemaWithTablesAndEnums`
+   - Bad: `testFormat`, `test1`, `test`
 
-4. **Follow existing patterns**: Look at similar test files for guidance
+4. **Use JUnit 5 assertions** (import from `org.junit.jupiter.api.Assertions`):
+   ```java
+   import static org.junit.jupiter.api.Assertions.*;
+
+   // Equality checks
+   assertEquals(expected, actual);
+   assertEquals("expected message", result.getMessage());
+
+   // Boolean checks
+   assertTrue(result.isEmpty());
+   assertFalse(result.isPresent());
+
+   // Null checks
+   assertNotNull(result);
+   assertNull(result);
+
+   // Exception testing
+   final SQLException exception = assertThrows(
+       SQLException.class,
+       () -> builder.buildEnums(queryRunner, "schema")
+   );
+   assertEquals("Connection failed", exception.getMessage());
+
+   // Instance checks
+   assertTrue(exception.getCause() instanceof SQLException);
+   ```
+
+5. **Mock dependencies with Mockito**:
+   ```java
+   @ExtendWith(MockitoExtension.class)
+   class MyTest {
+       @Mock private QueryRunner queryRunner;
+
+       @BeforeEach
+       void setUp() {
+           reset(queryRunner);  // Reset mocks before each test
+       }
+
+       @Test
+       void testSomething() {
+           when(queryRunner.getTableInfo("schema")).thenReturn(List.of());
+           verify(queryRunner).getTableInfo("schema");
+       }
+   }
+   ```
+
+6. **Follow existing patterns**: Look at similar test files for guidance
    - Entity formatter tests: See `DefaultLineFormatterTest`, `PrimaryKeyLineFormatterTest`
    - Multiplicity formatter tests: See `DefaultMultiplicityFormatterTest`, `CardinalityFormatterTest`
    - Composite formatter tests: See `CompositeEntityLineFormatterTest`, `CompositeMultiplicityFormatterTest`
+   - Builder tests: See `EnumBuilderTest`, `TableBuilderTest`, `SchemaBuilderTest`
 
 ### Test Coverage Requirements
 

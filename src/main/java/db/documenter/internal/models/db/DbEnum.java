@@ -36,13 +36,4 @@ public record DbEnum(String enumName, String columnName, List<String> enumValues
       return new DbEnum(enumName, columnName, enumValues);
     }
   }
-
-  public static DbEnum combineDbEnumValuesAndInfo(
-      final DbEnum dbEnum, final List<String> enumValues) {
-    return DbEnum.builder()
-        .enumName(dbEnum.enumName())
-        .columnName(dbEnum.columnName())
-        .enumValues(enumValues)
-        .build();
-  }
 }
