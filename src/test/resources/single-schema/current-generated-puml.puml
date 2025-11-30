@@ -131,16 +131,22 @@ package "public" {
 
 }
 
+address ||--o{ customer_order
+
 app_user ||--|{ user_role
-role ||--|{ user_role
 app_user ||--o{ user_role
 app_user ||--|{ address
-product ||--|{ product_category
-category ||--|{ product_category
 app_user ||--o{ customer_order
-address ||--o{ customer_order
-customer_order ||--|{ order_item
-product ||--|{ order_item
-customer_order ||--|{ payment
 app_user ||--o{ audit_log
+
+category ||--|{ product_category
+
+customer_order ||--|{ order_item
+customer_order ||--|{ payment
+
+product ||--|{ product_category
+product ||--|{ order_item
+
+role ||--|{ user_role
+
 @enduml

@@ -5,6 +5,8 @@ import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.Table;
 import db.documenter.internal.renderer.api.PumlRenderer;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class RelationshipRenderer implements PumlRenderer<List<Table>> {
 
@@ -18,12 +20,22 @@ public final class RelationshipRenderer implements PumlRenderer<List<Table>> {
   public String render(final List<Table> tables) {
     final var stringBuilder = new StringBuilder();
 
-    for (final Table table : tables) {
-      for (final ForeignKey fk : table.foreignKeys()) {
-        final var formattedLine = multiplicityFormatter.format(fk, null);
-        stringBuilder.append(formattedLine).append("\n");
-      }
-    }
+    final Map<String, List<ForeignKey>> foreignKeysByTargetTable =
+        tables.stream()
+            .flatMap(table -> table.foreignKeys().stream())
+            .collect(Collectors.groupingBy(ForeignKey::targetTable));
+
+    foreignKeysByTargetTable.entrySet().stream()
+        .sorted(Map.Entry.comparingByKey())
+        .forEach(
+            entry -> {
+              for (final ForeignKey fk : entry.getValue()) {
+                final var formattedLine = multiplicityFormatter.format(fk, null);
+                stringBuilder.append(formattedLine).append("\n");
+              }
+              stringBuilder.append("\n");
+            });
+
     return stringBuilder.toString();
   }
 }
