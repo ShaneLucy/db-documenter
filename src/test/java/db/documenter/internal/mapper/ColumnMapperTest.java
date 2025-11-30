@@ -73,7 +73,6 @@ class ColumnMapperTest {
       final Column column =
           Column.builder()
               .name("status")
-              .ordinalPosition(5)
               .dataType("USER-DEFINED")
               .maximumLength(50)
               .constraints(List.of(Constraint.DEFAULT, Constraint.NULLABLE))
@@ -85,7 +84,6 @@ class ColumnMapperTest {
       assertEquals(1, result.size());
       final var mapped = result.getFirst();
       assertEquals("status", mapped.name());
-      assertEquals(5, mapped.ordinalPosition());
       assertTrue(mapped.isNullable());
       assertEquals("order_status", mapped.dataType());
       assertEquals(50, mapped.maximumLength());
@@ -239,7 +237,6 @@ class ColumnMapperTest {
       final Column column =
           Column.builder()
               .name("user_id")
-              .ordinalPosition(3)
               .dataType("uuid")
               .maximumLength(36)
               .constraints(List.of(Constraint.NULLABLE))
@@ -261,7 +258,6 @@ class ColumnMapperTest {
       assertEquals(1, result.size());
       final var enriched = result.getFirst();
       assertEquals("user_id", enriched.name());
-      assertEquals(3, enriched.ordinalPosition());
       assertTrue(enriched.isNullable());
       assertEquals("uuid", enriched.dataType());
       assertEquals(36, enriched.maximumLength());

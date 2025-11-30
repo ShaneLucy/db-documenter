@@ -101,31 +101,6 @@ class PostgresqlQueryRunnerTest {
       }
 
       @Test
-      void columnsHaveCorrectOrdinalPosition() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", appUser);
-
-        final var idColumn = columns.getFirst();
-        final var userNameColumn = columns.get(1);
-        final var emailColumn = columns.get(2);
-        final var displayNameColumn = columns.get(3);
-        final var birthDateColumn = columns.get(4);
-        final var createdAtColumn = columns.get(5);
-        final var profileColumn = columns.get(6);
-        final var isActiveColumn = columns.getLast();
-
-        assertEquals(8, columns.size());
-
-        assertEquals(1, idColumn.ordinalPosition());
-        assertEquals(2, userNameColumn.ordinalPosition());
-        assertEquals(3, emailColumn.ordinalPosition());
-        assertEquals(4, displayNameColumn.ordinalPosition());
-        assertEquals(5, birthDateColumn.ordinalPosition());
-        assertEquals(6, createdAtColumn.ordinalPosition());
-        assertEquals(7, profileColumn.ordinalPosition());
-        assertEquals(8, isActiveColumn.ordinalPosition());
-      }
-
-      @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
         final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", appUser);
 
@@ -223,21 +198,6 @@ class PostgresqlQueryRunnerTest {
       }
 
       @Test
-      void columnsHaveCorrectOrdinalPosition() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", roleTable);
-
-        final var idColumn = columns.getFirst();
-        final var codeColumn = columns.get(1);
-        final var descriptionColumn = columns.getLast();
-
-        assertEquals(3, columns.size());
-
-        assertEquals(1, idColumn.ordinalPosition());
-        assertEquals(2, codeColumn.ordinalPosition());
-        assertEquals(3, descriptionColumn.ordinalPosition());
-      }
-
-      @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
         final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", roleTable);
 
@@ -303,23 +263,6 @@ class PostgresqlQueryRunnerTest {
 
         assertTrue(names.containsAll(expectedColumnNames));
         assertEquals(expectedColumnNames.size(), names.size());
-      }
-
-      @Test
-      void columnsHaveCorrectOrdinalPosition() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", userRole);
-
-        final var userIdColumn = columns.getFirst();
-        final var roleIdColumn = columns.get(1);
-        final var assignedAtColumn = columns.get(2);
-        final var assignedByColumn = columns.getLast();
-
-        assertEquals(4, columns.size());
-
-        assertEquals(1, userIdColumn.ordinalPosition());
-        assertEquals(2, roleIdColumn.ordinalPosition());
-        assertEquals(3, assignedAtColumn.ordinalPosition());
-        assertEquals(4, assignedByColumn.ordinalPosition());
       }
 
       @Test
@@ -403,33 +346,6 @@ class PostgresqlQueryRunnerTest {
 
         assertTrue(names.containsAll(expectedColumnNames));
         assertEquals(expectedColumnNames.size(), names.size());
-      }
-
-      @Test
-      void columnsHaveCorrectOrdinalPosition() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", address);
-
-        final var idColumn = columns.getFirst();
-        final var userIdColumn = columns.get(1);
-        final var line1Column = columns.get(2);
-        final var line2Column = columns.get(3);
-        final var cityColumn = columns.get(4);
-        final var stateColumn = columns.get(5);
-        final var postalCodeColumn = columns.get(6);
-        final var countryColumn = columns.get(7);
-        final var createdAtColumn = columns.getLast();
-
-        assertEquals(9, columns.size());
-
-        assertEquals(1, idColumn.ordinalPosition());
-        assertEquals(2, userIdColumn.ordinalPosition());
-        assertEquals(3, line1Column.ordinalPosition());
-        assertEquals(4, line2Column.ordinalPosition());
-        assertEquals(5, cityColumn.ordinalPosition());
-        assertEquals(6, stateColumn.ordinalPosition());
-        assertEquals(7, postalCodeColumn.ordinalPosition());
-        assertEquals(8, countryColumn.ordinalPosition());
-        assertEquals(9, createdAtColumn.ordinalPosition());
       }
 
       @Test
@@ -538,31 +454,6 @@ class PostgresqlQueryRunnerTest {
       }
 
       @Test
-      void columnsHaveCorrectOrdinalPosition() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", product);
-
-        final var idColumn = columns.getFirst();
-        final var skuColumn = columns.get(1);
-        final var nameColumn = columns.get(2);
-        final var descriptionColumn = columns.get(3);
-        final var priceColumn = columns.get(4);
-        final var attributesColumn = columns.get(5);
-        final var createdAtColumn = columns.get(6);
-        final var stockColumn = columns.getLast();
-
-        assertEquals(8, columns.size());
-
-        assertEquals(1, idColumn.ordinalPosition());
-        assertEquals(2, skuColumn.ordinalPosition());
-        assertEquals(3, nameColumn.ordinalPosition());
-        assertEquals(4, descriptionColumn.ordinalPosition());
-        assertEquals(5, priceColumn.ordinalPosition());
-        assertEquals(6, attributesColumn.ordinalPosition());
-        assertEquals(7, createdAtColumn.ordinalPosition());
-        assertEquals(8, stockColumn.ordinalPosition());
-      }
-
-      @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
         final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", product);
 
@@ -660,23 +551,6 @@ class PostgresqlQueryRunnerTest {
       }
 
       @Test
-      void columnsHaveCorrectOrdinalPosition() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", category);
-
-        final var idColumn = columns.getFirst();
-        final var slugColumn = columns.get(1);
-        final var titleColumn = columns.get(2);
-        final var metadataColumn = columns.getLast();
-
-        assertEquals(4, columns.size());
-
-        assertEquals(1, idColumn.ordinalPosition());
-        assertEquals(2, slugColumn.ordinalPosition());
-        assertEquals(3, titleColumn.ordinalPosition());
-        assertEquals(4, metadataColumn.ordinalPosition());
-      }
-
-      @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
         final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", category);
 
@@ -748,21 +622,6 @@ class PostgresqlQueryRunnerTest {
 
         assertTrue(names.containsAll(expectedColumnNames));
         assertEquals(expectedColumnNames.size(), names.size());
-      }
-
-      @Test
-      void columnsHaveCorrectOrdinalPosition() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", productCategory);
-
-        final var productIdColumn = columns.getFirst();
-        final var categoryIdColumn = columns.get(1);
-        final var assignedAtColumn = columns.getLast();
-
-        assertEquals(3, columns.size());
-
-        assertEquals(1, productIdColumn.ordinalPosition());
-        assertEquals(2, categoryIdColumn.ordinalPosition());
-        assertEquals(3, assignedAtColumn.ordinalPosition());
       }
 
       @Test
@@ -840,33 +699,6 @@ class PostgresqlQueryRunnerTest {
 
         assertTrue(names.containsAll(expectedColumnNames));
         assertEquals(expectedColumnNames.size(), names.size());
-      }
-
-      @Test
-      void columnsHaveCorrectOrdinalPosition() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", customerOrder);
-
-        final var idColumn = columns.getFirst();
-        final var userIdColumn = columns.get(1);
-        final var orderNumberColumn = columns.get(2);
-        final var orderDateColumn = columns.get(3);
-        final var shipDateColumn = columns.get(4);
-        final var shippingAddressIdColumn = columns.get(5);
-        final var statusColumn = columns.get(6);
-        final var totalColumn = columns.get(7);
-        final var metadataColumn = columns.getLast();
-
-        assertEquals(9, columns.size());
-
-        assertEquals(1, idColumn.ordinalPosition());
-        assertEquals(2, userIdColumn.ordinalPosition());
-        assertEquals(3, orderNumberColumn.ordinalPosition());
-        assertEquals(4, orderDateColumn.ordinalPosition());
-        assertEquals(5, shipDateColumn.ordinalPosition());
-        assertEquals(6, shippingAddressIdColumn.ordinalPosition());
-        assertEquals(7, statusColumn.ordinalPosition());
-        assertEquals(8, totalColumn.ordinalPosition());
-        assertEquals(9, metadataColumn.ordinalPosition());
       }
 
       @Test
@@ -981,29 +813,6 @@ class PostgresqlQueryRunnerTest {
       }
 
       @Test
-      void columnsHaveCorrectOrdinalPosition() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", orderItem);
-
-        final var idColumn = columns.getFirst();
-        final var orderIdColumn = columns.get(1);
-        final var productIdColumn = columns.get(2);
-        final var productSnapshotColumn = columns.get(3);
-        final var unitPriceColumn = columns.get(4);
-        final var quantityColumn = columns.get(5);
-        final var lineTotalColumn = columns.getLast();
-
-        assertEquals(7, columns.size());
-
-        assertEquals(1, idColumn.ordinalPosition());
-        assertEquals(2, orderIdColumn.ordinalPosition());
-        assertEquals(3, productIdColumn.ordinalPosition());
-        assertEquals(4, productSnapshotColumn.ordinalPosition());
-        assertEquals(5, unitPriceColumn.ordinalPosition());
-        assertEquals(6, quantityColumn.ordinalPosition());
-        assertEquals(7, lineTotalColumn.ordinalPosition());
-      }
-
-      @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
         final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", orderItem);
 
@@ -1100,29 +909,6 @@ class PostgresqlQueryRunnerTest {
 
         assertTrue(names.containsAll(expectedColumnNames));
         assertEquals(expectedColumnNames.size(), names.size());
-      }
-
-      @Test
-      void columnsHaveCorrectOrdinalPosition() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", payment);
-
-        final var idColumn = columns.getFirst();
-        final var orderIdColumn = columns.get(1);
-        final var paidAtColumn = columns.get(2);
-        final var amountColumn = columns.get(3);
-        final var methodColumn = columns.get(4);
-        final var providerTransactionIdColumn = columns.get(5);
-        final var rawResponseColumn = columns.getLast();
-
-        assertEquals(7, columns.size());
-
-        assertEquals(1, idColumn.ordinalPosition());
-        assertEquals(2, orderIdColumn.ordinalPosition());
-        assertEquals(3, paidAtColumn.ordinalPosition());
-        assertEquals(4, amountColumn.ordinalPosition());
-        assertEquals(5, methodColumn.ordinalPosition());
-        assertEquals(6, providerTransactionIdColumn.ordinalPosition());
-        assertEquals(7, rawResponseColumn.ordinalPosition());
       }
 
       @Test
@@ -1225,29 +1011,6 @@ class PostgresqlQueryRunnerTest {
       }
 
       @Test
-      void columnsHaveCorrectOrdinalPosition() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", auditLog);
-
-        final var idColumn = columns.getFirst();
-        final var entityTypeColumn = columns.get(1);
-        final var entityIdColumn = columns.get(2);
-        final var actionColumn = columns.get(3);
-        final var performedByColumn = columns.get(4);
-        final var performedAtColumn = columns.get(5);
-        final var detailsColumn = columns.getLast();
-
-        assertEquals(7, columns.size());
-
-        assertEquals(1, idColumn.ordinalPosition());
-        assertEquals(2, entityTypeColumn.ordinalPosition());
-        assertEquals(3, entityIdColumn.ordinalPosition());
-        assertEquals(4, actionColumn.ordinalPosition());
-        assertEquals(5, performedByColumn.ordinalPosition());
-        assertEquals(6, performedAtColumn.ordinalPosition());
-        assertEquals(7, detailsColumn.ordinalPosition());
-      }
-
-      @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
         final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", auditLog);
 
@@ -1336,19 +1099,6 @@ class PostgresqlQueryRunnerTest {
 
         assertTrue(names.containsAll(expectedColumnNames));
         assertEquals(expectedColumnNames.size(), names.size());
-      }
-
-      @Test
-      void columnsHaveCorrectOrdinalPosition() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", tagLog);
-
-        final var tagIdColumn = columns.getFirst();
-        final var loggedAtColumn = columns.getLast();
-
-        assertEquals(2, columns.size());
-
-        assertEquals(1, tagIdColumn.ordinalPosition());
-        assertEquals(2, loggedAtColumn.ordinalPosition());
       }
 
       @Test

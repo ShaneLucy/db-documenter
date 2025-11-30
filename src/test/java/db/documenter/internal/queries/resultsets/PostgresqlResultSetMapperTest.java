@@ -117,7 +117,6 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.next()).thenReturn(true, false);
 
       when(resultSet.getString("column_name")).thenReturn(colName1);
-      when(resultSet.getInt("ordinal_position")).thenReturn(ordinal1);
       when(resultSet.getString("is_nullable")).thenReturn(nullable1);
       when(resultSet.getString("data_type")).thenReturn(dataType1);
       when(resultSet.getInt("character_maximum_length")).thenReturn(maxLength1);
@@ -131,7 +130,6 @@ class PostgresqlResultSetMapperTest {
       assertEquals(1, result.size());
       final var col = result.getFirst();
       assertEquals(colName1, col.name());
-      assertEquals(ordinal1, col.ordinalPosition());
       assertFalse(col.isNullable());
       assertEquals(dataType1, col.dataType());
       assertEquals(maxLength1, col.maximumLength());
@@ -163,7 +161,6 @@ class PostgresqlResultSetMapperTest {
       final Iterator<Boolean> isAutoIncrementIt = isAutoIncrements.iterator();
 
       when(resultSet.getString("column_name")).thenAnswer(invocation -> nameIt.next());
-      when(resultSet.getInt("ordinal_position")).thenAnswer(invocation -> ordinalIt.next());
       when(resultSet.getString("is_nullable")).thenAnswer(invocation -> nullableIt.next());
       when(resultSet.getString("data_type")).thenAnswer(invocation -> typeIt.next());
       when(resultSet.getInt("character_maximum_length")).thenAnswer(invocation -> lengthIt.next());
@@ -180,14 +177,12 @@ class PostgresqlResultSetMapperTest {
 
       final var first = result.getFirst();
       assertEquals(colName1, first.name());
-      assertEquals(ordinal1, first.ordinalPosition());
       assertFalse(first.isNullable());
       assertEquals(dataType1, first.dataType());
       assertEquals(maxLength1, first.maximumLength());
 
       final var second = result.get(1);
       assertEquals(colName2, second.name());
-      assertEquals(ordinal2, second.ordinalPosition());
       assertTrue(second.isNullable());
       assertEquals(dataType2, second.dataType());
       assertEquals(maxLength2, second.maximumLength());
@@ -208,7 +203,6 @@ class PostgresqlResultSetMapperTest {
     void addsNullableConstraintWhenIsNullableIsYes() throws SQLException {
       when(resultSet.next()).thenReturn(true, false);
       when(resultSet.getString("column_name")).thenReturn("name");
-      when(resultSet.getInt("ordinal_position")).thenReturn(1);
       when(resultSet.getString("is_nullable")).thenReturn("YES");
       when(resultSet.getString("data_type")).thenReturn("varchar");
       when(resultSet.getInt("character_maximum_length")).thenReturn(50);
@@ -229,7 +223,6 @@ class PostgresqlResultSetMapperTest {
     void doesNotAddNullableConstraintWhenIsNullableIsNo() throws SQLException {
       when(resultSet.next()).thenReturn(true, false);
       when(resultSet.getString("column_name")).thenReturn("id");
-      when(resultSet.getInt("ordinal_position")).thenReturn(1);
       when(resultSet.getString("is_nullable")).thenReturn("NO");
       when(resultSet.getString("data_type")).thenReturn("int");
       when(resultSet.getInt("character_maximum_length")).thenReturn(10);
@@ -250,7 +243,6 @@ class PostgresqlResultSetMapperTest {
     void addsUniqueConstraintWhenIsUniqueIsTrue() throws SQLException {
       when(resultSet.next()).thenReturn(true, false);
       when(resultSet.getString("column_name")).thenReturn("email");
-      when(resultSet.getInt("ordinal_position")).thenReturn(1);
       when(resultSet.getString("is_nullable")).thenReturn("NO");
       when(resultSet.getString("data_type")).thenReturn("varchar");
       when(resultSet.getInt("character_maximum_length")).thenReturn(100);
@@ -273,7 +265,6 @@ class PostgresqlResultSetMapperTest {
     void addsCheckConstraintWhenCheckConstraintIsNotBlank() throws SQLException {
       when(resultSet.next()).thenReturn(true, false);
       when(resultSet.getString("column_name")).thenReturn("age");
-      when(resultSet.getInt("ordinal_position")).thenReturn(1);
       when(resultSet.getString("is_nullable")).thenReturn("NO");
       when(resultSet.getString("data_type")).thenReturn("int");
       when(resultSet.getInt("character_maximum_length")).thenReturn(0);
@@ -296,7 +287,6 @@ class PostgresqlResultSetMapperTest {
     void doesNotAddCheckConstraintWhenCheckConstraintIsBlank() throws SQLException {
       when(resultSet.next()).thenReturn(true, false);
       when(resultSet.getString("column_name")).thenReturn("age");
-      when(resultSet.getInt("ordinal_position")).thenReturn(1);
       when(resultSet.getString("is_nullable")).thenReturn("NO");
       when(resultSet.getString("data_type")).thenReturn("int");
       when(resultSet.getInt("character_maximum_length")).thenReturn(0);
@@ -319,7 +309,6 @@ class PostgresqlResultSetMapperTest {
     void addsDefaultConstraintWhenColumnDefaultIsNotBlank() throws SQLException {
       when(resultSet.next()).thenReturn(true, false);
       when(resultSet.getString("column_name")).thenReturn("status");
-      when(resultSet.getInt("ordinal_position")).thenReturn(1);
       when(resultSet.getString("is_nullable")).thenReturn("NO");
       when(resultSet.getString("data_type")).thenReturn("varchar");
       when(resultSet.getInt("character_maximum_length")).thenReturn(50);
@@ -342,7 +331,6 @@ class PostgresqlResultSetMapperTest {
     void doesNotAddDefaultConstraintWhenColumnDefaultIsBlank() throws SQLException {
       when(resultSet.next()).thenReturn(true, false);
       when(resultSet.getString("column_name")).thenReturn("status");
-      when(resultSet.getInt("ordinal_position")).thenReturn(1);
       when(resultSet.getString("is_nullable")).thenReturn("NO");
       when(resultSet.getString("data_type")).thenReturn("varchar");
       when(resultSet.getInt("character_maximum_length")).thenReturn(50);
@@ -365,7 +353,6 @@ class PostgresqlResultSetMapperTest {
     void addsAutoIncrementConstraintWhenIsAutoIncrementIsTrue() throws SQLException {
       when(resultSet.next()).thenReturn(true, false);
       when(resultSet.getString("column_name")).thenReturn("id");
-      when(resultSet.getInt("ordinal_position")).thenReturn(1);
       when(resultSet.getString("is_nullable")).thenReturn("NO");
       when(resultSet.getString("data_type")).thenReturn("int");
       when(resultSet.getInt("character_maximum_length")).thenReturn(0);
@@ -388,7 +375,6 @@ class PostgresqlResultSetMapperTest {
     void addsMultipleConstraintsWhenApplicable() throws SQLException {
       when(resultSet.next()).thenReturn(true, false);
       when(resultSet.getString("column_name")).thenReturn("email");
-      when(resultSet.getInt("ordinal_position")).thenReturn(1);
       when(resultSet.getString("is_nullable")).thenReturn("YES");
       when(resultSet.getString("data_type")).thenReturn("varchar");
       when(resultSet.getInt("character_maximum_length")).thenReturn(100);

@@ -2,13 +2,8 @@ package db.documenter.internal.models.db;
 
 import java.util.List;
 
-// TODO remove ordinal position
 public record Column(
-    String name,
-    int ordinalPosition,
-    String dataType,
-    int maximumLength,
-    List<Constraint> constraints) {
+    String name, String dataType, int maximumLength, List<Constraint> constraints) {
 
   public Column {
     constraints = constraints == null ? List.of() : List.copyOf(constraints);
@@ -24,18 +19,12 @@ public record Column(
 
   public static class Builder {
     private String name;
-    private int ordinalPosition;
     private String dataType;
     private int maximumLength;
     private List<Constraint> constraints;
 
     public Builder name(final String name) {
       this.name = name;
-      return this;
-    }
-
-    public Builder ordinalPosition(final int ordinalPosition) {
-      this.ordinalPosition = ordinalPosition;
       return this;
     }
 
@@ -55,7 +44,7 @@ public record Column(
     }
 
     public Column build() {
-      return new Column(name, ordinalPosition, dataType, maximumLength, constraints);
+      return new Column(name, dataType, maximumLength, constraints);
     }
   }
 }

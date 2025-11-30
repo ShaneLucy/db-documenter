@@ -36,7 +36,6 @@ public final class ColumnMapper {
 
               return Column.builder()
                   .name(column.name())
-                  .ordinalPosition(column.ordinalPosition())
                   .dataType(dataType)
                   .maximumLength(column.maximumLength())
                   .constraints(column.constraints())
@@ -73,7 +72,6 @@ public final class ColumnMapper {
 
               return Column.builder()
                   .name(column.name())
-                  .ordinalPosition(column.ordinalPosition())
                   .dataType(column.dataType())
                   .maximumLength(column.maximumLength())
                   .constraints(updatedConstraints)

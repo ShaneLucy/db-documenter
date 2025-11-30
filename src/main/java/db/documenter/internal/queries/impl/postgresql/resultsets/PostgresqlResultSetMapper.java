@@ -28,7 +28,6 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
       columns.add(
           Column.builder()
               .name(resultSet.getString("column_name"))
-              .ordinalPosition(resultSet.getInt("ordinal_position"))
               .dataType(resultSet.getString("data_type"))
               .maximumLength(resultSet.getInt("character_maximum_length"))
               .constraints(constraints)
