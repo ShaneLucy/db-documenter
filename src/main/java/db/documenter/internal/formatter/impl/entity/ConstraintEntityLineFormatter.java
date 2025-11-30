@@ -15,7 +15,10 @@ public final class ConstraintEntityLineFormatter implements EntityLineFormatter 
     }
 
     final var constraintString =
-        column.constraints().stream().map(Constraint::name).collect(Collectors.joining(","));
+        column.constraints().stream()
+            .sorted((c1, c2) -> Integer.compare(c1.displayPriority(), c2.displayPriority()))
+            .map(Constraint::name)
+            .collect(Collectors.joining(","));
 
     return current + " <<" + constraintString + ">>";
   }

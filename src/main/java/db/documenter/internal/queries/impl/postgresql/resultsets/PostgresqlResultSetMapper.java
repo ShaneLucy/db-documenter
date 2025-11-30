@@ -96,6 +96,7 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
               .sourceColumn(resultSet.getString("source_column"))
               .targetTable(resultSet.getString("referenced_table"))
               .targetColumn(resultSet.getString("referenced_column"))
+              .referencedSchema(resultSet.getString("referenced_schema"))
               .build());
     }
 

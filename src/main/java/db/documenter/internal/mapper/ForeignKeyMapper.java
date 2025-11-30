@@ -34,6 +34,7 @@ public final class ForeignKeyMapper {
                   .sourceColumn(foreignKey.sourceColumn())
                   .targetTable(foreignKey.targetTable())
                   .targetColumn(foreignKey.targetColumn())
+                  .referencedSchema(foreignKey.referencedSchema())
                   .isNullable(optionalColumn.get().isNullable())
                   .build();
             })

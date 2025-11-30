@@ -37,6 +37,7 @@ class TableMapperTest {
               .sourceColumn("user_id")
               .targetTable("users")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final Table result =
@@ -112,6 +113,7 @@ class TableMapperTest {
               .sourceColumn("user_id")
               .targetTable("users")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final ForeignKey foreignKey2 =
@@ -121,6 +123,7 @@ class TableMapperTest {
               .sourceColumn("product_id")
               .targetTable("products")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final Table result =

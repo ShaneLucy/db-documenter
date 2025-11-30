@@ -47,7 +47,7 @@ class ConstraintEntityLineFormatterTest {
               .constraints(List.of(Constraint.UNIQUE, Constraint.CHECK, Constraint.DEFAULT))
               .build();
       final var result = constraintEntityLineFormatter.format(table, column, "value");
-      assertEquals("value <<UNIQUE,CHECK,DEFAULT>>", result);
+      assertEquals("value <<UNIQUE,DEFAULT,CHECK>>", result);
     }
 
     @Test
@@ -62,7 +62,41 @@ class ConstraintEntityLineFormatterTest {
                       Constraint.AUTO_INCREMENT))
               .build();
       final var result = constraintEntityLineFormatter.format(table, column, "value");
-      assertEquals("value <<UNIQUE,CHECK,DEFAULT,AUTO_INCREMENT>>", result);
+      assertEquals("value <<UNIQUE,AUTO_INCREMENT,DEFAULT,CHECK>>", result);
+    }
+
+    @Test
+    void whenNullableConstraintAppendsNullable() {
+      final var column = columnBuilder.constraints(List.of(Constraint.NULLABLE)).build();
+      final var result = constraintEntityLineFormatter.format(table, column, "value");
+      assertEquals("value <<NULLABLE>>", result);
+    }
+
+    @Test
+    void whenMultipleConstraintsIncludingNullableAppendsAllInCorrectOrder() {
+      final var column =
+          columnBuilder
+              .constraints(List.of(Constraint.UNIQUE, Constraint.NULLABLE, Constraint.DEFAULT))
+              .build();
+      final var result = constraintEntityLineFormatter.format(table, column, "value");
+      assertEquals("value <<UNIQUE,DEFAULT,NULLABLE>>", result);
+    }
+
+    @Test
+    void whenAllConstraintsAppendsAllInCorrectOrder() {
+      final var column =
+          columnBuilder
+              .constraints(
+                  List.of(
+                      Constraint.UNIQUE,
+                      Constraint.NULLABLE,
+                      Constraint.DEFAULT,
+                      Constraint.FK,
+                      Constraint.CHECK,
+                      Constraint.AUTO_INCREMENT))
+              .build();
+      final var result = constraintEntityLineFormatter.format(table, column, "value");
+      assertEquals("value <<FK,UNIQUE,AUTO_INCREMENT,DEFAULT,CHECK,NULLABLE>>", result);
     }
 
     @Test

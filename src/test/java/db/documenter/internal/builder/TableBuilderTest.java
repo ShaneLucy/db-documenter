@@ -73,6 +73,7 @@ class TableBuilderTest {
               .sourceColumn("user_id")
               .targetTable("users")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final ForeignKey enrichedForeignKey =
@@ -83,6 +84,7 @@ class TableBuilderTest {
               .targetTable("users")
               .targetColumn("id")
               .isNullable(false)
+              .referencedSchema("public")
               .build();
 
       final Table builtTable1 =

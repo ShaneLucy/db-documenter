@@ -44,12 +44,10 @@ public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
               .forEach(table -> stringBuilder.append(entityRenderer.render(table)).append("\n"));
 
           logSchemaInfo(schema);
-          stringBuilder.append("}\n");
+          stringBuilder.append("}\n\n");
         });
 
-    stringBuilder.append("\n");
-
-    schemas.forEach(schema -> stringBuilder.append(relationshipRenderer.render(schema.tables())));
+    schemas.forEach(schema -> stringBuilder.append(relationshipRenderer.render(schema)));
 
     stringBuilder.append("@enduml\n");
 

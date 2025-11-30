@@ -203,6 +203,211 @@ class PostgresqlResultSetMapperTest {
       assertTrue(result.isEmpty());
       verifyNoMoreInteractions(resultSet);
     }
+
+    @Test
+    void addsNullableConstraintWhenIsNullableIsYes() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("name");
+      when(resultSet.getInt("ordinal_position")).thenReturn(1);
+      when(resultSet.getString("is_nullable")).thenReturn("YES");
+      when(resultSet.getString("data_type")).thenReturn("varchar");
+      when(resultSet.getInt("character_maximum_length")).thenReturn(50);
+      when(resultSet.getBoolean("is_unique")).thenReturn(false);
+      when(resultSet.getString("check_constraint")).thenReturn(null);
+      when(resultSet.getString("column_default")).thenReturn(null);
+      when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+      assertEquals(1, result.size());
+      final var col = result.getFirst();
+      assertTrue(col.isNullable());
+      assertTrue(col.constraints().contains(db.documenter.internal.models.db.Constraint.NULLABLE));
+    }
+
+    @Test
+    void doesNotAddNullableConstraintWhenIsNullableIsNo() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("id");
+      when(resultSet.getInt("ordinal_position")).thenReturn(1);
+      when(resultSet.getString("is_nullable")).thenReturn("NO");
+      when(resultSet.getString("data_type")).thenReturn("int");
+      when(resultSet.getInt("character_maximum_length")).thenReturn(10);
+      when(resultSet.getBoolean("is_unique")).thenReturn(false);
+      when(resultSet.getString("check_constraint")).thenReturn(null);
+      when(resultSet.getString("column_default")).thenReturn(null);
+      when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+      assertEquals(1, result.size());
+      final var col = result.getFirst();
+      assertFalse(col.isNullable());
+      assertFalse(col.constraints().contains(db.documenter.internal.models.db.Constraint.NULLABLE));
+    }
+
+    @Test
+    void addsUniqueConstraintWhenIsUniqueIsTrue() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("email");
+      when(resultSet.getInt("ordinal_position")).thenReturn(1);
+      when(resultSet.getString("is_nullable")).thenReturn("NO");
+      when(resultSet.getString("data_type")).thenReturn("varchar");
+      when(resultSet.getInt("character_maximum_length")).thenReturn(100);
+      when(resultSet.getBoolean("is_unique")).thenReturn(true);
+      when(resultSet.getString("check_constraint")).thenReturn(null);
+      when(resultSet.getString("column_default")).thenReturn(null);
+      when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+      assertEquals(1, result.size());
+      assertTrue(
+          result
+              .getFirst()
+              .constraints()
+              .contains(db.documenter.internal.models.db.Constraint.UNIQUE));
+    }
+
+    @Test
+    void addsCheckConstraintWhenCheckConstraintIsNotBlank() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("age");
+      when(resultSet.getInt("ordinal_position")).thenReturn(1);
+      when(resultSet.getString("is_nullable")).thenReturn("NO");
+      when(resultSet.getString("data_type")).thenReturn("int");
+      when(resultSet.getInt("character_maximum_length")).thenReturn(0);
+      when(resultSet.getBoolean("is_unique")).thenReturn(false);
+      when(resultSet.getString("check_constraint")).thenReturn("age > 0");
+      when(resultSet.getString("column_default")).thenReturn(null);
+      when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+      assertEquals(1, result.size());
+      assertTrue(
+          result
+              .getFirst()
+              .constraints()
+              .contains(db.documenter.internal.models.db.Constraint.CHECK));
+    }
+
+    @Test
+    void doesNotAddCheckConstraintWhenCheckConstraintIsBlank() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("age");
+      when(resultSet.getInt("ordinal_position")).thenReturn(1);
+      when(resultSet.getString("is_nullable")).thenReturn("NO");
+      when(resultSet.getString("data_type")).thenReturn("int");
+      when(resultSet.getInt("character_maximum_length")).thenReturn(0);
+      when(resultSet.getBoolean("is_unique")).thenReturn(false);
+      when(resultSet.getString("check_constraint")).thenReturn("   ");
+      when(resultSet.getString("column_default")).thenReturn(null);
+      when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+      assertEquals(1, result.size());
+      assertFalse(
+          result
+              .getFirst()
+              .constraints()
+              .contains(db.documenter.internal.models.db.Constraint.CHECK));
+    }
+
+    @Test
+    void addsDefaultConstraintWhenColumnDefaultIsNotBlank() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("status");
+      when(resultSet.getInt("ordinal_position")).thenReturn(1);
+      when(resultSet.getString("is_nullable")).thenReturn("NO");
+      when(resultSet.getString("data_type")).thenReturn("varchar");
+      when(resultSet.getInt("character_maximum_length")).thenReturn(50);
+      when(resultSet.getBoolean("is_unique")).thenReturn(false);
+      when(resultSet.getString("check_constraint")).thenReturn(null);
+      when(resultSet.getString("column_default")).thenReturn("'active'");
+      when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+      assertEquals(1, result.size());
+      assertTrue(
+          result
+              .getFirst()
+              .constraints()
+              .contains(db.documenter.internal.models.db.Constraint.DEFAULT));
+    }
+
+    @Test
+    void doesNotAddDefaultConstraintWhenColumnDefaultIsBlank() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("status");
+      when(resultSet.getInt("ordinal_position")).thenReturn(1);
+      when(resultSet.getString("is_nullable")).thenReturn("NO");
+      when(resultSet.getString("data_type")).thenReturn("varchar");
+      when(resultSet.getInt("character_maximum_length")).thenReturn(50);
+      when(resultSet.getBoolean("is_unique")).thenReturn(false);
+      when(resultSet.getString("check_constraint")).thenReturn(null);
+      when(resultSet.getString("column_default")).thenReturn("  ");
+      when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+      assertEquals(1, result.size());
+      assertFalse(
+          result
+              .getFirst()
+              .constraints()
+              .contains(db.documenter.internal.models.db.Constraint.DEFAULT));
+    }
+
+    @Test
+    void addsAutoIncrementConstraintWhenIsAutoIncrementIsTrue() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("id");
+      when(resultSet.getInt("ordinal_position")).thenReturn(1);
+      when(resultSet.getString("is_nullable")).thenReturn("NO");
+      when(resultSet.getString("data_type")).thenReturn("int");
+      when(resultSet.getInt("character_maximum_length")).thenReturn(0);
+      when(resultSet.getBoolean("is_unique")).thenReturn(false);
+      when(resultSet.getString("check_constraint")).thenReturn(null);
+      when(resultSet.getString("column_default")).thenReturn(null);
+      when(resultSet.getBoolean("is_auto_increment")).thenReturn(true);
+
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+      assertEquals(1, result.size());
+      assertTrue(
+          result
+              .getFirst()
+              .constraints()
+              .contains(db.documenter.internal.models.db.Constraint.AUTO_INCREMENT));
+    }
+
+    @Test
+    void addsMultipleConstraintsWhenApplicable() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("email");
+      when(resultSet.getInt("ordinal_position")).thenReturn(1);
+      when(resultSet.getString("is_nullable")).thenReturn("YES");
+      when(resultSet.getString("data_type")).thenReturn("varchar");
+      when(resultSet.getInt("character_maximum_length")).thenReturn(100);
+      when(resultSet.getBoolean("is_unique")).thenReturn(true);
+      when(resultSet.getString("check_constraint")).thenReturn("email LIKE '%@%'");
+      when(resultSet.getString("column_default")).thenReturn("'user@example.com'");
+      when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+      assertEquals(1, result.size());
+      final var col = result.getFirst();
+      assertTrue(col.constraints().contains(db.documenter.internal.models.db.Constraint.UNIQUE));
+      assertTrue(col.constraints().contains(db.documenter.internal.models.db.Constraint.CHECK));
+      assertTrue(col.constraints().contains(db.documenter.internal.models.db.Constraint.DEFAULT));
+      assertTrue(col.constraints().contains(db.documenter.internal.models.db.Constraint.NULLABLE));
+      assertFalse(
+          col.constraints().contains(db.documenter.internal.models.db.Constraint.AUTO_INCREMENT));
+    }
   }
 
   @Nested

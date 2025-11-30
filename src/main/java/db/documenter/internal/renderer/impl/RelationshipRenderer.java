@@ -2,7 +2,7 @@ package db.documenter.internal.renderer.impl;
 
 import db.documenter.internal.formatter.api.MultiplicityFormatter;
 import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.Table;
+import db.documenter.internal.models.db.Schema;
 import db.documenter.internal.renderer.api.PumlRenderer;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public final class RelationshipRenderer implements PumlRenderer<List<Table>> {
+public final class RelationshipRenderer implements PumlRenderer<Schema> {
   private static final Logger LOGGER = Logger.getLogger(RelationshipRenderer.class.getName());
 
   private final MultiplicityFormatter multiplicityFormatter;
@@ -20,11 +20,11 @@ public final class RelationshipRenderer implements PumlRenderer<List<Table>> {
   }
 
   @Override
-  public String render(final List<Table> tables) {
+  public String render(final Schema schema) {
     final var stringBuilder = new StringBuilder();
 
     final Map<String, List<ForeignKey>> foreignKeysByTargetTable =
-        tables.stream()
+        schema.tables().stream()
             .flatMap(table -> table.foreignKeys().stream())
             .collect(Collectors.groupingBy(ForeignKey::targetTable));
 
@@ -40,7 +40,7 @@ public final class RelationshipRenderer implements PumlRenderer<List<Table>> {
         .forEach(
             entry -> {
               for (final ForeignKey fk : entry.getValue()) {
-                final var formattedLine = multiplicityFormatter.format(fk, null);
+                final var formattedLine = multiplicityFormatter.format(fk, schema.name(), null);
                 stringBuilder.append(formattedLine).append("\n");
               }
               stringBuilder.append("\n");

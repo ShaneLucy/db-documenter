@@ -15,11 +15,13 @@ public final class CardinalityFormatter implements MultiplicityFormatter {
    * non-nullable foreign keys (one to one-or-many).
    *
    * @param foreignKey {@link ForeignKey}
+   * @param currentSchemaName {@link String} the schema name of the source table (unused)
    * @param current {@link String}
    * @return the current line with cardinality notation {@link String}
    */
   @Override
-  public String format(final ForeignKey foreignKey, final String current) {
+  public String format(
+      final ForeignKey foreignKey, final String currentSchemaName, final String current) {
     final String cardinality = foreignKey.isNullable() ? "||--o{" : "||--|{";
     return current.replace(" -- ", " " + cardinality + " ");
   }

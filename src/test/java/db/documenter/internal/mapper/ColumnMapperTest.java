@@ -122,6 +122,7 @@ class ColumnMapperTest {
               .sourceColumn("user_id")
               .targetTable("users")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final List<Column> result =
@@ -149,6 +150,7 @@ class ColumnMapperTest {
               .sourceColumn("user_id")
               .targetTable("users")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final List<Column> result =
@@ -174,6 +176,7 @@ class ColumnMapperTest {
               .sourceColumn("user_id")
               .targetTable("users")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final ForeignKey foreignKey2 =
@@ -183,6 +186,7 @@ class ColumnMapperTest {
               .sourceColumn("product_id")
               .targetTable("products")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final List<Column> result =
@@ -217,6 +221,7 @@ class ColumnMapperTest {
               .sourceColumn("user_id")
               .targetTable("users")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final List<Column> result =
@@ -246,6 +251,7 @@ class ColumnMapperTest {
               .sourceColumn("user_id")
               .targetTable("users")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final List<Column> result =

@@ -93,8 +93,10 @@ public final class PostgresqlQueryRunner implements QueryRunner {
       """
             SELECT
                 tc.constraint_name,
-                tc.table_name AS source_table_name,
+                kcu.table_schema AS source_schema,
+                kcu.table_name AS source_table_name,
                 kcu.column_name AS source_column,
+                ccu.table_schema AS referenced_schema,
                 ccu.table_name AS referenced_table,
                 ccu.column_name AS referenced_column
             FROM information_schema.table_constraints AS tc
@@ -102,10 +104,9 @@ public final class PostgresqlQueryRunner implements QueryRunner {
               ON tc.constraint_name = kcu.constraint_name
               AND tc.table_schema = kcu.table_schema
             JOIN information_schema.constraint_column_usage AS ccu
-              ON ccu.constraint_name = tc.constraint_name
-              AND ccu.table_schema = tc.table_schema
+              ON tc.constraint_name = ccu.constraint_name
             WHERE tc.constraint_type = 'FOREIGN KEY'
-              AND tc.table_schema = ? AND tc.table_name = ?;
+              AND kcu.table_schema = ? AND kcu.table_name = ?;
             """;
 
   private static final String GET_ENUMS_QUERY =

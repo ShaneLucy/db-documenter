@@ -25,11 +25,12 @@ class CardinalityFormatterTest {
           ForeignKey.builder()
               .sourceTable("orders")
               .targetTable("users")
+              .referencedSchema("public")
               .name("fk_test")
               .isNullable(true)
               .build();
 
-      final var result = cardinalityFormatter.format(fk, "users -- orders");
+      final var result = cardinalityFormatter.format(fk, "public", "users -- orders");
 
       assertEquals("users ||--o{ orders", result);
     }
@@ -40,11 +41,12 @@ class CardinalityFormatterTest {
           ForeignKey.builder()
               .sourceTable("orders")
               .targetTable("users")
+              .referencedSchema("public")
               .name("fk_test")
               .isNullable(false)
               .build();
 
-      final var result = cardinalityFormatter.format(fk, "users -- orders");
+      final var result = cardinalityFormatter.format(fk, "public", "users -- orders");
 
       assertEquals("users ||--|{ orders", result);
     }
@@ -55,11 +57,12 @@ class CardinalityFormatterTest {
           ForeignKey.builder()
               .sourceTable("order_items")
               .targetTable("products")
+              .referencedSchema("public")
               .name("fk_items_products")
               .isNullable(true)
               .build();
 
-      final var result = cardinalityFormatter.format(fk, "products -- order_items");
+      final var result = cardinalityFormatter.format(fk, "public", "products -- order_items");
 
       assertEquals("products ||--o{ order_items", result);
     }
@@ -67,9 +70,14 @@ class CardinalityFormatterTest {
     @Test
     void handlesMultipleSpacesAroundConnector() {
       final var fk =
-          ForeignKey.builder().sourceTable("source").targetTable("target").name("fk").build();
+          ForeignKey.builder()
+              .sourceTable("source")
+              .targetTable("target")
+              .referencedSchema("public")
+              .name("fk")
+              .build();
 
-      final var result = cardinalityFormatter.format(fk, "target  --  source");
+      final var result = cardinalityFormatter.format(fk, "public", "target  --  source");
 
       assertEquals("target  ||--|{  source", result);
     }
@@ -77,9 +85,14 @@ class CardinalityFormatterTest {
     @Test
     void doesNotReplaceIfNoBasicConnector() {
       final var fk =
-          ForeignKey.builder().sourceTable("orders").targetTable("users").name("fk").build();
+          ForeignKey.builder()
+              .sourceTable("orders")
+              .targetTable("users")
+              .referencedSchema("public")
+              .name("fk")
+              .build();
 
-      final var result = cardinalityFormatter.format(fk, "users||orders");
+      final var result = cardinalityFormatter.format(fk, "public", "users||orders");
 
       assertEquals("users||orders", result);
     }

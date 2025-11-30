@@ -421,13 +421,20 @@ Tests use Testcontainers for database integration tests:
    - Ensures code is designed for testability from the start
    - Prevents "we'll add tests later" technical debt
 
-2. **Maintain Tests**: When changing existing functionality, check and update related tests
+2. **Test New Code and Edits**: ALWAYS create or update tests when writing or modifying code
+   - **New code**: Create corresponding test files with comprehensive test coverage
+   - **Modified code**: Update existing tests to cover new behavior and edge cases
+   - **New methods**: Add test cases for all new methods, including edge cases
+   - **Bug fixes**: Add regression tests that verify the bug is fixed
+   - This is MANDATORY - never consider code complete without tests
+
+3. **Maintain Tests**: When changing existing functionality, check and update related tests
    - Run affected tests after making changes
    - Update test expectations to match new behavior
    - Add new test cases for new edge cases or scenarios
    - Never comment out or delete failing tests without fixing them
 
-3. **Use JUnit Assertions**: This project uses JUnit 5 assertions, NOT AssertJ
+4. **Use JUnit Assertions**: This project uses JUnit 5 assertions, NOT AssertJ
    - Use `assertEquals()`, `assertTrue()`, `assertFalse()`, `assertNotNull()`, etc.
    - Use `assertThrows()` for exception testing
    - **DO NOT** use AssertJ's `assertThat()` (not a dependency in this project)

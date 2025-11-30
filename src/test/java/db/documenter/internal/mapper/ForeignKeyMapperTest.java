@@ -43,6 +43,7 @@ class ForeignKeyMapperTest {
               .sourceColumn("user_id")
               .targetTable("users")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final Column column =
@@ -64,6 +65,7 @@ class ForeignKeyMapperTest {
               .sourceColumn("user_id")
               .targetTable("users")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final Column column = Column.builder().name("user_id").build();
@@ -84,6 +86,7 @@ class ForeignKeyMapperTest {
               .sourceColumn("user_id")
               .targetTable("users")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final Column column = Column.builder().name("other_column").build();
@@ -104,6 +107,7 @@ class ForeignKeyMapperTest {
               .sourceColumn("user_id")
               .targetTable("users")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final ForeignKey foreignKey2 =
@@ -113,6 +117,7 @@ class ForeignKeyMapperTest {
               .sourceColumn("product_id")
               .targetTable("products")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final Column column1 =
@@ -137,6 +142,7 @@ class ForeignKeyMapperTest {
               .sourceColumn("user_id")
               .targetTable("users")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final Column column =
@@ -164,6 +170,7 @@ class ForeignKeyMapperTest {
               .sourceColumn("user_id")
               .targetTable("users")
               .targetColumn("id")
+              .referencedSchema("public")
               .build();
 
       final Column column1 = Column.builder().name("id").build();

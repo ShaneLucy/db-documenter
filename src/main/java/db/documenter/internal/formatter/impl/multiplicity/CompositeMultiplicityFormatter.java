@@ -17,10 +17,11 @@ public record CompositeMultiplicityFormatter(List<MultiplicityFormatter> formatt
   }
 
   @Override
-  public String format(final ForeignKey foreignKey, final String current) {
+  public String format(
+      final ForeignKey foreignKey, final String currentSchemaName, final String current) {
     String result = current;
     for (MultiplicityFormatter formatter : formatters) {
-      result = formatter.format(foreignKey, result);
+      result = formatter.format(foreignKey, currentSchemaName, result);
     }
     return result;
   }

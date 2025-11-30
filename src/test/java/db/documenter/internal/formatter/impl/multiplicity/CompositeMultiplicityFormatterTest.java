@@ -25,7 +25,12 @@ class CompositeMultiplicityFormatterTest {
   @BeforeEach
   void setUp() {
     Mockito.reset(multiplicityFormatter1, multiplicityFormatter2, multiplicityFormatter3);
-    foreignKey = ForeignKey.builder().sourceTable("source").targetTable("target").build();
+    foreignKey =
+        ForeignKey.builder()
+            .sourceTable("source")
+            .targetTable("target")
+            .referencedSchema("public")
+            .build();
   }
 
   @Nested
@@ -34,42 +39,42 @@ class CompositeMultiplicityFormatterTest {
     @Test
     void ifNoFormattersReturnsCurrent() {
       final var composite = new CompositeMultiplicityFormatter(List.of());
-      final var result = composite.format(foreignKey, "value");
+      final var result = composite.format(foreignKey, "public", "value");
       assertEquals("value", result);
     }
 
     @Test
     void appliesSingleFormatter() {
-      when(multiplicityFormatter1.format(foreignKey, "value")).thenReturn("formatted");
+      when(multiplicityFormatter1.format(foreignKey, "public", "value")).thenReturn("formatted");
 
       final var composite = new CompositeMultiplicityFormatter(List.of(multiplicityFormatter1));
-      final var result = composite.format(foreignKey, "value");
+      final var result = composite.format(foreignKey, "public", "value");
 
       assertEquals("formatted", result);
-      verify(multiplicityFormatter1, times(1)).format(foreignKey, "value");
+      verify(multiplicityFormatter1, times(1)).format(foreignKey, "public", "value");
     }
 
     @Test
     void appliesMultipleFormattersInOrder() {
-      when(multiplicityFormatter1.format(foreignKey, "value")).thenReturn("v1");
-      when(multiplicityFormatter2.format(foreignKey, "v1")).thenReturn("v2");
-      when(multiplicityFormatter3.format(foreignKey, "v2")).thenReturn("v3");
+      when(multiplicityFormatter1.format(foreignKey, "public", "value")).thenReturn("v1");
+      when(multiplicityFormatter2.format(foreignKey, "public", "v1")).thenReturn("v2");
+      when(multiplicityFormatter3.format(foreignKey, "public", "v2")).thenReturn("v3");
 
       final var composite =
           new CompositeMultiplicityFormatter(
               List.of(multiplicityFormatter1, multiplicityFormatter2, multiplicityFormatter3));
-      final var result = composite.format(foreignKey, "value");
+      final var result = composite.format(foreignKey, "public", "value");
 
       assertEquals("v3", result);
-      verify(multiplicityFormatter1).format(foreignKey, "value");
-      verify(multiplicityFormatter2).format(foreignKey, "v1");
-      verify(multiplicityFormatter3).format(foreignKey, "v2");
+      verify(multiplicityFormatter1).format(foreignKey, "public", "value");
+      verify(multiplicityFormatter2).format(foreignKey, "public", "v1");
+      verify(multiplicityFormatter3).format(foreignKey, "public", "v2");
     }
 
     @Test
     void builderAddsFormattersCorrectly() {
-      when(multiplicityFormatter1.format(foreignKey, "input")).thenReturn("step1");
-      when(multiplicityFormatter2.format(foreignKey, "step1")).thenReturn("step2");
+      when(multiplicityFormatter1.format(foreignKey, "public", "input")).thenReturn("step1");
+      when(multiplicityFormatter2.format(foreignKey, "public", "step1")).thenReturn("step2");
 
       final var composite =
           CompositeMultiplicityFormatter.builder()
@@ -77,40 +82,40 @@ class CompositeMultiplicityFormatterTest {
               .addFormatter(multiplicityFormatter2)
               .build();
 
-      final var result = composite.format(foreignKey, "input");
+      final var result = composite.format(foreignKey, "public", "input");
 
       assertEquals("step2", result);
-      verify(multiplicityFormatter1).format(foreignKey, "input");
-      verify(multiplicityFormatter2).format(foreignKey, "step1");
+      verify(multiplicityFormatter1).format(foreignKey, "public", "input");
+      verify(multiplicityFormatter2).format(foreignKey, "public", "step1");
     }
 
     @Test
     void handlesNullFormatterListAsEmpty() {
       final var composite = new CompositeMultiplicityFormatter(null);
-      final var result = composite.format(foreignKey, "val");
+      final var result = composite.format(foreignKey, "public", "val");
       assertEquals("val", result);
     }
 
     @Test
     void currentCanBeNull() {
-      when(multiplicityFormatter1.format(foreignKey, null)).thenReturn("filled");
+      when(multiplicityFormatter1.format(foreignKey, "public", null)).thenReturn("filled");
 
       final var composite = new CompositeMultiplicityFormatter(List.of(multiplicityFormatter1));
-      final var result = composite.format(foreignKey, null);
+      final var result = composite.format(foreignKey, "public", null);
 
       assertEquals("filled", result);
-      verify(multiplicityFormatter1).format(foreignKey, null);
+      verify(multiplicityFormatter1).format(foreignKey, "public", null);
     }
 
     @Test
     void foreignKeyCanBeNull() {
-      when(multiplicityFormatter1.format(null, "val")).thenReturn("out");
+      when(multiplicityFormatter1.format(null, "public", "val")).thenReturn("out");
 
       final var composite = new CompositeMultiplicityFormatter(List.of(multiplicityFormatter1));
-      final var result = composite.format(null, "val");
+      final var result = composite.format(null, "public", "val");
 
       assertEquals("out", result);
-      verify(multiplicityFormatter1).format(null, "val");
+      verify(multiplicityFormatter1).format(null, "public", "val");
     }
   }
 }

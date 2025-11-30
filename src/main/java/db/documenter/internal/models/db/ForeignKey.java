@@ -6,6 +6,7 @@ public record ForeignKey(
     String sourceColumn,
     String targetTable,
     String targetColumn,
+    String referencedSchema,
     boolean isNullable) {
   public static Builder builder() {
     return new Builder();
@@ -17,6 +18,7 @@ public record ForeignKey(
     private String sourceColumn;
     private String targetTable;
     private String targetColumn;
+    private String referencedSchema;
     private boolean isNullable;
 
     public Builder name(final String name) {
@@ -44,13 +46,19 @@ public record ForeignKey(
       return this;
     }
 
+    public Builder referencedSchema(final String referencedSchema) {
+      this.referencedSchema = referencedSchema;
+      return this;
+    }
+
     public Builder isNullable(final boolean isNullable) {
       this.isNullable = isNullable;
       return this;
     }
 
     public ForeignKey build() {
-      return new ForeignKey(name, sourceTable, sourceColumn, targetTable, targetColumn, isNullable);
+      return new ForeignKey(
+          name, sourceTable, sourceColumn, targetTable, targetColumn, referencedSchema, isNullable);
     }
   }
 }

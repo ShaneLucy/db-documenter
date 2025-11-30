@@ -24,7 +24,8 @@ class PostgresqlQueryRunnerTest {
   static void containerSetUp() throws SQLException, IOException {
     POSTGRES_TEST_ENVIRONMENT.startContainer();
     connection = POSTGRES_TEST_ENVIRONMENT.getConnection();
-    POSTGRES_TEST_ENVIRONMENT.initialiseDatabase(connection, "/single-schema/test-db.sql");
+    POSTGRES_TEST_ENVIRONMENT.initialiseDatabase(
+        connection, "/postgresql/single-schema/test-db.sql");
   }
 
   @BeforeEach
