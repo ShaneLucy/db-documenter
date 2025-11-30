@@ -1,5 +1,6 @@
 package db.documenter.internal.models.db;
 
+import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.validation.Validators;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
@@ -36,7 +37,8 @@ import org.jspecify.annotations.NonNull;
  * @param name the column name
  * @param dataType the SQL data type (e.g., "varchar", "integer", "uuid")
  * @param maximumLength the maximum length for character types
- * @param constraints list of constraints applied to this column (defensively copied)
+ * @param constraints the {@link List} of {@link Constraint} values applied to this column
+ *     (defensively copied)
  * @see Constraint
  * @see Table
  */
@@ -85,38 +87,95 @@ public record Column(
    *     .build();
    * }</pre>
    *
-   * @return a new Builder instance
+   * @return a new {@link Builder} instance
    */
   public static Builder builder() {
     return new Builder();
   }
 
+  /**
+   * Builder for constructing {@link Column} instances using a fluent API.
+   *
+   * <p><b>Design Pattern:</b> Builder pattern for flexible object construction.
+   *
+   * <p><b>Usage Example:</b>
+   *
+   * <pre>{@code
+   * Column column = Column.builder()
+   *     .name("user_id")
+   *     .dataType("bigint")
+   *     .maximumLength(0)
+   *     .constraints(List.of(Constraint.FK, Constraint.NULLABLE))
+   *     .build();
+   * }</pre>
+   *
+   * @see Column
+   */
   public static class Builder {
     private String name;
     private String dataType;
     private int maximumLength;
     private List<Constraint> constraints;
 
-    public Builder name(final String name) {
+    /**
+     * Sets the column name.
+     *
+     * @param name the column name
+     * @return this builder instance for method chaining
+     */
+    public Builder name(@NonNull final String name) {
       this.name = name;
       return this;
     }
 
-    public Builder dataType(final String dataType) {
+    /**
+     * Sets the SQL data type for this column.
+     *
+     * <p><b>Examples:</b> "varchar", "integer", "uuid", "bigint", "timestamp", "order_status" (enum
+     * type)
+     *
+     * @param dataType the SQL data type
+     * @return this builder instance for method chaining
+     */
+    public Builder dataType(@NonNull final String dataType) {
       this.dataType = dataType;
       return this;
     }
 
+    /**
+     * Sets the maximum length for character-based data types.
+     *
+     * <p><b>Note:</b> This is only relevant for character types like VARCHAR. For other types, this
+     * value is typically 0.
+     *
+     * @param maximumLength the maximum length (0 for non-character types)
+     * @return this builder instance for method chaining
+     */
     public Builder maximumLength(final int maximumLength) {
       this.maximumLength = maximumLength;
       return this;
     }
 
+    /**
+     * Sets the constraints for this column.
+     *
+     * <p><b>Defensive Copying:</b> The provided list is defensively copied to ensure immutability.
+     *
+     * @param constraints the {@link List} of {@link Constraint} values to apply (defensively
+     *     copied)
+     * @return this builder instance for method chaining
+     */
     public Builder constraints(@NonNull final List<Constraint> constraints) {
       this.constraints = List.copyOf(constraints);
       return this;
     }
 
+    /**
+     * Builds and returns a new {@link Column} instance.
+     *
+     * @return a new immutable {@link Column} instance
+     * @throws ValidationException if any required field is null
+     */
     public Column build() {
       return new Column(name, dataType, maximumLength, constraints);
     }

@@ -58,7 +58,8 @@ All checks run during `mvn verify`. Code must pass all checks before committing.
 - 100-character line limit
 - All parameters, local variables, and fields must be `final`
 - Public methods require Javadoc
-- No star imports
+- No star imports - use explicit imports for all classes
+- **Always import classes referenced in Javadoc** - never use fully qualified names in Javadoc (e.g., use `{@link List}` not `{@link java.util.List}`)
 - Prefer Java Streams API over enhanced for loops for collection processing
 
 ### Logging Patterns
