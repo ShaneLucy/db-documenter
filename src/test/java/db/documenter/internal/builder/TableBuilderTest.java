@@ -58,15 +58,11 @@ class TableBuilderTest {
       final Table table1 = Table.builder().name("users").build();
       final Table table2 = Table.builder().name("orders").build();
 
-      final Column rawColumn1 =
-          Column.builder().name("id").dataType("uuid").isNullable(false).build();
-      final Column rawColumn2 =
-          Column.builder().name("name").dataType("varchar").isNullable(false).build();
+      final Column rawColumn1 = Column.builder().name("id").dataType("uuid").build();
+      final Column rawColumn2 = Column.builder().name("name").dataType("varchar").build();
 
-      final Column mappedColumn1 =
-          Column.builder().name("id").dataType("uuid").isNullable(false).build();
-      final Column mappedColumn2 =
-          Column.builder().name("name").dataType("varchar").isNullable(false).build();
+      final Column mappedColumn1 = Column.builder().name("id").dataType("uuid").build();
+      final Column mappedColumn2 = Column.builder().name("name").dataType("varchar").build();
 
       final PrimaryKey primaryKey = PrimaryKey.builder().columnNames(List.of("id")).build();
 
@@ -114,6 +110,8 @@ class TableBuilderTest {
       when(queryRunner.getForeignKeyInfo("test_schema", table1)).thenReturn(List.of());
       when(foreignKeyMapper.enrichWithNullability(List.of(), List.of(mappedColumn1)))
           .thenReturn(List.of());
+      when(columnMapper.enrichWithForeignKeyConstraints(List.of(mappedColumn1), List.of()))
+          .thenReturn(List.of(mappedColumn1));
       when(tableMapper.combineTableComponents(
               "users", List.of(mappedColumn1), primaryKey, List.of()))
           .thenReturn(builtTable1);
@@ -125,6 +123,9 @@ class TableBuilderTest {
       when(queryRunner.getForeignKeyInfo("test_schema", table2)).thenReturn(List.of(rawForeignKey));
       when(foreignKeyMapper.enrichWithNullability(List.of(rawForeignKey), List.of(mappedColumn2)))
           .thenReturn(List.of(enrichedForeignKey));
+      when(columnMapper.enrichWithForeignKeyConstraints(
+              List.of(mappedColumn2), List.of(rawForeignKey)))
+          .thenReturn(List.of(mappedColumn2));
       when(tableMapper.combineTableComponents(
               "orders", List.of(mappedColumn2), primaryKey, List.of(enrichedForeignKey)))
           .thenReturn(builtTable2);
@@ -141,10 +142,8 @@ class TableBuilderTest {
       final Table table = Table.builder().name("users").build();
       final DbEnum dbEnum = DbEnum.builder().enumName("status").columnName("status").build();
 
-      final Column rawColumn =
-          Column.builder().name("status").dataType("USER-DEFINED").isNullable(false).build();
-      final Column mappedColumn =
-          Column.builder().name("status").dataType("status").isNullable(false).build();
+      final Column rawColumn = Column.builder().name("status").dataType("USER-DEFINED").build();
+      final Column mappedColumn = Column.builder().name("status").dataType("status").build();
 
       final PrimaryKey primaryKey = PrimaryKey.builder().columnNames(List.of("id")).build();
 
@@ -164,6 +163,8 @@ class TableBuilderTest {
       when(queryRunner.getForeignKeyInfo("test_schema", table)).thenReturn(List.of());
       when(foreignKeyMapper.enrichWithNullability(List.of(), List.of(mappedColumn)))
           .thenReturn(List.of());
+      when(columnMapper.enrichWithForeignKeyConstraints(List.of(mappedColumn), List.of()))
+          .thenReturn(List.of(mappedColumn));
       when(tableMapper.combineTableComponents(
               "users", List.of(mappedColumn), primaryKey, List.of()))
           .thenReturn(builtTable);

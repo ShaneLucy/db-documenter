@@ -1,7 +1,10 @@
 package db.documenter.internal.mapper;
 
 import db.documenter.internal.models.db.Column;
+import db.documenter.internal.models.db.Constraint;
 import db.documenter.internal.models.db.DbEnum;
+import db.documenter.internal.models.db.ForeignKey;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,10 +37,46 @@ public final class ColumnMapper {
               return Column.builder()
                   .name(column.name())
                   .ordinalPosition(column.ordinalPosition())
-                  .isNullable(column.isNullable())
                   .dataType(dataType)
                   .maximumLength(column.maximumLength())
                   .constraints(column.constraints())
+                  .build();
+            })
+        .toList();
+  }
+
+  /**
+   * Enriches columns with FK constraint for columns that are foreign keys.
+   *
+   * @param columns the columns to enrich
+   * @param foreignKeys the foreign keys for the table
+   * @return list of {@link Column} instances with FK constraint added where applicable
+   */
+  public List<Column> enrichWithForeignKeyConstraints(
+      final List<Column> columns, final List<ForeignKey> foreignKeys) {
+    return columns.stream()
+        .map(
+            column -> {
+              final var isForeignKey =
+                  foreignKeys.stream()
+                      .anyMatch(fk -> fk.sourceColumn().equalsIgnoreCase(column.name()));
+
+              if (!isForeignKey) {
+                return column;
+              }
+
+              final List<Constraint> updatedConstraints = new ArrayList<>();
+              updatedConstraints.add(Constraint.FK);
+              if (column.constraints() != null) {
+                updatedConstraints.addAll(column.constraints());
+              }
+
+              return Column.builder()
+                  .name(column.name())
+                  .ordinalPosition(column.ordinalPosition())
+                  .dataType(column.dataType())
+                  .maximumLength(column.maximumLength())
+                  .constraints(updatedConstraints)
                   .build();
             })
         .toList();

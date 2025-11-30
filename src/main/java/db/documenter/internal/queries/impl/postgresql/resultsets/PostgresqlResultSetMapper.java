@@ -29,7 +29,6 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
           Column.builder()
               .name(resultSet.getString("column_name"))
               .ordinalPosition(resultSet.getInt("ordinal_position"))
-              .isNullable(Objects.equals(resultSet.getString("is_nullable"), "YES"))
               .dataType(resultSet.getString("data_type"))
               .maximumLength(resultSet.getInt("character_maximum_length"))
               .constraints(constraints)
@@ -57,6 +56,10 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
 
     if (resultSet.getBoolean("is_auto_increment")) {
       constraints.add(Constraint.AUTO_INCREMENT);
+    }
+
+    if (Objects.equals(resultSet.getString("is_nullable"), "YES")) {
+      constraints.add(Constraint.NULLABLE);
     }
 
     return constraints;

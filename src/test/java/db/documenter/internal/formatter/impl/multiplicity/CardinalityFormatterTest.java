@@ -67,12 +67,7 @@ class CardinalityFormatterTest {
     @Test
     void handlesMultipleSpacesAroundConnector() {
       final var fk =
-          ForeignKey.builder()
-              .sourceTable("source")
-              .targetTable("target")
-              .name("fk")
-              .isNullable(false)
-              .build();
+          ForeignKey.builder().sourceTable("source").targetTable("target").name("fk").build();
 
       final var result = cardinalityFormatter.format(fk, "target  --  source");
 
@@ -82,12 +77,7 @@ class CardinalityFormatterTest {
     @Test
     void doesNotReplaceIfNoBasicConnector() {
       final var fk =
-          ForeignKey.builder()
-              .sourceTable("orders")
-              .targetTable("users")
-              .name("fk")
-              .isNullable(true)
-              .build();
+          ForeignKey.builder().sourceTable("orders").targetTable("users").name("fk").build();
 
       final var result = cardinalityFormatter.format(fk, "users||orders");
 

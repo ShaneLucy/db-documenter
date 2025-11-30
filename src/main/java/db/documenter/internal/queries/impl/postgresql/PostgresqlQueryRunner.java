@@ -21,9 +21,12 @@ public final class PostgresqlQueryRunner implements QueryRunner {
   private static final String GET_TABLE_INFO_QUERY =
       """
            SELECT
-             table_name
-           FROM information_schema.tables
-           WHERE table_schema = ?;
+             t.table_name
+           FROM information_schema.tables t
+           JOIN pg_catalog.pg_class c ON c.relname = t.table_name
+           JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace AND n.nspname = t.table_schema
+           WHERE t.table_schema = ?
+           ORDER BY c.oid;
            """;
 
   private static final String GET_COLUMN_INFO_QUERY =

@@ -6,13 +6,16 @@ import java.util.List;
 public record Column(
     String name,
     int ordinalPosition,
-    boolean isNullable,
     String dataType,
     int maximumLength,
     List<Constraint> constraints) {
 
   public Column {
     constraints = constraints == null ? List.of() : List.copyOf(constraints);
+  }
+
+  public boolean isNullable() {
+    return constraints != null && constraints.contains(Constraint.NULLABLE);
   }
 
   public static Builder builder() {
@@ -22,7 +25,6 @@ public record Column(
   public static class Builder {
     private String name;
     private int ordinalPosition;
-    private boolean isNullable;
     private String dataType;
     private int maximumLength;
     private List<Constraint> constraints;
@@ -34,11 +36,6 @@ public record Column(
 
     public Builder ordinalPosition(final int ordinalPosition) {
       this.ordinalPosition = ordinalPosition;
-      return this;
-    }
-
-    public Builder isNullable(final boolean isNullable) {
-      this.isNullable = isNullable;
       return this;
     }
 
@@ -58,7 +55,7 @@ public record Column(
     }
 
     public Column build() {
-      return new Column(name, ordinalPosition, isNullable, dataType, maximumLength, constraints);
+      return new Column(name, ordinalPosition, dataType, maximumLength, constraints);
     }
   }
 }

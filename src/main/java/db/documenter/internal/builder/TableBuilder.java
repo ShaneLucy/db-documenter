@@ -53,13 +53,17 @@ public final class TableBuilder {
 
     for (final Table table : tables) {
       final List<Column> rawColumns = queryRunner.getColumnInfo(schema, table);
-      final List<Column> columns = columnMapper.mapUserDefinedTypes(rawColumns, dbEnums);
+      final List<Column> columnsWithEnumTypes =
+          columnMapper.mapUserDefinedTypes(rawColumns, dbEnums);
 
       final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo(schema, table);
 
       final List<ForeignKey> rawForeignKeys = queryRunner.getForeignKeyInfo(schema, table);
       final List<ForeignKey> foreignKeys =
-          foreignKeyMapper.enrichWithNullability(rawForeignKeys, columns);
+          foreignKeyMapper.enrichWithNullability(rawForeignKeys, columnsWithEnumTypes);
+
+      final List<Column> columns =
+          columnMapper.enrichWithForeignKeyConstraints(columnsWithEnumTypes, rawForeignKeys);
 
       result.add(
           tableMapper.combineTableComponents(table.name(), columns, primaryKey, foreignKeys));

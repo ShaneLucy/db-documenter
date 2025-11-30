@@ -5,8 +5,6 @@ import db.documenter.internal.formatter.api.MultiplicityFormatter;
 import db.documenter.internal.formatter.impl.entity.CompositeEntityLineFormatter;
 import db.documenter.internal.formatter.impl.entity.ConstraintEntityLineFormatter;
 import db.documenter.internal.formatter.impl.entity.DefaultEntityLineFormatter;
-import db.documenter.internal.formatter.impl.entity.ForeignKeyEntityLineFormatter;
-import db.documenter.internal.formatter.impl.entity.NullableEntityLineFormatter;
 import db.documenter.internal.formatter.impl.entity.PrimaryKeyEntityLineFormatter;
 import db.documenter.internal.formatter.impl.multiplicity.CardinalityFormatter;
 import db.documenter.internal.formatter.impl.multiplicity.CompositeMultiplicityFormatter;
@@ -24,8 +22,6 @@ public final class FormatterConfigurer {
     return CompositeEntityLineFormatter.builder()
         .addFormatter(new DefaultEntityLineFormatter())
         .addFormatter(new PrimaryKeyEntityLineFormatter())
-        .addFormatter(new ForeignKeyEntityLineFormatter())
-        .addFormatter(new NullableEntityLineFormatter())
         .addFormatter(new ConstraintEntityLineFormatter())
         .build();
   }
