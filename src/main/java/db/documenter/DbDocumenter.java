@@ -17,9 +17,12 @@ import db.documenter.internal.renderer.impl.RelationshipRenderer;
 import db.documenter.internal.renderer.impl.SchemaRenderer;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Entrypoint to the DbDocumenter application. */
 public final class DbDocumenter {
+  private static final Logger LOGGER = Logger.getLogger(DbDocumenter.class.getName());
   private final DbDocumenterConfig dbDocumenterConfig;
   private final FormatterConfigurer formatterConfigurer;
   private final SchemaBuilder schemaBuilder;
@@ -50,6 +53,13 @@ public final class DbDocumenter {
    * @throws SQLException if database access fails
    */
   public String generatePuml() throws SQLException {
+    if (LOGGER.isLoggable(Level.INFO)) {
+      LOGGER.log(
+          Level.INFO,
+          "Starting PlantUML generation for schemas: {0}",
+          dbDocumenterConfig.schemas());
+    }
+
     final var entityFormatter = formatterConfigurer.createEntityLineFormatter();
     final var multiplicityFormatter = formatterConfigurer.createMultiplicityFormatter();
 
@@ -61,6 +71,12 @@ public final class DbDocumenter {
 
     final List<Schema> schemas = schemaBuilder.buildSchemas(dbDocumenterConfig.schemas());
 
-    return schemaRenderer.render(schemas);
+    final String result = schemaRenderer.render(schemas);
+
+    if (LOGGER.isLoggable(Level.INFO)) {
+      LOGGER.log(Level.INFO, "Successfully generated PlantUML output");
+    }
+
+    return result;
   }
 }

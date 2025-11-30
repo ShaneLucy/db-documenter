@@ -5,9 +5,12 @@ import db.documenter.internal.queries.api.QueryRunner;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Builds database enum type information from schema metadata. */
 public final class EnumBuilder {
+  private static final Logger LOGGER = Logger.getLogger(EnumBuilder.class.getName());
 
   /**
    * Builds a list of database enum types with their values for a given schema.
@@ -20,6 +23,11 @@ public final class EnumBuilder {
   public List<DbEnum> buildEnums(final QueryRunner queryRunner, final String schema)
       throws SQLException {
     final List<DbEnum> dbEnums = queryRunner.getEnumInfo(schema);
+
+    if (LOGGER.isLoggable(Level.INFO)) {
+      LOGGER.log(Level.INFO, "Building enums for schema: {0}", schema);
+    }
+
     final List<DbEnum> result = new ArrayList<>();
 
     for (final DbEnum dbEnum : dbEnums) {

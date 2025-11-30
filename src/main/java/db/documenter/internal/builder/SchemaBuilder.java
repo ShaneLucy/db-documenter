@@ -43,15 +43,29 @@ public final class SchemaBuilder {
 
     for (final String schemaName : schemaNames) {
       try (final var connection = connectionManager.getConnection()) {
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(Level.INFO, "Building schema: {0}", schemaName);
+        }
+
         final var queryRunner = queryRunnerFactory.createQueryRunner(connection);
 
         final List<DbEnum> dbEnums = enumBuilder.buildEnums(queryRunner, schemaName);
         final List<Table> tables = tableBuilder.buildTables(queryRunner, schemaName, dbEnums);
 
         result.add(Schema.builder().name(schemaName).tables(tables).dbEnums(dbEnums).build());
+
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Completed schema: {0} ({1} tables, {2} enums)",
+              new Object[] {schemaName, tables.size(), dbEnums.size()});
+        }
       } catch (final SQLException e) {
         if (LOGGER.isLoggable(Level.SEVERE)) {
-          LOGGER.severe("Failed to build schema: " + schemaName + " - " + e.getMessage());
+          LOGGER.log(
+              Level.SEVERE,
+              "Failed to build schema: {0} - {1}",
+              new Object[] {schemaName, e.getMessage()});
         }
         throw e;
       }

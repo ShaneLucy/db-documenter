@@ -12,9 +12,12 @@ import db.documenter.internal.queries.api.QueryRunner;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Builds database table information from schema metadata. */
 public final class TableBuilder {
+  private static final Logger LOGGER = Logger.getLogger(TableBuilder.class.getName());
   private final ColumnMapper columnMapper;
   private final ForeignKeyMapper foreignKeyMapper;
   private final TableMapper tableMapper;
@@ -41,6 +44,11 @@ public final class TableBuilder {
       final QueryRunner queryRunner, final String schema, final List<DbEnum> dbEnums)
       throws SQLException {
     final List<Table> tables = queryRunner.getTableInfo(schema);
+
+    if (LOGGER.isLoggable(Level.INFO)) {
+      LOGGER.log(Level.INFO, "Building tables for schema: {0}", schema);
+    }
+
     final List<Table> result = new ArrayList<>();
 
     for (final Table table : tables) {

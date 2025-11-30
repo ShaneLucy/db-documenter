@@ -6,9 +6,12 @@ import db.documenter.internal.models.db.Table;
 import db.documenter.internal.renderer.api.PumlRenderer;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public final class RelationshipRenderer implements PumlRenderer<List<Table>> {
+  private static final Logger LOGGER = Logger.getLogger(RelationshipRenderer.class.getName());
 
   private final MultiplicityFormatter multiplicityFormatter;
 
@@ -24,6 +27,13 @@ public final class RelationshipRenderer implements PumlRenderer<List<Table>> {
         tables.stream()
             .flatMap(table -> table.foreignKeys().stream())
             .collect(Collectors.groupingBy(ForeignKey::targetTable));
+
+    final int totalRelationships =
+        foreignKeysByTargetTable.values().stream().mapToInt(List::size).sum();
+
+    if (LOGGER.isLoggable(Level.INFO)) {
+      LOGGER.log(Level.INFO, "Rendering {0} relationship(s)", totalRelationships);
+    }
 
     foreignKeysByTargetTable.entrySet().stream()
         .sorted(Map.Entry.comparingByKey())

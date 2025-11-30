@@ -79,36 +79,60 @@ public final class MyClass {
 
 **Important Logging Rules:**
 
-1. **Check Log Level Before Logging**: Always check if the log level is enabled before constructing expensive log messages
+1. **Use Parameterized Logging**: Always use parameterized logging with `LOGGER.log()` instead of string concatenation
    ```java
-   // Good: Only constructs message if SEVERE logging is enabled
-   if (LOGGER.isLoggable(Level.SEVERE)) {
-     LOGGER.severe("Failed to build schema: " + schemaName + " - " + e.getMessage());
+   // Good: Uses parameterized logging
+   if (LOGGER.isLoggable(Level.INFO)) {
+     LOGGER.log(Level.INFO, "Building schema: {0}", schemaName);
    }
 
-   // Bad: Constructs message even if logging is disabled
-   LOGGER.severe("Failed to build schema: " + schemaName + " - " + e.getMessage());
+   // Good: Multiple parameters
+   if (LOGGER.isLoggable(Level.INFO)) {
+     LOGGER.log(
+         Level.INFO,
+         "Completed schema: {0} ({1} tables, {2} enums)",
+         new Object[] {schemaName, tables.size(), dbEnums.size()});
+   }
+
+   // Bad: String concatenation
+   if (LOGGER.isLoggable(Level.INFO)) {
+     LOGGER.info("Building schema: " + schemaName);
+   }
    ```
 
-2. **Log Before Rethrowing**: When catching and rethrowing exceptions, log the error with context before rethrowing
+2. **Check Log Level Before Logging**: Always check if the log level is enabled before constructing expensive log messages or calling LOGGER.log()
+   ```java
+   // Good: Only logs if INFO level is enabled
+   if (LOGGER.isLoggable(Level.INFO)) {
+     LOGGER.log(Level.INFO, "Discovered: {0} tables in schema: {1}", new Object[] {count, schema});
+   }
+
+   // Bad: Always constructs the log call even if logging is disabled
+   LOGGER.log(Level.INFO, "Discovered: {0} tables in schema: {1}", new Object[] {count, schema});
+   ```
+
+3. **Log Before Rethrowing**: When catching and rethrowing exceptions, log the error with context before rethrowing
    ```java
    try {
      // ... operation
    } catch (SQLException e) {
      if (LOGGER.isLoggable(Level.SEVERE)) {
-       LOGGER.severe("Failed to build schema: " + schemaName + " - " + e.getMessage());
+       LOGGER.log(
+           Level.SEVERE,
+           "Failed to build schema: {0} - {1}",
+           new Object[] {schemaName, e.getMessage()});
      }
      throw e;  // Rethrow the original exception
    }
    ```
 
-3. **Use Appropriate Log Levels**:
+4. **Use Appropriate Log Levels**:
    - `Level.SEVERE`: Error conditions that prevent normal operation
    - `Level.WARNING`: Potential problems that don't prevent operation
    - `Level.INFO`: Informational messages about normal operations (connections, discovery counts, processing steps)
    - `Level.FINE/FINER/FINEST`: Debug-level details
 
-4. **Include Context**: Log messages should include relevant context (e.g., schema name, table name, counts) to aid debugging
+5. **Include Context**: Log messages should include relevant context (e.g., schema name, table name, counts) to aid debugging using parameterized logging
 
 **When to Log:**
 - Before rethrowing exceptions (with context) - use SEVERE level
