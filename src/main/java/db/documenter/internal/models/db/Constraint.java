@@ -1,5 +1,7 @@
 package db.documenter.internal.models.db;
 
+import db.documenter.internal.formatter.impl.entity.ConstraintEntityLineFormatter;
+
 /**
  * Enum representing column-level constraints in a database table.
  *
@@ -55,7 +57,7 @@ public enum Constraint {
   }
 
   /**
-   * Returns the display priority for this constraint.
+   * Returns the display priority used by {@link ConstraintEntityLineFormatter} to order constraints
    *
    * <p>Lower values are displayed first when formatting multiple constraints on a column. This
    * ensures consistent ordering (e.g., FK before UNIQUE before NULLABLE).

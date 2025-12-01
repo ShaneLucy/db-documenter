@@ -35,7 +35,7 @@ public final class EnumBuilder {
       result.add(
           DbEnum.builder()
               .enumName(dbEnum.enumName())
-              .columnName(dbEnum.columnName())
+              .columnNames(dbEnum.columnNames())
               .enumValues(dbEnumValues)
               .build());
     }

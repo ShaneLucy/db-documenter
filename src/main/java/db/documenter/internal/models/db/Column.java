@@ -34,11 +34,11 @@ import org.jspecify.annotations.NonNull;
  *     .build();
  * }</pre>
  *
- * @param name the column name
+ * @param name identifier used in the database schema
  * @param dataType the SQL data type (e.g., "varchar", "integer", "uuid")
- * @param maximumLength the maximum length for character types
- * @param constraints the {@link List} of {@link Constraint} values applied to this column
- *     (defensively copied)
+ * @param maximumLength character limit for varchar/char types; 0 for fixed-size types
+ * @param constraints the {@link List} of {@link Constraint} values applied to this column - never
+ *     null, may be empty
  * @see Constraint
  * @see Table
  */

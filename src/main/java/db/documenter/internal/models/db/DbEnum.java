@@ -27,17 +27,20 @@ import org.jspecify.annotations.NonNull;
  * }</pre>
  *
  * @param enumName the database enum type name (e.g., "order_status")
- * @param columnName the column name that uses this enum type
+ * @param columnNames the column name that uses this enum type
  * @param enumValues the {@link List} of allowed {@link String} values (defensively copied)
  * @see Column
  */
 public record DbEnum(
-    @NonNull String enumName, @NonNull String columnName, @NonNull List<String> enumValues) {
+    @NonNull String enumName, @NonNull List<String> columnNames, @NonNull List<String> enumValues) {
 
   public DbEnum {
-    Validators.isNotNull(enumName, "enumName");
-    Validators.isNotNull(columnName, "columnName");
+    Validators.isNotBlank(enumName, "enumName");
+    Validators.isNotNull(columnNames, "columnNames");
     Validators.isNotNull(enumValues, "enumValues");
+    Validators.containsNoNullElements(columnNames, "columnNames");
+    Validators.containsNoNullElements(enumValues, "enumValues");
+    columnNames = List.copyOf(columnNames);
     enumValues = List.copyOf(enumValues);
   }
 
@@ -69,7 +72,7 @@ public record DbEnum(
    */
   public static final class Builder {
     private String enumName;
-    private String columnName;
+    private List<String> columnNames;
     private List<String> enumValues;
 
     /**
@@ -84,13 +87,15 @@ public record DbEnum(
     }
 
     /**
-     * Sets the column name that uses this enum type.
+     * Sets the column names that use this enum type.
      *
-     * @param columnName the column name
+     * @param columnNames the {@link List} of column names (defensively copied)
      * @return this builder instance for method chaining
      */
-    public Builder columnName(final @NonNull String columnName) {
-      this.columnName = columnName;
+    public Builder columnNames(final @NonNull List<String> columnNames) {
+      Validators.isNotNull(columnNames, "columnNames");
+      Validators.containsNoNullElements(columnNames, "columnNames");
+      this.columnNames = List.copyOf(columnNames);
       return this;
     }
 
@@ -103,6 +108,9 @@ public record DbEnum(
      * @return this builder instance for method chaining
      */
     public Builder enumValues(final @NonNull List<String> enumValues) {
+      Validators.isNotNull(enumValues, "enumValues");
+      Validators.containsNoNullElements(enumValues, "enumValues");
+
       this.enumValues = List.copyOf(enumValues);
       return this;
     }
@@ -114,7 +122,7 @@ public record DbEnum(
      * @throws ValidationException if any required field is null
      */
     public DbEnum build() {
-      return new DbEnum(enumName, columnName, enumValues);
+      return new DbEnum(enumName, columnNames, enumValues);
     }
   }
 }

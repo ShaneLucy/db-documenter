@@ -1,9 +1,9 @@
 package db.documenter.internal.validation;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import db.documenter.internal.exceptions.ValidationException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
@@ -29,7 +29,10 @@ class ValidatorsTest {
 
     @Test
     void itThrowsExceptionWhenStringIsBlank() {
-      assertThrows(ValidationException.class, () -> Validators.isNotBlank("", "test"));
+      final var exception =
+          assertThrows(ValidationException.class, () -> Validators.isNotBlank("", "test"));
+
+      assertEquals("test must not be blank", exception.getMessage());
     }
   }
 
@@ -43,14 +46,20 @@ class ValidatorsTest {
 
     @Test
     void itThrowsExceptionWhenListIsNull() {
-      assertThrows(ValidationException.class, () -> Validators.containsAtLeast1Item(null, "test"));
+      final var exception =
+          assertThrows(
+              ValidationException.class, () -> Validators.containsAtLeast1Item(null, "test"));
+      assertEquals("test must contain at least 1 item", exception.getMessage());
     }
 
     @Test
     void itThrowsExceptionWhenListIsEmpty() {
       final var emptyList = Collections.emptyList();
-      assertThrows(
-          ValidationException.class, () -> Validators.containsAtLeast1Item(emptyList, "test"));
+      final var exception =
+          assertThrows(
+              ValidationException.class, () -> Validators.containsAtLeast1Item(emptyList, "test"));
+
+      assertEquals("test must contain at least 1 item", exception.getMessage());
     }
   }
 
@@ -64,7 +73,36 @@ class ValidatorsTest {
 
     @Test
     void itThrowsExceptionWhenValueIsNull() {
-      assertThrows(ValidationException.class, () -> Validators.isNotNull(null, "test"));
+      final var exception =
+          assertThrows(ValidationException.class, () -> Validators.isNotNull(null, "test"));
+
+      assertEquals("test must not be null", exception.getMessage());
+    }
+  }
+
+  @Nested
+  class ContainsNoNullElementsTests {
+
+    @Test
+    void itDoesNotThrowExceptionWhenListContainsNoNullElements() {
+
+      assertDoesNotThrow(
+          () -> Validators.containsNoNullElements(List.of("one", "two"), "propName"));
+    }
+
+    @Test
+    void itDoesThrowExceptionWhenListContainsNullElements() {
+      final List<String> list = new ArrayList<>();
+      list.add("");
+      list.add("item2");
+      list.add(null);
+      list.add("item3");
+
+      final var exception =
+          assertThrows(
+              ValidationException.class, () -> Validators.containsNoNullElements(list, "propName"));
+
+      assertEquals("propName must not contain null elements", exception.getMessage());
     }
   }
 }

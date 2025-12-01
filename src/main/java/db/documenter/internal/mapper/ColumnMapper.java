@@ -90,7 +90,7 @@ public final class ColumnMapper {
 
               final var dataType =
                   dbEnums.stream()
-                      .filter(dbEnum -> dbEnum.columnName().equals(column.name()))
+                      .filter(dbEnum -> dbEnum.columnNames().contains(column.name()))
                       .findFirst()
                       .map(DbEnum::enumName)
                       .orElse(column.dataType());

@@ -100,7 +100,7 @@ class SchemaRendererTest {
       final var dbEnum =
           DbEnum.builder()
               .enumName("status")
-              .columnName("status")
+              .columnNames(List.of("status"))
               .enumValues(List.of("ACTIVE", "INACTIVE"))
               .build();
       final var schema =
@@ -119,13 +119,13 @@ class SchemaRendererTest {
       final var dbEnum1 =
           DbEnum.builder()
               .enumName("status")
-              .columnName("status")
+              .columnNames(List.of("status"))
               .enumValues(List.of("ACTIVE", "INACTIVE"))
               .build();
       final var dbEnum2 =
           DbEnum.builder()
               .enumName("role")
-              .columnName("role")
+              .columnNames(List.of("role"))
               .enumValues(List.of("ADMIN", "USER"))
               .build();
       final var schema =
@@ -208,7 +208,7 @@ class SchemaRendererTest {
       final var dbEnum =
           DbEnum.builder()
               .enumName("status")
-              .columnName("status")
+              .columnNames(List.of("status"))
               .enumValues(List.of("ACTIVE"))
               .build();
       final var table =
@@ -287,7 +287,7 @@ class SchemaRendererTest {
       final var dbEnum =
           DbEnum.builder()
               .enumName("status")
-              .columnName("status")
+              .columnNames(List.of("status"))
               .enumValues(List.of("ACTIVE", "INACTIVE"))
               .build();
 

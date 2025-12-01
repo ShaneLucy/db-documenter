@@ -58,7 +58,7 @@ class SchemaBuilderTest {
       final DbEnum dbEnum =
           DbEnum.builder()
               .enumName("status")
-              .columnName("status")
+              .columnNames(List.of("status"))
               .enumValues(List.of("active", "inactive"))
               .build();
 
@@ -84,9 +84,17 @@ class SchemaBuilderTest {
     @Test
     void buildsMultipleSchemas() throws SQLException {
       final DbEnum dbEnum1 =
-          DbEnum.builder().enumName("status").columnName("status").enumValues(List.of()).build();
+          DbEnum.builder()
+              .enumName("status")
+              .columnNames(List.of("status"))
+              .enumValues(List.of())
+              .build();
       final DbEnum dbEnum2 =
-          DbEnum.builder().enumName("role").columnName("role").enumValues(List.of()).build();
+          DbEnum.builder()
+              .enumName("role")
+              .columnNames(List.of("role"))
+              .enumValues(List.of())
+              .build();
 
       final Table table1 =
           Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
@@ -136,7 +144,11 @@ class SchemaBuilderTest {
     @Test
     void buildsSchemaWithNoTables() throws SQLException {
       final DbEnum dbEnum =
-          DbEnum.builder().enumName("status").columnName("status").enumValues(List.of()).build();
+          DbEnum.builder()
+              .enumName("status")
+              .columnNames(List.of("status"))
+              .enumValues(List.of())
+              .build();
 
       when(connectionManager.getConnection()).thenReturn(connection);
       when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);

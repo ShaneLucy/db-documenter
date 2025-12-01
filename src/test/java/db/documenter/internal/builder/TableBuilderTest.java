@@ -151,7 +151,11 @@ class TableBuilderTest {
       final Table table =
           Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
       final DbEnum dbEnum =
-          DbEnum.builder().enumName("status").columnName("status").enumValues(List.of()).build();
+          DbEnum.builder()
+              .enumName("status")
+              .columnNames(List.of("status"))
+              .enumValues(List.of())
+              .build();
 
       final Column rawColumn =
           Column.builder().name("status").dataType("USER-DEFINED").constraints(List.of()).build();

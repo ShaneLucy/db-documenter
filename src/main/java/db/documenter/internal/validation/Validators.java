@@ -2,6 +2,8 @@ package db.documenter.internal.validation;
 
 import db.documenter.internal.exceptions.ValidationException;
 import java.util.List;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
 
 public final class Validators {
 
@@ -24,6 +26,13 @@ public final class Validators {
   public static void isNotNull(final Object value, final String propertyName) {
     if (value == null) {
       throw new ValidationException(propertyName + " must not be null");
+    }
+  }
+
+  public static <T> void containsNoNullElements(
+      @NonNull final List<T> value, final String propertyName) {
+    if (value.stream().anyMatch(Objects::isNull)) {
+      throw new ValidationException(propertyName + " must not contain null elements");
     }
   }
 }

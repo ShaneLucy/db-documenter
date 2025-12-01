@@ -5,7 +5,9 @@ import db.documenter.internal.queries.api.ResultSetMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public final class PostgresqlResultSetMapper implements ResultSetMapper {
@@ -109,18 +111,23 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
 
   @Override
   public List<DbEnum> mapToDbEnumInfo(final ResultSet resultSet) throws SQLException {
-    final List<DbEnum> dbEnums = new ArrayList<>();
+    final Map<String, List<String>> enumToColumns = new LinkedHashMap<>();
 
     while (resultSet.next()) {
-      dbEnums.add(
-          DbEnum.builder()
-              .columnName(resultSet.getString("column_name"))
-              .enumName(resultSet.getString("udt_name"))
-              .enumValues(List.of())
-              .build());
+      final var enumName = resultSet.getString("udt_name");
+      final var columnName = resultSet.getString("column_name");
+      enumToColumns.computeIfAbsent(enumName, k -> new ArrayList<>()).add(columnName);
     }
 
-    return dbEnums;
+    return enumToColumns.entrySet().stream()
+        .map(
+            entry ->
+                DbEnum.builder()
+                    .enumName(entry.getKey())
+                    .columnNames(entry.getValue())
+                    .enumValues(List.of())
+                    .build())
+        .toList();
   }
 
   @Override

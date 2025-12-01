@@ -35,7 +35,8 @@ import org.jspecify.annotations.NonNull;
  * @param targetTable the referenced table
  * @param targetColumn the referenced column in the target table
  * @param referencedSchema the schema of the referenced table
- * @param isNullable whether the foreign key column allows NULL values
+ * @param isNullable true if the FK column permits NULL (indicating optional relationship); false
+ *     for required relationships. Builder defaults to false if not set
  * @see Table
  */
 public record ForeignKey(

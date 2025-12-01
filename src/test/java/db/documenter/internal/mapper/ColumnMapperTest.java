@@ -44,7 +44,7 @@ class ColumnMapperTest {
     void mapsUserDefinedTypeToEnumType() {
       final DbEnum dbEnum =
           DbEnum.builder()
-              .columnName("status")
+              .columnNames(List.of("status"))
               .enumName("order_status")
               .enumValues(List.of())
               .build();
@@ -64,7 +64,7 @@ class ColumnMapperTest {
     void keepsUserDefinedTypeWhenNoMatchingEnum() {
       final DbEnum dbEnum =
           DbEnum.builder()
-              .columnName("other_column")
+              .columnNames(List.of("other_column"))
               .enumName("other_enum")
               .enumValues(List.of())
               .build();
@@ -83,7 +83,7 @@ class ColumnMapperTest {
     void preservesOtherColumnPropertiesWhenMappingTypes() {
       final DbEnum dbEnum =
           DbEnum.builder()
-              .columnName("status")
+              .columnNames(List.of("status"))
               .enumName("order_status")
               .enumValues(List.of())
               .build();

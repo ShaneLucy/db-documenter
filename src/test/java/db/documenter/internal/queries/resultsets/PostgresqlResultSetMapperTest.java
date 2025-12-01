@@ -557,7 +557,7 @@ class PostgresqlResultSetMapperTest {
       List<DbEnum> result = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
 
       assertEquals(1, result.size());
-      assertEquals("col1", result.getFirst().columnName());
+      assertEquals(List.of("col1"), result.getFirst().columnNames());
       assertEquals("enum1", result.getFirst().enumName());
     }
 
@@ -570,9 +570,9 @@ class PostgresqlResultSetMapperTest {
       List<DbEnum> result = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
 
       assertEquals(2, result.size());
-      assertEquals("col1", result.getFirst().columnName());
+      assertEquals(List.of("col1"), result.getFirst().columnNames());
       assertEquals("enum1", result.getFirst().enumName());
-      assertEquals("col2", result.get(1).columnName());
+      assertEquals(List.of("col2"), result.get(1).columnNames());
       assertEquals("enum2", result.get(1).enumName());
     }
 
