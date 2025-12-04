@@ -40,8 +40,9 @@ import org.jspecify.annotations.NonNull;
 public record PrimaryKey(@NonNull String constraintName, @NonNull List<String> columnNames) {
 
   public PrimaryKey {
-    Validators.isNotNull(constraintName, "constraintName");
-    Validators.isNotNull(columnNames, "columnNames");
+    Validators.isNotBlank(constraintName, "constraintName");
+    Validators.containsAtLeast1Item(columnNames, "columnNames");
+    Validators.containsNoNullElements(columnNames, "columnNames");
     columnNames = List.copyOf(columnNames);
   }
 

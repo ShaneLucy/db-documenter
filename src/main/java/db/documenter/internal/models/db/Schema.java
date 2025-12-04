@@ -36,7 +36,7 @@ public record Schema(
     @NonNull String name, @NonNull List<Table> tables, @NonNull List<DbEnum> dbEnums) {
 
   public Schema {
-    Validators.isNotNull(name, "name");
+    Validators.isNotBlank(name, "name");
     Validators.isNotNull(tables, "tables");
     Validators.isNotNull(dbEnums, "dbEnums");
     tables = List.copyOf(tables);

@@ -71,20 +71,20 @@ class DefaultMultiplicityFormatterTest {
     }
 
     @Test
-    void handlesEmptyStrings() {
+    void handlesMinimalSingleCharacterNames() {
       final var fk =
           ForeignKey.builder()
-              .sourceTable("")
-              .sourceColumn("")
-              .targetTable("")
-              .targetColumn("")
-              .referencedSchema("")
-              .name("")
+              .sourceTable("a")
+              .sourceColumn("b")
+              .targetTable("c")
+              .targetColumn("d")
+              .referencedSchema("e")
+              .name("f")
               .build();
 
-      final var result = defaultMultiplicityFormatter.format(fk, "", null);
+      final var result = defaultMultiplicityFormatter.format(fk, "e", null);
 
-      assertEquals(" -- ", result);
+      assertEquals("c -- a", result);
     }
 
     @Test

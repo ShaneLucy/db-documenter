@@ -2,6 +2,7 @@ package db.documenter.internal.builder;
 
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.queries.api.QueryRunner;
+import db.documenter.internal.utils.LogUtils;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ public final class EnumBuilder {
     final List<DbEnum> dbEnums = queryRunner.getEnumInfo(schema);
 
     if (LOGGER.isLoggable(Level.INFO)) {
-      LOGGER.log(Level.INFO, "Building enums for schema: {0}", schema);
+      LOGGER.log(Level.INFO, "Building enums for schema: {0}", LogUtils.sanitizeForLog(schema));
     }
 
     final List<DbEnum> result = new ArrayList<>();

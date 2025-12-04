@@ -55,7 +55,7 @@ public record Table(
     @NonNull List<ForeignKey> foreignKeys) {
 
   public Table {
-    Validators.isNotNull(name, "name");
+    Validators.isNotBlank(name, "name");
     Validators.isNotNull(columns, "columns");
     Validators.isNotNull(primaryKey, "primaryKey");
     Validators.isNotNull(foreignKeys, "foreignKeys");

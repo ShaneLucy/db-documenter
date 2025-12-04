@@ -5,6 +5,7 @@ import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.Schema;
 import db.documenter.internal.models.db.Table;
 import db.documenter.internal.queries.QueryRunnerFactory;
+import db.documenter.internal.utils.LogUtils;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,7 @@ public final class SchemaBuilder {
     for (final String schemaName : schemaNames) {
       try (final var connection = connectionManager.getConnection()) {
         if (LOGGER.isLoggable(Level.INFO)) {
-          LOGGER.log(Level.INFO, "Building schema: {0}", schemaName);
+          LOGGER.log(Level.INFO, "Building schema: {0}", LogUtils.sanitizeForLog(schemaName));
         }
 
         final var queryRunner = queryRunnerFactory.createQueryRunner(connection);
@@ -58,14 +59,16 @@ public final class SchemaBuilder {
           LOGGER.log(
               Level.INFO,
               "Completed schema: {0} ({1} tables, {2} enums)",
-              new Object[] {schemaName, tables.size(), dbEnums.size()});
+              new Object[] {LogUtils.sanitizeForLog(schemaName), tables.size(), dbEnums.size()});
         }
       } catch (final SQLException e) {
         if (LOGGER.isLoggable(Level.SEVERE)) {
           LOGGER.log(
               Level.SEVERE,
               "Failed to build schema: {0} - {1}",
-              new Object[] {schemaName, e.getMessage()});
+              new Object[] {
+                LogUtils.sanitizeForLog(schemaName), LogUtils.sanitizeForLog(e.getMessage())
+              });
         }
         throw e;
       }

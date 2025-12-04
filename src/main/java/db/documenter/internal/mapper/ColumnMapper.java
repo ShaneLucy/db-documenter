@@ -127,9 +127,7 @@ public final class ColumnMapper {
 
               final List<Constraint> updatedConstraints = new ArrayList<>();
               updatedConstraints.add(Constraint.FK);
-              if (column.constraints() != null) {
-                updatedConstraints.addAll(column.constraints());
-              }
+              updatedConstraints.addAll(column.constraints());
 
               return Column.builder()
                   .name(column.name())

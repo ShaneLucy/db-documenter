@@ -9,6 +9,7 @@ import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
 import db.documenter.internal.queries.api.QueryRunner;
+import db.documenter.internal.utils.LogUtils;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,7 @@ public final class TableBuilder {
     final List<Table> tables = queryRunner.getTableInfo(schema);
 
     if (LOGGER.isLoggable(Level.INFO)) {
-      LOGGER.log(Level.INFO, "Building tables for schema: {0}", schema);
+      LOGGER.log(Level.INFO, "Building tables for schema: {0}", LogUtils.sanitizeForLog(schema));
     }
 
     final List<Table> result = new ArrayList<>();

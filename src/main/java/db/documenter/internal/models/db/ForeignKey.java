@@ -49,12 +49,12 @@ public record ForeignKey(
     boolean isNullable) {
 
   public ForeignKey {
-    Validators.isNotNull(name, "name");
-    Validators.isNotNull(sourceTable, "sourceTable");
-    Validators.isNotNull(sourceColumn, "sourceColumn");
-    Validators.isNotNull(targetTable, "targetTable");
-    Validators.isNotNull(targetColumn, "targetColumn");
-    Validators.isNotNull(referencedSchema, "referencedSchema");
+    Validators.isNotBlank(name, "name");
+    Validators.isNotBlank(sourceTable, "sourceTable");
+    Validators.isNotBlank(sourceColumn, "sourceColumn");
+    Validators.isNotBlank(targetTable, "targetTable");
+    Validators.isNotBlank(targetColumn, "targetColumn");
+    Validators.isNotBlank(referencedSchema, "referencedSchema");
   }
 
   /**

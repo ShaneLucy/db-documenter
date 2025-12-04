@@ -2,6 +2,7 @@ package db.documenter.internal.renderer.impl;
 
 import db.documenter.internal.models.db.Schema;
 import db.documenter.internal.renderer.api.PumlRenderer;
+import db.documenter.internal.utils.LogUtils;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,7 +64,10 @@ public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
           Level.INFO,
           "Rendered {0} schema with {1} table(s), {2} enum(s), {3} relationship(s)",
           new Object[] {
-            schema.name(), schema.tables().size(), schema.dbEnums().size(), totalRelationships
+            LogUtils.sanitizeForLog(schema.name()),
+            schema.tables().size(),
+            schema.dbEnums().size(),
+            totalRelationships
           });
     }
   }

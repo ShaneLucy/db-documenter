@@ -4,6 +4,7 @@ import db.documenter.internal.models.db.*;
 import db.documenter.internal.queries.api.PreparedStatementMapper;
 import db.documenter.internal.queries.api.QueryRunner;
 import db.documenter.internal.queries.api.ResultSetMapper;
+import db.documenter.internal.utils.LogUtils;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -153,7 +154,7 @@ public final class PostgresqlQueryRunner implements QueryRunner {
         LOGGER.log(
             Level.INFO,
             "Discovered: {0} tables in schema: {1}",
-            new Object[] {tables.size(), schema});
+            new Object[] {tables.size(), LogUtils.sanitizeForLog(schema)});
       }
       return tables;
     }
@@ -173,7 +174,9 @@ public final class PostgresqlQueryRunner implements QueryRunner {
         LOGGER.log(
             Level.INFO,
             "Discovered: {0} columns for table: {1} in schema: {2}",
-            new Object[] {columns.size(), table.name(), schema});
+            new Object[] {
+              columns.size(), LogUtils.sanitizeForLog(table.name()), LogUtils.sanitizeForLog(schema)
+            });
       }
       return columns;
     }
@@ -208,7 +211,11 @@ public final class PostgresqlQueryRunner implements QueryRunner {
         LOGGER.log(
             Level.INFO,
             "Discovered: {0} foreign keys for table: {1} in schema: {2}",
-            new Object[] {foreignKeys.size(), table.name(), schema});
+            new Object[] {
+              foreignKeys.size(),
+              LogUtils.sanitizeForLog(table.name()),
+              LogUtils.sanitizeForLog(schema)
+            });
       }
       return foreignKeys;
     }
@@ -228,7 +235,7 @@ public final class PostgresqlQueryRunner implements QueryRunner {
         LOGGER.log(
             Level.INFO,
             "Discovered: {0} enums in schema: {1}",
-            new Object[] {dbEnums.size(), schema});
+            new Object[] {dbEnums.size(), LogUtils.sanitizeForLog(schema)});
       }
 
       return dbEnums;
@@ -250,7 +257,11 @@ public final class PostgresqlQueryRunner implements QueryRunner {
         LOGGER.log(
             Level.INFO,
             "Discovered: {0} values for enum {1} in schema: {2}",
-            new Object[] {dbEnumValues.size(), dbEnum.enumName(), schema});
+            new Object[] {
+              dbEnumValues.size(),
+              LogUtils.sanitizeForLog(dbEnum.enumName()),
+              LogUtils.sanitizeForLog(schema)
+            });
       }
 
       return dbEnumValues;

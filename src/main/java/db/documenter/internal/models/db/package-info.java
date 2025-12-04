@@ -87,4 +87,7 @@
  * @see db.documenter.internal.mapper
  * @see db.documenter.internal.validation.Validators
  */
+@NullMarked
 package db.documenter.internal.models.db;
+
+import org.jspecify.annotations.NullMarked;

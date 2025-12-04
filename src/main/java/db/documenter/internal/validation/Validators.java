@@ -31,6 +31,9 @@ public final class Validators {
 
   public static <T> void containsNoNullElements(
       @NonNull final List<T> value, final String propertyName) {
+    if (value == null) {
+      throw new ValidationException(propertyName + " must not be null");
+    }
     if (value.stream().anyMatch(Objects::isNull)) {
       throw new ValidationException(propertyName + " must not contain null elements");
     }

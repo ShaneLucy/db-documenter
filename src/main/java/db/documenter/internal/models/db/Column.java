@@ -49,8 +49,8 @@ public record Column(
     @NonNull List<Constraint> constraints) {
 
   public Column {
-    Validators.isNotNull(name, "name");
-    Validators.isNotNull(dataType, "dataType");
+    Validators.isNotBlank(name, "name");
+    Validators.isNotBlank(dataType, "dataType");
     Validators.isNotNull(constraints, "constraints");
     constraints = List.copyOf(constraints);
   }

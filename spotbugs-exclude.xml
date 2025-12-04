@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Exclude Unicode handling warning - database identifiers are typically ASCII -->
+    <Match>
+        <Bug pattern="IMPROPER_UNICODE" />
+    </Match>
+</FindBugsFilter>

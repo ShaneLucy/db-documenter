@@ -15,6 +15,7 @@ import db.documenter.internal.renderer.impl.EntityRenderer;
 import db.documenter.internal.renderer.impl.EnumRenderer;
 import db.documenter.internal.renderer.impl.RelationshipRenderer;
 import db.documenter.internal.renderer.impl.SchemaRenderer;
+import db.documenter.internal.utils.LogUtils;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
@@ -57,7 +58,7 @@ public final class DbDocumenter {
       LOGGER.log(
           Level.INFO,
           "Starting PlantUML generation for schemas: {0}",
-          dbDocumenterConfig.schemas());
+          LogUtils.sanitizeForLog(dbDocumenterConfig.schemas()));
     }
 
     final var entityFormatter = formatterConfigurer.createEntityLineFormatter();
