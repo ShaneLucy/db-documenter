@@ -27,7 +27,6 @@
  * <ul>
  *   <li>{@link db.documenter.internal.models.db.Constraint} - Column-level constraints (FK, UNIQUE,
  *       AUTO_INCREMENT, etc.)
- *   <li>{@link db.documenter.internal.models.db.RdbmsTypes} - Supported database systems
  * </ul>
  *
  * <h2>Design Principles</h2>

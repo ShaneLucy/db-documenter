@@ -3,7 +3,6 @@ package db.documenter;
 import static org.junit.jupiter.api.Assertions.*;
 
 import db.documenter.internal.exceptions.ValidationException;
-import db.documenter.internal.models.db.RdbmsTypes;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
@@ -27,7 +26,7 @@ class DbDocumenterConfigTest {
                   false,
                   "username",
                   "password",
-                  RdbmsTypes.POSTGRESQL));
+                  DatabaseType.POSTGRESQL));
     }
 
     @Test
@@ -44,7 +43,7 @@ class DbDocumenterConfigTest {
                   false,
                   "username",
                   "password",
-                  RdbmsTypes.POSTGRESQL));
+                  DatabaseType.POSTGRESQL));
     }
 
     @Test
@@ -61,7 +60,7 @@ class DbDocumenterConfigTest {
                   false,
                   "username",
                   "password",
-                  RdbmsTypes.POSTGRESQL));
+                  DatabaseType.POSTGRESQL));
     }
 
     @Test
@@ -71,7 +70,14 @@ class DbDocumenterConfigTest {
           ValidationException.class,
           () ->
               new DbDocumenterConfig(
-                  schemas, "host", 1234, "", false, "username", "password", RdbmsTypes.POSTGRESQL));
+                  schemas,
+                  "host",
+                  1234,
+                  "",
+                  false,
+                  "username",
+                  "password",
+                  DatabaseType.POSTGRESQL));
     }
 
     @Test
@@ -88,7 +94,7 @@ class DbDocumenterConfigTest {
                   false,
                   "",
                   "password",
-                  RdbmsTypes.POSTGRESQL));
+                  DatabaseType.POSTGRESQL));
     }
 
     @Test
@@ -105,7 +111,7 @@ class DbDocumenterConfigTest {
                   false,
                   "username",
                   "",
-                  RdbmsTypes.POSTGRESQL));
+                  DatabaseType.POSTGRESQL));
     }
   }
 
@@ -124,7 +130,7 @@ class DbDocumenterConfigTest {
                   .useSsl(true)
                   .username("username")
                   .password("password")
-                  .rdbmsTypes(RdbmsTypes.POSTGRESQL)
+                  .databaseType(DatabaseType.POSTGRESQL)
                   .build());
     }
 
@@ -140,7 +146,7 @@ class DbDocumenterConfigTest {
               .useSsl(true)
               .username("username")
               .password("password")
-              .rdbmsTypes(RdbmsTypes.POSTGRESQL)
+              .databaseType(DatabaseType.POSTGRESQL)
               .build();
 
       assertEquals(expectedPort, result.databasePort());
@@ -157,7 +163,7 @@ class DbDocumenterConfigTest {
               .useSsl(false)
               .username("username")
               .password("password")
-              .rdbmsTypes(RdbmsTypes.POSTGRESQL)
+              .databaseType(DatabaseType.POSTGRESQL)
               .build();
 
       assertFalse(result.useSsl());
@@ -177,7 +183,7 @@ class DbDocumenterConfigTest {
                   .useSsl(true)
                   .username("username")
                   .password("password")
-                  .rdbmsTypes(RdbmsTypes.POSTGRESQL)
+                  .databaseType(DatabaseType.POSTGRESQL)
                   .build());
     }
 
@@ -194,7 +200,7 @@ class DbDocumenterConfigTest {
                   .useSsl(true)
                   .username("username")
                   .password("password")
-                  .rdbmsTypes(RdbmsTypes.POSTGRESQL)
+                  .databaseType(DatabaseType.POSTGRESQL)
                   .build());
     }
 
@@ -211,7 +217,7 @@ class DbDocumenterConfigTest {
                   .useSsl(true)
                   .username("username")
                   .password("password")
-                  .rdbmsTypes(RdbmsTypes.POSTGRESQL)
+                  .databaseType(DatabaseType.POSTGRESQL)
                   .build());
     }
 
@@ -228,7 +234,7 @@ class DbDocumenterConfigTest {
                   .useSsl(true)
                   .username("")
                   .password("password")
-                  .rdbmsTypes(RdbmsTypes.POSTGRESQL)
+                  .databaseType(DatabaseType.POSTGRESQL)
                   .build());
     }
 
@@ -246,7 +252,7 @@ class DbDocumenterConfigTest {
                   .useSsl(true)
                   .username("username")
                   .password("")
-                  .rdbmsTypes(RdbmsTypes.POSTGRESQL)
+                  .databaseType(DatabaseType.POSTGRESQL)
                   .build());
     }
 
@@ -260,14 +266,14 @@ class DbDocumenterConfigTest {
               .useSsl(true)
               .username("username")
               .password("password")
-              .rdbmsTypes(RdbmsTypes.POSTGRESQL)
+              .databaseType(DatabaseType.POSTGRESQL)
               .build();
 
       assertEquals(5432, result.databasePort());
     }
 
     @Test
-    void rdbmsTypeDefaultsToPostgres() {
+    void databaseTypeDefaultsToPostgres() {
       final var result =
           DbDocumenterConfig.builder()
               .schemas(List.of("schema"))
@@ -279,7 +285,7 @@ class DbDocumenterConfigTest {
               .password("password")
               .build();
 
-      assertEquals(RdbmsTypes.POSTGRESQL, result.rdbmsType());
+      assertEquals(DatabaseType.POSTGRESQL, result.databaseType());
     }
 
     @Test
@@ -292,7 +298,7 @@ class DbDocumenterConfigTest {
               .databasePort(5432)
               .username("username")
               .password("password")
-              .rdbmsTypes(RdbmsTypes.POSTGRESQL)
+              .databaseType(DatabaseType.POSTGRESQL)
               .build();
 
       assertTrue(result.useSsl());

@@ -1,6 +1,5 @@
 package db.documenter;
 
-import db.documenter.internal.models.db.RdbmsTypes;
 import db.documenter.internal.validation.Validators;
 import java.util.List;
 
@@ -13,7 +12,7 @@ public record DbDocumenterConfig(
     boolean useSsl,
     String username,
     String password,
-    RdbmsTypes rdbmsType) {
+    DatabaseType databaseType) {
 
   /**
    * Validates the required configuration fields.
@@ -25,7 +24,7 @@ public record DbDocumenterConfig(
    * @param useSsl If the database connection should use ssl, defaults to TRUE.
    * @param username The username of the user used to connect to the database, must not be blank.
    * @param password The password of the user used to connect to the database, must not be blank.
-   * @param rdbmsType The type of database being used, defaults to Postgresql
+   * @param databaseType The type of database being used, defaults to Postgresql
    */
   public DbDocumenterConfig {
     Validators.containsAtLeast1Item(schemas, "schemas");
@@ -33,7 +32,7 @@ public record DbDocumenterConfig(
     Validators.isNotBlank(databaseName, "databaseName");
     Validators.isNotBlank(username, "username");
     Validators.isNotBlank(password, "password");
-    Validators.isNotNull(rdbmsType, "rdbmsType");
+    Validators.isNotNull(databaseType, "databaseType");
     schemas = List.copyOf(schemas);
   }
 
@@ -51,7 +50,7 @@ public record DbDocumenterConfig(
     private boolean useSsl = true;
     private String username;
     private String password;
-    private RdbmsTypes rdbmsTypes = RdbmsTypes.POSTGRESQL;
+    private DatabaseType databaseType = DatabaseType.POSTGRESQL;
 
     /**
      * Convenience method for supplying a {@link DbDocumenterConfig} object with a list of schema
@@ -134,14 +133,13 @@ public record DbDocumenterConfig(
 
     /**
      * Convenience method for supplying a {@link DbDocumenterConfig} object with a {@link
-     * RdbmsTypes}.
+     * DatabaseType}.
      *
-     * @param rdbmsTypes The password of the user used to connect to the database, must not be
-     *     blank.
+     * @param databaseType The type of database to connect to.
      * @return {@link Builder}
      */
-    public Builder rdbmsTypes(final RdbmsTypes rdbmsTypes) {
-      this.rdbmsTypes = rdbmsTypes;
+    public Builder databaseType(final DatabaseType databaseType) {
+      this.databaseType = databaseType;
       return this;
     }
 
@@ -161,7 +159,7 @@ public record DbDocumenterConfig(
           useSsl,
           username,
           password,
-          rdbmsTypes);
+          databaseType);
     }
 
     private void validate() {
@@ -170,7 +168,7 @@ public record DbDocumenterConfig(
       Validators.isNotBlank(databaseName, "databaseName");
       Validators.isNotBlank(username, "username");
       Validators.isNotBlank(password, "password");
-      Validators.isNotNull(rdbmsTypes, "rdbmsType");
+      Validators.isNotNull(databaseType, "databaseType");
     }
   }
 }

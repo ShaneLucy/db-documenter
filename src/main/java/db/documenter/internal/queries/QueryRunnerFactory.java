@@ -18,7 +18,7 @@ public final class QueryRunnerFactory {
   }
 
   public QueryRunner createQueryRunner(final Connection connection) {
-    return switch (dbDocumenterConfig.rdbmsType()) {
+    return switch (dbDocumenterConfig.databaseType()) {
       case POSTGRESQL -> createPostgresqlQueryRunner(connection);
     };
   }
