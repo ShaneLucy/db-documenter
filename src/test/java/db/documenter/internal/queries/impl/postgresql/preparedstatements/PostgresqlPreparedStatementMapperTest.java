@@ -1,10 +1,9 @@
-package db.documenter.internal.queries.preparedstatements;
+package db.documenter.internal.queries.impl.postgresql.preparedstatements;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import db.documenter.internal.models.db.Table;
-import db.documenter.internal.queries.impl.postgresql.preparedstatements.PostgresqlPreparedStatementMapper;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;

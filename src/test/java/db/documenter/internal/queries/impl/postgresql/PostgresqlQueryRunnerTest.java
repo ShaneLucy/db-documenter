@@ -1,9 +1,8 @@
-package db.documenter.internal.queries;
+package db.documenter.internal.queries.impl.postgresql;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import db.documenter.internal.models.db.*;
-import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
 import db.documenter.internal.queries.impl.postgresql.preparedstatements.PostgresqlPreparedStatementMapper;
 import db.documenter.internal.queries.impl.postgresql.resultsets.PostgresqlResultSetMapper;
 import db.documenter.internal.test.helpers.PostgresTestEnvironment;

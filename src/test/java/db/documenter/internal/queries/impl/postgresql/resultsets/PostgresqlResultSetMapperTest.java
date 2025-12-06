@@ -1,4 +1,4 @@
-package db.documenter.internal.queries.resultsets;
+package db.documenter.internal.queries.impl.postgresql.resultsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -7,7 +7,6 @@ import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.PrimaryKey;
-import db.documenter.internal.queries.impl.postgresql.resultsets.PostgresqlResultSetMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
