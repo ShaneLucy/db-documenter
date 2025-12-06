@@ -26,7 +26,7 @@ public record CompositeMultiplicityFormatter(List<MultiplicityFormatter> formatt
     return result;
   }
 
-  public static class Builder {
+  public static final class Builder {
     private final List<MultiplicityFormatter> formatters = new ArrayList<>();
 
     public Builder addFormatter(final MultiplicityFormatter formatter) {

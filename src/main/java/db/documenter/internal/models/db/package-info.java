@@ -34,9 +34,6 @@
  * <p><b>Immutability:</b> All models are immutable records with defensive copying of mutable
  * collections. This ensures thread-safety and prevents accidental modification.
  *
- * <p><b>Validation:</b> All models use {@link db.documenter.internal.validation.Validators} in
- * compact constructors to enforce non-null contracts with {@link org.jspecify.annotations.NonNull}
- * annotations.
  *
  * <p><b>Builder Pattern:</b> All models provide fluent builder APIs for convenient construction.
  * Builders do not provide default values - all required fields must be explicitly set.
@@ -86,7 +83,4 @@
  * @see db.documenter.internal.mapper
  * @see db.documenter.internal.validation.Validators
  */
-@NullMarked
 package db.documenter.internal.models.db;
-
-import org.jspecify.annotations.NullMarked;

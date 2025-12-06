@@ -3,7 +3,6 @@ package db.documenter.internal.models.db;
 import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.validation.Validators;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Represents a database column with metadata for PlantUML entity-relationship diagram generation.
@@ -43,10 +42,7 @@ import org.jspecify.annotations.NonNull;
  * @see Table
  */
 public record Column(
-    @NonNull String name,
-    @NonNull String dataType,
-    int maximumLength,
-    @NonNull List<Constraint> constraints) {
+    String name, String dataType, int maximumLength, List<Constraint> constraints) {
 
   public Column {
     Validators.isNotBlank(name, "name");
@@ -111,7 +107,7 @@ public record Column(
    *
    * @see Column
    */
-  public static class Builder {
+  public static final class Builder {
     private String name;
     private String dataType;
     private int maximumLength;
@@ -123,7 +119,7 @@ public record Column(
      * @param name the column name
      * @return this builder instance for method chaining
      */
-    public Builder name(@NonNull final String name) {
+    public Builder name(final String name) {
       this.name = name;
       return this;
     }
@@ -137,7 +133,7 @@ public record Column(
      * @param dataType the SQL data type
      * @return this builder instance for method chaining
      */
-    public Builder dataType(@NonNull final String dataType) {
+    public Builder dataType(final String dataType) {
       this.dataType = dataType;
       return this;
     }
@@ -165,7 +161,7 @@ public record Column(
      *     copied)
      * @return this builder instance for method chaining
      */
-    public Builder constraints(@NonNull final List<Constraint> constraints) {
+    public Builder constraints(final List<Constraint> constraints) {
       this.constraints = List.copyOf(constraints);
       return this;
     }

@@ -2,7 +2,6 @@ package db.documenter.internal.models.db;
 
 import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.validation.Validators;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Represents a foreign key relationship between database tables.
@@ -40,12 +39,12 @@ import org.jspecify.annotations.NonNull;
  * @see Table
  */
 public record ForeignKey(
-    @NonNull String name,
-    @NonNull String sourceTable,
-    @NonNull String sourceColumn,
-    @NonNull String targetTable,
-    @NonNull String targetColumn,
-    @NonNull String referencedSchema,
+    String name,
+    String sourceTable,
+    String sourceColumn,
+    String targetTable,
+    String targetColumn,
+    String referencedSchema,
     boolean isNullable) {
 
   public ForeignKey {
@@ -87,7 +86,7 @@ public record ForeignKey(
    *
    * @see ForeignKey
    */
-  public static class Builder {
+  public static final class Builder {
     private String name;
     private String sourceTable;
     private String sourceColumn;
@@ -102,7 +101,7 @@ public record ForeignKey(
      * @param name the constraint name
      * @return this builder instance for method chaining
      */
-    public Builder name(final @NonNull String name) {
+    public Builder name(final String name) {
       this.name = name;
       return this;
     }
@@ -113,7 +112,7 @@ public record ForeignKey(
      * @param sourceTable the source table name
      * @return this builder instance for method chaining
      */
-    public Builder sourceTable(final @NonNull String sourceTable) {
+    public Builder sourceTable(final String sourceTable) {
       this.sourceTable = sourceTable;
       return this;
     }
@@ -124,7 +123,7 @@ public record ForeignKey(
      * @param sourceColumn the source column name
      * @return this builder instance for method chaining
      */
-    public Builder sourceColumn(final @NonNull String sourceColumn) {
+    public Builder sourceColumn(final String sourceColumn) {
       this.sourceColumn = sourceColumn;
       return this;
     }
@@ -135,7 +134,7 @@ public record ForeignKey(
      * @param targetTable the target table name
      * @return this builder instance for method chaining
      */
-    public Builder targetTable(final @NonNull String targetTable) {
+    public Builder targetTable(final String targetTable) {
       this.targetTable = targetTable;
       return this;
     }
@@ -146,7 +145,7 @@ public record ForeignKey(
      * @param targetColumn the target column name
      * @return this builder instance for method chaining
      */
-    public Builder targetColumn(final @NonNull String targetColumn) {
+    public Builder targetColumn(final String targetColumn) {
       this.targetColumn = targetColumn;
       return this;
     }
@@ -157,7 +156,7 @@ public record ForeignKey(
      * @param referencedSchema the schema name
      * @return this builder instance for method chaining
      */
-    public Builder referencedSchema(final @NonNull String referencedSchema) {
+    public Builder referencedSchema(final String referencedSchema) {
       this.referencedSchema = referencedSchema;
       return this;
     }

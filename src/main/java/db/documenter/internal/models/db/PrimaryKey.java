@@ -3,7 +3,6 @@ package db.documenter.internal.models.db;
 import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.validation.Validators;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Represents a primary key constraint on a database table.
@@ -37,7 +36,7 @@ import org.jspecify.annotations.NonNull;
  *     (defensively copied)
  * @see Table
  */
-public record PrimaryKey(@NonNull String constraintName, @NonNull List<String> columnNames) {
+public record PrimaryKey(String constraintName, List<String> columnNames) {
 
   public PrimaryKey {
     Validators.isNotBlank(constraintName, "constraintName");
@@ -71,7 +70,7 @@ public record PrimaryKey(@NonNull String constraintName, @NonNull List<String> c
    *
    * @see PrimaryKey
    */
-  public static class Builder {
+  public static final class Builder {
     private String constraintName;
     private List<String> columnNames;
 
@@ -81,7 +80,7 @@ public record PrimaryKey(@NonNull String constraintName, @NonNull List<String> c
      * @param constraintName the constraint name
      * @return this builder instance for method chaining
      */
-    public Builder constraintName(final @NonNull String constraintName) {
+    public Builder constraintName(final String constraintName) {
       this.constraintName = constraintName;
       return this;
     }
@@ -94,7 +93,7 @@ public record PrimaryKey(@NonNull String constraintName, @NonNull List<String> c
      * @param columnNames the {@link List} of column name {@link String} values (defensively copied)
      * @return this builder instance for method chaining
      */
-    public Builder columnNames(final @NonNull List<String> columnNames) {
+    public Builder columnNames(final List<String> columnNames) {
       this.columnNames = List.copyOf(columnNames);
       return this;
     }

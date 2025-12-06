@@ -3,7 +3,6 @@ package db.documenter.internal.models.db;
 import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.validation.Validators;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Represents a database schema containing tables and custom enum types.
@@ -32,8 +31,7 @@ import org.jspecify.annotations.NonNull;
  * @see Table
  * @see DbEnum
  */
-public record Schema(
-    @NonNull String name, @NonNull List<Table> tables, @NonNull List<DbEnum> dbEnums) {
+public record Schema(String name, List<Table> tables, List<DbEnum> dbEnums) {
 
   public Schema {
     Validators.isNotBlank(name, "name");
@@ -69,7 +67,7 @@ public record Schema(
    *
    * @see Schema
    */
-  public static class Builder {
+  public static final class Builder {
     private String name;
     private List<Table> tables;
     private List<DbEnum> dbEnums;
@@ -80,7 +78,7 @@ public record Schema(
      * @param name the schema name
      * @return this builder instance for method chaining
      */
-    public Builder name(final @NonNull String name) {
+    public Builder name(final String name) {
       this.name = name;
       return this;
     }
@@ -93,7 +91,7 @@ public record Schema(
      * @param tables the {@link List} of {@link Table} instances (defensively copied)
      * @return this builder instance for method chaining
      */
-    public Builder tables(final @NonNull List<Table> tables) {
+    public Builder tables(final List<Table> tables) {
       this.tables = List.copyOf(tables);
       return this;
     }
@@ -106,7 +104,7 @@ public record Schema(
      * @param dbEnums the {@link List} of {@link DbEnum} instances (defensively copied)
      * @return this builder instance for method chaining
      */
-    public Builder dbEnums(final @NonNull List<DbEnum> dbEnums) {
+    public Builder dbEnums(final List<DbEnum> dbEnums) {
       this.dbEnums = List.copyOf(dbEnums);
       return this;
     }

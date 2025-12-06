@@ -3,7 +3,6 @@ package db.documenter.internal.models.db;
 import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.validation.Validators;
 import java.util.List;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Represents a database-specific enum type definition for PlantUML diagram generation.
@@ -31,8 +30,7 @@ import org.jspecify.annotations.NonNull;
  * @param enumValues the {@link List} of allowed {@link String} values (defensively copied)
  * @see Column
  */
-public record DbEnum(
-    @NonNull String enumName, @NonNull List<String> columnNames, @NonNull List<String> enumValues) {
+public record DbEnum(String enumName, List<String> columnNames, List<String> enumValues) {
 
   public DbEnum {
     Validators.isNotBlank(enumName, "enumName");
@@ -81,7 +79,7 @@ public record DbEnum(
      * @param enumName the enum type name (e.g., "order_status")
      * @return this builder instance for method chaining
      */
-    public Builder enumName(final @NonNull String enumName) {
+    public Builder enumName(final String enumName) {
       this.enumName = enumName;
       return this;
     }
@@ -92,7 +90,7 @@ public record DbEnum(
      * @param columnNames the {@link List} of column names (defensively copied)
      * @return this builder instance for method chaining
      */
-    public Builder columnNames(final @NonNull List<String> columnNames) {
+    public Builder columnNames(final List<String> columnNames) {
       Validators.isNotNull(columnNames, "columnNames");
       Validators.containsNoNullElements(columnNames, "columnNames");
       this.columnNames = List.copyOf(columnNames);
@@ -107,7 +105,7 @@ public record DbEnum(
      * @param enumValues the {@link List} of {@link String} values (defensively copied)
      * @return this builder instance for method chaining
      */
-    public Builder enumValues(final @NonNull List<String> enumValues) {
+    public Builder enumValues(final List<String> enumValues) {
       Validators.isNotNull(enumValues, "enumValues");
       Validators.containsNoNullElements(enumValues, "enumValues");
 

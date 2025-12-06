@@ -4,7 +4,6 @@ import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.validation.Validators;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Represents a database table with its columns, primary key, and foreign key relationships.
@@ -49,10 +48,10 @@ import org.jspecify.annotations.NonNull;
  * @see ForeignKey
  */
 public record Table(
-    @NonNull String name,
-    @NonNull List<Column> columns,
-    @NonNull Optional<PrimaryKey> primaryKey,
-    @NonNull List<ForeignKey> foreignKeys) {
+    String name,
+    List<Column> columns,
+    Optional<PrimaryKey> primaryKey,
+    List<ForeignKey> foreignKeys) {
 
   public Table {
     Validators.isNotBlank(name, "name");
@@ -90,7 +89,7 @@ public record Table(
    *
    * @see Table
    */
-  public static class Builder {
+  public static final class Builder {
     private String name;
     private List<Column> columns;
     private PrimaryKey primaryKey;
@@ -102,7 +101,7 @@ public record Table(
      * @param name the table name
      * @return this builder instance for method chaining
      */
-    public Builder name(final @NonNull String name) {
+    public Builder name(final String name) {
       this.name = name;
       return this;
     }
@@ -115,7 +114,7 @@ public record Table(
      * @param columns the {@link List} of {@link Column} instances (defensively copied)
      * @return this {@link Builder} instance for method chaining
      */
-    public Builder columns(final @NonNull List<Column> columns) {
+    public Builder columns(final List<Column> columns) {
       this.columns = List.copyOf(columns);
       return this;
     }
@@ -142,7 +141,7 @@ public record Table(
      * @param foreignKeys the {@link List} of {@link ForeignKey} relationships (defensively copied)
      * @return this {@link Builder} instance for method chaining
      */
-    public Builder foreignKeys(final @NonNull List<ForeignKey> foreignKeys) {
+    public Builder foreignKeys(final List<ForeignKey> foreignKeys) {
       this.foreignKeys = List.copyOf(foreignKeys);
       return this;
     }

@@ -42,7 +42,7 @@ public record DbDocumenterConfig(
   }
 
   /** Convenience utility for creating {@link DbDocumenterConfig} object. */
-  public static class Builder {
+  public static final class Builder {
     private List<String> schemas;
     private String databaseHost;
     private String databaseName;

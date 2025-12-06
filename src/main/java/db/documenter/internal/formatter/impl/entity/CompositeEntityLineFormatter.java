@@ -26,7 +26,7 @@ public record CompositeEntityLineFormatter(List<EntityLineFormatter> lineFormatt
     return result;
   }
 
-  public static class Builder {
+  public static final class Builder {
     private final List<EntityLineFormatter> lineFormatters = new ArrayList<>();
 
     public Builder addFormatter(final EntityLineFormatter lineFormatter) {
