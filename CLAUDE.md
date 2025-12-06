@@ -21,6 +21,15 @@ Use specialized agents for specific tasks to ensure quality and consistency:
 
 **Key trait:** This agent challenges dependency choices and questions Maven configuration decisions. Trust its expertise.
 
+**Cross-domain collaboration:**
+When tasks overlap with other domains, this agent delegates to specialized agents:
+- **DevOps/Docker impacts**: Use `devops-lead` when dependency changes affect Docker builds or CI/CD pipelines
+- **Java code modifications**: Use `java-code-writer` for any Java source code changes needed
+- **Test updates**: Use `java-test-automation-specialist` when test dependencies or test execution changes
+- **Code review**: Use `tech-lead-reviewer` for architectural review of dependency choices
+
+The maven-architect remains the orchestrator for build configuration but respects domain expertise. Example: "This dependency addition requires updating the Docker build. Let me engage the devops-lead agent to update the Dockerfile accordingly."
+
 ### 2. **java-code-writer** Agent
 
 **Use when:**
@@ -33,6 +42,15 @@ Use specialized agents for specific tasks to ensure quality and consistency:
 
 **After code generation:** must use `java-test-automation-specialist` to create comprehensive tests.
 
+**Cross-domain collaboration:**
+When tasks overlap with other domains, this agent delegates to specialized agents:
+- **Maven dependencies**: Use `maven-architect` when new dependencies are needed for the implementation
+- **Test creation**: Use `java-test-automation-specialist` to create comprehensive tests (ALWAYS after writing code)
+- **Code review**: Use `tech-lead-reviewer` to review the generated code for quality and design issues
+- **DevOps considerations**: Use `devops-lead` if the new code affects deployment or containerization
+
+The java-code-writer focuses on production code while delegating testing, dependency management, and review to specialists. Example: "I've implemented the DatabaseConnectionPool class. Now let me use the java-test-automation-specialist to create comprehensive tests for it."
+
 ### 3. **java-test-automation-specialist** Agent
 
 **Use when:**
@@ -44,6 +62,15 @@ Use specialized agents for specific tasks to ensure quality and consistency:
 **Must be used with:** `java-test-coding-standards` skill (automatically available)
 
 **Proactive usage:** After writing application code, automatically engage this agent to create tests.
+
+**Cross-domain collaboration:**
+When tasks overlap with other domains, this agent delegates to specialized agents:
+- **Test dependencies**: Use `maven-architect` when test dependencies (JUnit, Mockito, TestContainers, etc.) need to be added or updated
+- **Code under test issues**: Use `tech-lead-reviewer` when the code under test has testability issues that require refactoring
+- **Java code modifications**: Use `java-code-writer` if test utilities or test fixtures need to be created as production code
+- **DevOps/CI integration**: Use `devops-lead` when test execution needs to be integrated into CI/CD pipelines
+
+The java-test-automation-specialist focuses on test creation while delegating build configuration and code design concerns. Example: "These tests require Testcontainers. Let me use the maven-architect to add the appropriate test dependencies."
 
 ### 4. **tech-lead-reviewer** Agent
 
@@ -59,6 +86,37 @@ Use specialized agents for specific tasks to ensure quality and consistency:
 - **User proposes an approach** - To validate or challenge the proposed solution
 
 **Key trait:** This agent is designed to challenge assumptions and provide objective feedback. **Its feedback should be taken seriously and used to challenge the user's opinions when appropriate.**
+
+**Cross-domain collaboration:**
+When reviewing code or plans, this agent identifies domain-specific concerns and delegates implementation:
+- **Maven/build issues**: Use `maven-architect` for dependency conflicts, plugin configuration, or build optimization concerns
+- **Implementation work**: Use `java-code-writer` when code needs to be written or refactored based on review feedback
+- **Test coverage gaps**: Use `java-test-automation-specialist` when tests are missing or inadequate
+- **DevOps/deployment concerns**: Use `devops-lead` for containerization, CI/CD, or deployment-related issues
+
+The tech-lead-reviewer focuses on architectural and design review while delegating implementation tasks. Example: "The review identified that the resource management could cause connection leaks. Let me engage the java-code-writer to implement proper try-with-resources handling."
+
+### 5. **devops-lead** Agent
+
+**Use when:**
+- Creating or modifying Dockerfiles
+- Configuring GitHub Actions workflows or CI/CD pipelines
+- Planning deployment strategies
+- Optimizing container images
+- Troubleshooting build or deployment issues
+- Making architectural decisions about deployment patterns
+- Setting up container orchestration
+
+**Key trait:** This agent challenges DevOps approaches and questions deployment decisions with a focus on security, performance, and maintainability. Trust its expertise.
+
+**Cross-domain collaboration:**
+When tasks overlap with other domains, this agent delegates to specialized agents:
+- **Maven configuration**: Use `maven-architect` for pom.xml changes, dependency updates, or Maven plugin configuration
+- **Java code changes**: Use `java-code-writer` for any application code modifications
+- **Test execution**: Use `java-test-automation-specialist` for test creation or CI/CD test integration
+- **Architecture review**: Use `tech-lead-reviewer` to validate deployment architecture decisions
+
+The devops-lead remains the orchestrator for DevOps tasks but respects domain expertise. Example: "For this Docker optimization, we need to update the Maven build. Let me engage the maven-architect to handle the pom.xml changes, then I'll integrate those into our multi-stage Docker build."
 
 ---
 
@@ -211,7 +269,7 @@ For other Maven operations, use the `maven-architect` agent.
 
 ## Key Project Characteristics
 
-- **Target Java Version:** Java 17 for application code and Java 21 for test
+- **Target Java Version:** Java 25 for both application code and test
 - **Build Tool:** Maven
 - **Logging:** `java.util.logging.Logger` (not SLF4J)
 - **Null Safety:** JSpecify annotations with NullAway

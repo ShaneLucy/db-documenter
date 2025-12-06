@@ -57,7 +57,7 @@ Use `final` extensively:
 
 ### Modern Java Features
 
-Use modern Java syntax and features targeting Java 17:
+Use modern Java syntax and features targeting Java 25:
 
 **Modern Java Rules:**
 - Use text blocks (`"""`) for multi-line strings (SQL queries, JSON, etc.)

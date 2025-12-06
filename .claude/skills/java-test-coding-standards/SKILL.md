@@ -1,6 +1,6 @@
 ---
 name: Java Test Coding Standards
-description: Enforces db-documenter project test coding standards for Java test code targeting Java 21. Use this when writing or reviewing test code.
+description: Enforces db-documenter project test coding standards for Java test code targeting Java 25. Use this when writing or reviewing test code.
 allowed-tools:
   - Read
   - Edit
@@ -10,7 +10,7 @@ allowed-tools:
 
 # Java Test Coding Standards for db-documenter
 
-This skill defines the coding standards for Java test code in the db-documenter project, targeting Java 21.
+This skill defines the coding standards for Java test code in the db-documenter project, targeting Java 25.
 
 ---
 
@@ -75,7 +75,7 @@ void whenSingleConstraintAppendsInBrackets() { ... }
 - Use `assertDoesNotThrow()` to verify no exception is thrown
 - Capture exception for message verification: `final var exception = assertThrows(...)`
 
-### Java 21 Features in Tests
+### Java 25 Features in Tests
 
 **Modern Java Rules:**
 - Use `final var` for local variables in tests
@@ -281,7 +281,7 @@ When writing Java test code, ensure:
 - ✅ Test method names start with `it` or `when` and describe behavior
 - ✅ Use `final var` for local variables
 - ✅ Use `final` on method parameters
-- ✅ Use `List.of()`, `.getFirst()`, and Java 21 features
+- ✅ Use `List.of()`, `.getFirst()`, and Java 25 features
 - ✅ Use builders for creating test objects
 - ✅ Use `@ParameterizedTest` for multiple input scenarios
 - ✅ Use `@BeforeAll` / `@AfterAll` for expensive setup
