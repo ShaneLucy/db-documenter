@@ -24,7 +24,7 @@ class PostgresqlQueryRunnerTest {
     POSTGRES_TEST_ENVIRONMENT.startContainer();
     connection = POSTGRES_TEST_ENVIRONMENT.getConnection();
     POSTGRES_TEST_ENVIRONMENT.initialiseDatabase(
-        connection, "/postgresql/single-schema/test-db.sql");
+        connection, "/postgresql/single-schema/postgresql-specific-single-schema.sql");
   }
 
   @BeforeEach

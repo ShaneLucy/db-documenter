@@ -20,124 +20,195 @@ class DbDocumenterTest {
   private static Connection connection;
 
   @Nested
-  class GeneratePumlSingleSchemaTests {
+  class PostgresqlSchemaToPumlTests {
 
-    @BeforeAll
-    static void containerSetUp() throws SQLException, IOException {
-      POSTGRES_TEST_ENVIRONMENT.startContainer();
-      connection = POSTGRES_TEST_ENVIRONMENT.getConnection();
-      POSTGRES_TEST_ENVIRONMENT.initialiseDatabase(
-          connection, "/postgresql/single-schema/test-db.sql");
-    }
+    @Nested
+    class GeneratePumlSingleSchemaTests {
 
-    @AfterAll
-    static void containerClearDown() throws SQLException {
-      connection.close();
-      POSTGRES_TEST_ENVIRONMENT.stop();
-    }
+      @BeforeAll
+      static void containerSetUp() throws SQLException, IOException {
+        POSTGRES_TEST_ENVIRONMENT.startContainer();
+        connection = POSTGRES_TEST_ENVIRONMENT.getConnection();
+        POSTGRES_TEST_ENVIRONMENT.initialiseDatabase(
+            connection, "/postgresql/single-schema/postgresql-specific-single-schema.sql");
+      }
 
-    @BeforeEach
-    void setUp() {
-      final var container = POSTGRES_TEST_ENVIRONMENT.getContainer();
-      final var dbDocumenterConfig =
-          DbDocumenterConfig.builder()
-              .databaseName(container.getDatabaseName())
-              .username(container.getUsername())
-              .schemas(List.of("public"))
-              .password(container.getPassword())
-              .databasePort(container.getFirstMappedPort())
-              .databaseHost(container.getHost())
-              .useSsl(false)
-              .build();
+      @AfterAll
+      static void containerClearDown() throws SQLException {
+        connection.close();
+        POSTGRES_TEST_ENVIRONMENT.stop();
+      }
 
-      dbDocumenter = new DbDocumenter(dbDocumenterConfig);
-    }
+      @BeforeEach
+      void setUp() {
+        final var container = POSTGRES_TEST_ENVIRONMENT.getContainer();
+        final var dbDocumenterConfig =
+            DbDocumenterConfig.builder()
+                .databaseName(container.getDatabaseName())
+                .username(container.getUsername())
+                .schemas(List.of("public"))
+                .password(container.getPassword())
+                .databasePort(container.getFirstMappedPort())
+                .databaseHost(container.getHost())
+                .useSsl(false)
+                .build();
 
-    @Test
-    void itWorksCorrectlyForASingleSchema() throws IOException, SQLException {
-      final var expected =
-          Files.readString(Path.of("src/test/resources/postgresql/single-schema/test-puml.puml"));
-      final var expectedLines = expected.lines().toList();
+        dbDocumenter = new DbDocumenter(dbDocumenterConfig);
+      }
 
-      final var result = dbDocumenter.generatePuml();
-      final var resultLines = result.lines().toList();
+      @Test
+      void itWorksCorrectlyForASingleSchema() throws IOException, SQLException {
+        final var expected =
+            Files.readString(
+                Path.of(
+                    "src/test/resources/postgresql/single-schema/postgresql-specific-single-schema-expected-output.puml"));
+        final var expectedLines = expected.lines().toList();
 
-      int max = Math.max(resultLines.size(), expectedLines.size());
+        final var result = dbDocumenter.generatePuml();
+        final var resultLines = result.lines().toList();
 
-      for (int i = 0; i < max; i++) {
-        String resultLine = (i < resultLines.size()) ? resultLines.get(i) : "<missing>";
-        String expectedLine = (i < expectedLines.size()) ? expectedLines.get(i) : "<missing>";
+        int max = Math.max(resultLines.size(), expectedLines.size());
 
-        if (!Objects.equals(resultLine, expectedLine)) {
-          fail(
-              """
-                                  PUML mismatch at line %d:
-                                  Expected: %s
-                                  Actual  : %s
-                                  """
-                  .formatted(i + 1, expectedLine, resultLine));
+        for (int i = 0; i < max; i++) {
+          String resultLine = (i < resultLines.size()) ? resultLines.get(i) : "<missing>";
+          String expectedLine = (i < expectedLines.size()) ? expectedLines.get(i) : "<missing>";
+
+          if (!Objects.equals(resultLine, expectedLine)) {
+            fail(
+                """
+                                      PUML mismatch at line %d:
+                                      Expected: %s
+                                      Actual  : %s
+                                      """
+                    .formatted(i + 1, expectedLine, resultLine));
+          }
         }
       }
     }
-  }
 
-  @Nested
-  class GeneratePumlMultipleSchemaSchemaTests {
+    @Nested
+    class GeneratePumlMultipleSchemaSchemaSqlAgnosticTests {
 
-    @BeforeAll
-    static void containerSetUp() throws SQLException, IOException {
-      POSTGRES_TEST_ENVIRONMENT.startContainer();
-      connection = POSTGRES_TEST_ENVIRONMENT.getConnection();
-      POSTGRES_TEST_ENVIRONMENT.initialiseDatabase(
-          connection, "/postgresql/multiple-schema/test-db.sql");
-    }
+      @BeforeAll
+      static void containerSetUp() throws SQLException, IOException {
+        POSTGRES_TEST_ENVIRONMENT.startContainer();
+        connection = POSTGRES_TEST_ENVIRONMENT.getConnection();
+        POSTGRES_TEST_ENVIRONMENT.initialiseDatabase(
+            connection, "/sql-agnostic-multiple-schema.sql");
+      }
 
-    @AfterAll
-    static void containerClearDown() throws SQLException {
-      connection.close();
-      POSTGRES_TEST_ENVIRONMENT.stop();
-    }
+      @AfterAll
+      static void containerClearDown() throws SQLException {
+        connection.close();
+        POSTGRES_TEST_ENVIRONMENT.stop();
+      }
 
-    @BeforeEach
-    void setUp() {
-      final var container = POSTGRES_TEST_ENVIRONMENT.getContainer();
-      final var dbDocumenterConfig =
-          DbDocumenterConfig.builder()
-              .databaseName(container.getDatabaseName())
-              .username(container.getUsername())
-              .schemas(List.of("ecommerce", "inventory", "analytics"))
-              .password(container.getPassword())
-              .databasePort(container.getFirstMappedPort())
-              .databaseHost(container.getHost())
-              .useSsl(false)
-              .build();
+      @BeforeEach
+      void setUp() {
+        final var container = POSTGRES_TEST_ENVIRONMENT.getContainer();
+        final var dbDocumenterConfig =
+            DbDocumenterConfig.builder()
+                .databaseName(container.getDatabaseName())
+                .username(container.getUsername())
+                .schemas(List.of("ecommerce", "inventory", "analytics"))
+                .password(container.getPassword())
+                .databasePort(container.getFirstMappedPort())
+                .databaseHost(container.getHost())
+                .useSsl(false)
+                .build();
 
-      dbDocumenter = new DbDocumenter(dbDocumenterConfig);
-    }
+        dbDocumenter = new DbDocumenter(dbDocumenterConfig);
+      }
 
-    @Test
-    void itWorksCorrectlyForMultipleSchemas() throws IOException, SQLException {
-      final var expected =
-          Files.readString(Path.of("src/test/resources/postgresql/multiple-schema/test-puml.puml"));
-      final var expectedLines = expected.lines().toList();
+      @Test
+      void itWorksCorrectlyForMultipleSchemas() throws IOException, SQLException {
+        final var expected =
+            Files.readString(
+                Path.of(
+                    "src/test/resources/postgresql/sql-agnostic-multiple-schema-postgres-expected-output.puml"));
+        final var expectedLines = expected.lines().toList();
 
-      final var result = dbDocumenter.generatePuml();
-      final var resultLines = result.lines().toList();
-      Files.writeString(Path.of("src/test/resources/postgresql/multiple-schema/test.puml"), result);
-      int max = Math.max(resultLines.size(), expectedLines.size());
+        final var result = dbDocumenter.generatePuml();
+        final var resultLines = result.lines().toList();
 
-      for (int i = 0; i < max; i++) {
-        String resultLine = (i < resultLines.size()) ? resultLines.get(i) : "<missing>";
-        String expectedLine = (i < expectedLines.size()) ? expectedLines.get(i) : "<missing>";
+        int max = Math.max(resultLines.size(), expectedLines.size());
 
-        if (!Objects.equals(resultLine, expectedLine)) {
-          fail(
-              """
-                                              PUML mismatch at line %d:
-                                              Expected: %s
-                                              Actual  : %s
-                                              """
-                  .formatted(i + 1, expectedLine, resultLine));
+        for (int i = 0; i < max; i++) {
+          String resultLine = (i < resultLines.size()) ? resultLines.get(i) : "<missing>";
+          String expectedLine = (i < expectedLines.size()) ? expectedLines.get(i) : "<missing>";
+
+          if (!Objects.equals(resultLine, expectedLine)) {
+            fail(
+                """
+                                      PUML mismatch at line %d:
+                                      Expected: %s
+                                      Actual  : %s
+                                      """
+                    .formatted(i + 1, expectedLine, resultLine));
+          }
+        }
+      }
+
+      @Nested
+      class GeneratePumlMultipleSchemaSchemaPostgresqlSpecificSqlTests {
+
+        @BeforeAll
+        static void containerSetUp() throws SQLException, IOException {
+          POSTGRES_TEST_ENVIRONMENT.startContainer();
+          connection = POSTGRES_TEST_ENVIRONMENT.getConnection();
+          POSTGRES_TEST_ENVIRONMENT.initialiseDatabase(
+              connection, "/postgresql/multiple-schema/postgresql-specific-multiple-schema.sql");
+        }
+
+        @AfterAll
+        static void containerClearDown() throws SQLException {
+          connection.close();
+          POSTGRES_TEST_ENVIRONMENT.stop();
+        }
+
+        @BeforeEach
+        void setUp() {
+          final var container = POSTGRES_TEST_ENVIRONMENT.getContainer();
+          final var dbDocumenterConfig =
+              DbDocumenterConfig.builder()
+                  .databaseName(container.getDatabaseName())
+                  .username(container.getUsername())
+                  .schemas(List.of("auth", "core", "analytics", "audit"))
+                  .password(container.getPassword())
+                  .databasePort(container.getFirstMappedPort())
+                  .databaseHost(container.getHost())
+                  .useSsl(false)
+                  .build();
+
+          dbDocumenter = new DbDocumenter(dbDocumenterConfig);
+        }
+
+        @Test
+        void itWorksCorrectlyForMultipleSchemas() throws IOException, SQLException {
+          final var expected =
+              Files.readString(
+                  Path.of(
+                      "src/test/resources/postgresql/multiple-schema/postgresql-specific-multiple-schema-expected-output.puml"));
+          final var expectedLines = expected.lines().toList();
+
+          final var result = dbDocumenter.generatePuml();
+          final var resultLines = result.lines().toList();
+          int max = Math.max(resultLines.size(), expectedLines.size());
+
+          for (int i = 0; i < max; i++) {
+            String resultLine = (i < resultLines.size()) ? resultLines.get(i) : "<missing>";
+            String expectedLine = (i < expectedLines.size()) ? expectedLines.get(i) : "<missing>";
+
+            if (!Objects.equals(resultLine, expectedLine)) {
+              fail(
+                  """
+                                          PUML mismatch at line %d:
+                                          Expected: %s
+                                          Actual  : %s
+                                          """
+                      .formatted(i + 1, expectedLine, resultLine));
+            }
+          }
         }
       }
     }

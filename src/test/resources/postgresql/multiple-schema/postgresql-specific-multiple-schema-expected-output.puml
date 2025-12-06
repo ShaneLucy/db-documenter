@@ -1,0 +1,488 @@
+@startuml
+hide methods
+hide stereotypes
+
+package "auth" {
+	entity "account_status" <<enum>> {
+		pending_verification
+		active
+		suspended
+		deactivated
+		locked
+	}
+
+	entity "mfa_method" <<enum>> {
+		totp
+		sms
+		email
+		hardware_key
+		backup_codes
+	}
+
+	entity "users" {
+		**id: uuid** <<DEFAULT>>
+		--
+		email: character varying(255) <<UNIQUE,CHECK>>
+		email_verified: boolean <<DEFAULT>>
+		email_verified_at: timestamp with time zone <<NULLABLE>>
+		username: character varying(50) <<UNIQUE,CHECK,NULLABLE>>
+		password_hash: character varying(255) <<CHECK>>
+		password_changed_at: timestamp with time zone <<DEFAULT>>
+		profile: jsonb <<DEFAULT>>
+		preferred_languages: text[] <<DEFAULT>>
+		status: account_status <<DEFAULT>>
+		search_vector: tsvector <<NULLABLE>>
+		created_at: timestamp with time zone <<DEFAULT>>
+		updated_at: timestamp with time zone <<DEFAULT>>
+		last_login_at: timestamp with time zone <<NULLABLE>>
+		login_count: integer <<DEFAULT>>
+		failed_login_count: integer <<DEFAULT>>
+		locked_until: timestamp with time zone <<NULLABLE>>
+	}
+
+	entity "user_mfa" {
+		**id: uuid** <<DEFAULT>>
+		--
+		user_id: uuid <<FK>>
+		method: mfa_method
+		secret_encrypted: bytea <<NULLABLE>>
+		backup_codes: text[] <<NULLABLE>>
+		is_primary: boolean <<DEFAULT>>
+		is_verified: boolean <<DEFAULT>>
+		verified_at: timestamp with time zone <<NULLABLE>>
+		metadata: jsonb <<DEFAULT>>
+		created_at: timestamp with time zone <<DEFAULT>>
+		last_used_at: timestamp with time zone <<NULLABLE>>
+	}
+
+	entity "roles" {
+		**id: integer** <<AUTO_INCREMENT,DEFAULT>>
+		--
+		code: character varying(50) <<UNIQUE>>
+		name: character varying(100)
+		description: text <<NULLABLE>>
+		parent_role_id: integer <<FK,NULLABLE>>
+		is_system_role: boolean <<DEFAULT>>
+		settings: jsonb <<DEFAULT>>
+		created_at: timestamp with time zone <<DEFAULT>>
+		updated_at: timestamp with time zone <<DEFAULT>>
+	}
+
+	entity "permissions" {
+		**id: integer** <<AUTO_INCREMENT,DEFAULT>>
+		--
+		code: character varying(100) <<UNIQUE>>
+		name: character varying(200)
+		description: text <<NULLABLE>>
+		categories: text[] <<DEFAULT>>
+		resource: character varying(50) <<UNIQUE>>
+		action: character varying(50) <<UNIQUE>>
+		created_at: timestamp with time zone <<DEFAULT>>
+	}
+
+	entity "role_permissions" {
+		**role_id: integer** <<FK>>
+		**permission_id: integer** <<FK>>
+		--
+		conditions: jsonb <<NULLABLE>>
+		granted_at: timestamp with time zone <<DEFAULT>>
+		granted_by: uuid <<FK,NULLABLE>>
+	}
+
+	entity "user_roles" {
+		**user_id: uuid** <<FK>>
+		**role_id: integer** <<FK>>
+		**organization_id: uuid** <<FK>>
+		--
+		valid_from: timestamp with time zone <<DEFAULT>>
+		valid_until: timestamp with time zone <<NULLABLE,CHECK>>
+		assigned_at: timestamp with time zone <<DEFAULT>>
+		assigned_by: uuid <<FK,NULLABLE>>
+	}
+
+	entity "sessions" {
+		**id: uuid** <<DEFAULT>>
+		--
+		user_id: uuid <<FK>>
+		token_hash: character varying(64) <<UNIQUE>>
+		metadata: jsonb <<DEFAULT>>
+		created_at: timestamp with time zone <<DEFAULT>>
+		expires_at: timestamp with time zone <<CHECK>>
+		last_activity: timestamp with time zone <<DEFAULT>>
+		revoked_at: timestamp with time zone <<NULLABLE>>
+		revoked_reason: character varying(100) <<NULLABLE>>
+	}
+
+}
+
+package "core" {
+	entity "project_status" <<enum>> {
+		planning
+		active
+		on_hold
+		completed
+		archived
+		cancelled
+	}
+
+	entity "priority_level" <<enum>> {
+		critical
+		high
+		medium
+		low
+		none
+	}
+
+	entity "task_status" <<enum>> {
+		backlog
+		todo
+		in_progress
+		in_review
+		blocked
+		done
+		cancelled
+	}
+
+	entity "subscription_tier" <<enum>> {
+		free
+		starter
+		professional
+		enterprise
+		custom
+	}
+
+	entity "organizations" {
+		**id: uuid** <<DEFAULT>>
+		--
+		name: character varying(200)
+		slug: character varying(100) <<UNIQUE,CHECK>>
+		billing_address: address_type <<NULLABLE>>
+		subscription_tier: subscription_tier <<DEFAULT>>
+		subscription_data: jsonb <<DEFAULT>>
+		settings: jsonb <<DEFAULT>>
+		allowed_domains: text[] <<DEFAULT>>
+		search_vector: tsvector <<NULLABLE>>
+		created_at: timestamp with time zone <<DEFAULT>>
+		updated_at: timestamp with time zone <<DEFAULT>>
+		created_by: uuid <<FK,NULLABLE>>
+		deleted_at: timestamp with time zone <<NULLABLE>>
+	}
+
+	entity "organization_members" {
+		**organization_id: uuid** <<FK>>
+		**user_id: uuid** <<FK>>
+		--
+		display_name: character varying(100) <<NULLABLE>>
+		role: character varying(50) <<DEFAULT>>
+		permissions_override: jsonb <<NULLABLE>>
+		invited_at: timestamp with time zone <<DEFAULT>>
+		invited_by: uuid <<FK,NULLABLE>>
+		accepted_at: timestamp with time zone <<NULLABLE>>
+		is_active: boolean <<DEFAULT>>
+	}
+
+	entity "projects" {
+		**id: uuid** <<DEFAULT>>
+		--
+		organization_id: uuid <<FK>>
+		key: character varying(10) <<UNIQUE>>
+		name: character varying(200)
+		description: text <<NULLABLE>>
+		status: project_status <<DEFAULT>>
+		lead_id: uuid <<FK,NULLABLE>>
+		start_date: date <<NULLABLE>>
+		target_end_date: date <<NULLABLE,CHECK>>
+		actual_end_date: date <<NULLABLE,CHECK>>
+		tags: text[] <<DEFAULT>>
+		color: character(7) <<DEFAULT,CHECK,NULLABLE>>
+		custom_fields: jsonb <<DEFAULT>>
+		settings: jsonb <<DEFAULT>>
+		search_vector: tsvector <<NULLABLE>>
+		created_at: timestamp with time zone <<DEFAULT>>
+		updated_at: timestamp with time zone <<DEFAULT>>
+		created_by: uuid <<FK,NULLABLE>>
+		archived_at: timestamp with time zone <<NULLABLE>>
+	}
+
+	entity "tasks" {
+		**id: uuid** <<DEFAULT>>
+		--
+		project_id: uuid <<FK>>
+		task_number: integer <<UNIQUE>>
+		title: character varying(500)
+		description: text <<NULLABLE>>
+		status: task_status <<DEFAULT>>
+		priority: priority_level <<DEFAULT>>
+		assignee_ids: uuid[] <<DEFAULT>>
+		reporter_id: uuid <<FK,NULLABLE>>
+		parent_task_id: uuid <<FK,NULLABLE>>
+		path: uuid[] <<DEFAULT>>
+		depth: integer <<DEFAULT>>
+		due_date: timestamp with time zone <<NULLABLE>>
+		started_at: timestamp with time zone <<NULLABLE>>
+		completed_at: timestamp with time zone <<NULLABLE>>
+		estimated_minutes: integer <<NULLABLE,CHECK>>
+		logged_minutes: integer <<DEFAULT,CHECK>>
+		remaining_minutes: integer <<DEFAULT,NULLABLE>>
+		story_points: smallint <<NULLABLE,CHECK>>
+		labels: text[] <<DEFAULT>>
+		custom_fields: jsonb <<DEFAULT>>
+		search_vector: tsvector <<NULLABLE>>
+		created_at: timestamp with time zone <<DEFAULT>>
+		updated_at: timestamp with time zone <<DEFAULT>>
+		created_by: uuid <<FK,NULLABLE>>
+	}
+
+	entity "task_dependencies" {
+		**predecessor_id: uuid** <<FK,CHECK>>
+		**successor_id: uuid** <<FK>>
+		--
+		dependency_type: character varying(20) <<DEFAULT,CHECK>>
+		lag_days: integer <<DEFAULT>>
+		created_at: timestamp with time zone <<DEFAULT>>
+		created_by: uuid <<FK,NULLABLE>>
+	}
+
+	entity "time_entries" {
+		**id: uuid** <<DEFAULT>>
+		--
+		task_id: uuid <<FK>>
+		user_id: uuid <<FK>>
+		started_at: timestamp with time zone
+		ended_at: timestamp with time zone <<NULLABLE,CHECK>>
+		duration_minutes: integer <<DEFAULT,NULLABLE>>
+		description: text <<NULLABLE>>
+		is_billable: boolean <<DEFAULT>>
+		billing_rate: money_amount <<NULLABLE>>
+		created_at: timestamp with time zone <<DEFAULT>>
+		updated_at: timestamp with time zone <<DEFAULT>>
+	}
+
+	entity "resource_bookings" {
+		**id: uuid** <<DEFAULT>>
+		--
+		resource_type: character varying(50)
+		resource_id: uuid
+		booked_by: uuid <<FK>>
+		organization_id: uuid <<FK>>
+		booking_start: timestamp with time zone
+		booking_end: timestamp with time zone <<CHECK>>
+		booking_range: tstzrange <<DEFAULT>>
+		title: character varying(200)
+		description: text <<NULLABLE>>
+		recurrence: jsonb <<NULLABLE>>
+		created_at: timestamp with time zone <<DEFAULT>>
+	}
+
+	entity "comments" {
+		**id: uuid** <<DEFAULT>>
+		--
+		entity_type: character varying(50) <<CHECK>>
+		entity_id: uuid
+		content: text <<CHECK>>
+		content_html: text <<NULLABLE>>
+		search_vector: tsvector <<NULLABLE>>
+		parent_id: uuid <<FK,NULLABLE>>
+		mentioned_user_ids: uuid[] <<DEFAULT>>
+		reactions: jsonb <<DEFAULT>>
+		author_id: uuid <<FK>>
+		is_edited: boolean <<DEFAULT>>
+		edited_at: timestamp with time zone <<NULLABLE>>
+		created_at: timestamp with time zone <<DEFAULT>>
+		updated_at: timestamp with time zone <<DEFAULT>>
+		deleted_at: timestamp with time zone <<NULLABLE>>
+	}
+
+}
+
+package "analytics" {
+	entity "daily_project_stats" {
+		**id: bigint** <<AUTO_INCREMENT>>
+		**stat_date: date**
+		**project_id: uuid**
+		--
+		organization_id: uuid
+		tasks_backlog: integer <<DEFAULT>>
+		tasks_todo: integer <<DEFAULT>>
+		tasks_in_progress: integer <<DEFAULT>>
+		tasks_in_review: integer <<DEFAULT>>
+		tasks_blocked: integer <<DEFAULT>>
+		tasks_done: integer <<DEFAULT>>
+		tasks_cancelled: integer <<DEFAULT>>
+		tasks_total: integer <<DEFAULT>>
+		tasks_completed_pct: numeric <<NULLABLE>>
+		story_points_total: integer <<NULLABLE>>
+		story_points_completed: integer <<NULLABLE>>
+		estimated_minutes: bigint <<NULLABLE>>
+		logged_minutes: bigint <<NULLABLE>>
+		active_member_count: integer <<DEFAULT>>
+		active_member_ids: uuid[] <<DEFAULT>>
+		computed_at: timestamp with time zone <<DEFAULT>>
+	}
+
+	entity "user_activity_summary" {
+		**user_id: uuid** <<FK>>
+		**period_start: date**
+		**period_type: character varying(10)**
+		--
+		tasks_created: integer <<DEFAULT>>
+		tasks_completed: integer <<DEFAULT>>
+		comments_posted: integer <<DEFAULT>>
+		time_entries_count: integer <<DEFAULT>>
+		minutes_logged: integer <<DEFAULT>>
+		active_project_ids: uuid[] <<DEFAULT>>
+		activity_breakdown: jsonb <<DEFAULT>>
+		computed_at: timestamp with time zone <<DEFAULT>>
+	}
+
+}
+
+package "audit" {
+	entity "action_type" <<enum>> {
+		create
+		read
+		update
+		delete
+		login
+		logout
+		permission_change
+		export
+		bulk_operation
+	}
+
+	entity "audit_log" {
+		**id: bigint** <<AUTO_INCREMENT>>
+		**event_time: timestamp with time zone**
+		--
+		user_id: uuid <<NULLABLE>>
+		session_id: uuid <<NULLABLE>>
+		ip_address: inet <<NULLABLE>>
+		user_agent: text <<NULLABLE>>
+		organization_id: uuid <<NULLABLE>>
+		action: action_type
+		entity_type: character varying(100)
+		entity_id: text
+		old_values: jsonb <<NULLABLE>>
+		new_values: jsonb <<NULLABLE>>
+		changed_fields: text[] <<DEFAULT>>
+		context: jsonb <<DEFAULT>>
+		request_id: uuid <<NULLABLE>>
+		correlation_id: uuid <<NULLABLE>>
+	}
+
+	entity "entity_changes" {
+		**id: bigint** <<AUTO_INCREMENT>>
+		--
+		entity_type: character varying(100)
+		entity_id: uuid
+		version: integer <<DEFAULT>>
+		changed_at: timestamp with time zone <<DEFAULT>>
+		changed_by: uuid <<FK,NULLABLE>>
+		change_type: character varying(20)
+		data_snapshot: jsonb
+	}
+
+	entity "task_changes" {
+		**id: bigint** <<AUTO_INCREMENT>>
+		--
+		entity_type: character varying(100) <<CHECK>>
+		entity_id: uuid
+		version: integer <<DEFAULT>>
+		changed_at: timestamp with time zone <<DEFAULT>>
+		changed_by: uuid <<FK,NULLABLE>>
+		change_type: character varying(20)
+		data_snapshot: jsonb
+		project_id: uuid
+		task_number: integer
+		status_before: task_status <<NULLABLE>>
+		status_after: task_status <<NULLABLE>>
+	}
+
+	entity "project_changes" {
+		**id: bigint** <<AUTO_INCREMENT>>
+		--
+		entity_type: character varying(100) <<CHECK>>
+		entity_id: uuid
+		version: integer <<DEFAULT>>
+		changed_at: timestamp with time zone <<DEFAULT>>
+		changed_by: uuid <<FK,NULLABLE>>
+		change_type: character varying(20)
+		data_snapshot: jsonb
+		organization_id: uuid
+		status_before: project_status <<NULLABLE>>
+		status_after: project_status <<NULLABLE>>
+	}
+
+	entity "access_log" {
+		**id: bigint** <<AUTO_INCREMENT>>
+		--
+		event_time: timestamp with time zone <<DEFAULT>>
+		user_id: uuid <<FK,NULLABLE>>
+		session_id: uuid <<NULLABLE>>
+		client_ip: inet
+		client_ip_network: cidr <<NULLABLE>>
+		request_method: character varying(10)
+		request_path: text
+		request_query: jsonb <<NULLABLE>>
+		response_status: smallint
+		response_time_ms: integer
+		geo_country: character(2) <<NULLABLE>>
+		geo_region: character varying(100) <<NULLABLE>>
+		geo_city: character varying(100) <<NULLABLE>>
+		geo_coordinates: point <<NULLABLE>>
+		risk_score: smallint <<NULLABLE>>
+		risk_factors: text[] <<NULLABLE>>
+		metadata: jsonb <<DEFAULT>>
+	}
+
+}
+
+roles ||--o{ roles
+
+users ||--|{ user_mfa
+users ||--|{ sessions
+users ||--o{ role_permissions
+users ||--|{ user_roles
+users ||--o{ user_roles
+
+permissions ||--|{ role_permissions
+
+roles ||--|{ role_permissions
+roles ||--|{ user_roles
+
+organizations ||--|{ user_roles
+organizations ||--|{ organization_members
+organizations ||--|{ projects
+
+users ||--|{ organization_members
+users ||--o{ organization_members
+users ||--o{ organizations
+users ||--o{ projects
+users ||--o{ projects
+users ||--|{ resource_bookings
+users ||--|{ comments
+users ||--o{ tasks
+users ||--o{ tasks
+users ||--o{ task_dependencies
+
+projects ||--|{ tasks
+
+tasks ||--o{ tasks
+tasks ||--|{ task_dependencies
+tasks ||--|{ task_dependencies
+tasks ||--|{ time_entries
+
+users ||--|{ time_entries
+
+organizations ||--|{ resource_bookings
+
+comments ||--o{ comments
+
+auth.users ||--|{ analytics.user_activity_summary
+
+auth.users ||--|{ audit.entity_changes
+auth.users ||--|{ audit.task_changes
+auth.users ||--|{ audit.project_changes
+auth.users ||--|{ audit.access_log
+
+@enduml
