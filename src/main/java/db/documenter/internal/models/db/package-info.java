@@ -34,7 +34,6 @@
  * <p><b>Immutability:</b> All models are immutable records with defensive copying of mutable
  * collections. This ensures thread-safety and prevents accidental modification.
  *
- *
  * <p><b>Builder Pattern:</b> All models provide fluent builder APIs for convenient construction.
  * Builders do not provide default values - all required fields must be explicitly set.
  *
