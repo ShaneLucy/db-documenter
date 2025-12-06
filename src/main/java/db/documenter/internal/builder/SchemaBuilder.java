@@ -39,6 +39,9 @@ public final class SchemaBuilder {
    * @return list of {@link Schema} instances
    * @throws SQLException if database access fails
    */
+  // Object array is only created when logging is enabled (guarded by isLoggable).
+  // This is standard Java logging pattern for parameterized messages.
+  @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
   public List<Schema> buildSchemas(final List<String> schemaNames) throws SQLException {
     final List<Schema> result = new ArrayList<>();
 

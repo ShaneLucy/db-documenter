@@ -9,10 +9,14 @@ import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
 import java.util.List;
+import org.gaul.modernizer_maven_annotations.SuppressModernizer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+// Modernizer is flagging Prefer java.util.Optional.orElseThrow
+// but for tests classes this isn't as clean
+@SuppressModernizer
 class TableMapperTest {
 
   private TableMapper tableMapper;
@@ -50,7 +54,7 @@ class TableMapperTest {
       assertEquals(1, result.columns().size());
       assertEquals("id", result.columns().getFirst().name());
       assertTrue(result.primaryKey().isPresent());
-      assertEquals(List.of("id"), result.primaryKey().get().columnNames());
+      assertEquals(List.of("id"), result.primaryKey().map(PrimaryKey::columnNames).orElseThrow());
       assertEquals(1, result.foreignKeys().size());
       assertEquals("fk_user", result.foreignKeys().getFirst().name());
     }

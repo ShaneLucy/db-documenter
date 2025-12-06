@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="db-documenter-ruleset"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>Custom PMD ruleset for db-documenter project</description>
+
+    <!-- Best Practices -->
+    <rule ref="category/java/bestpractices.xml"/>
+
+    <!-- Design -->
+    <rule ref="category/java/design.xml"/>
+
+    <!-- Error Prone -->
+    <rule ref="category/java/errorprone.xml">
+        <!-- Exclude AvoidFieldNameMatchingMethodName - False positive for Builder pattern -->
+        <!-- In fluent builder APIs, fields MUST match method names (e.g., field 'name' has method 'name()') -->
+        <exclude name="AvoidFieldNameMatchingMethodName"/>
+
+        <!-- Exclude AvoidDuplicateLiterals - Low priority, creates noise -->
+        <!-- String literals like "column_name" in validation messages are intentionally repeated for clarity -->
+        <exclude name="AvoidDuplicateLiterals"/>
+    </rule>
+
+    <!-- Multithreading -->
+    <rule ref="category/java/multithreading.xml"/>
+
+    <!-- Performance -->
+    <rule ref="category/java/performance.xml"/>
+
+    <!-- Security -->
+    <rule ref="category/java/security.xml"/>
+
+</ruleset>

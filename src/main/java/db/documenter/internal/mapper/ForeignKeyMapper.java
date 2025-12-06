@@ -24,19 +24,19 @@ public final class ForeignKeyMapper {
                       .filter(column -> column.name().equals(foreignKey.sourceColumn()))
                       .findFirst();
 
-              if (optionalColumn.isEmpty()) {
-                return foreignKey;
-              }
-
-              return ForeignKey.builder()
-                  .name(foreignKey.name())
-                  .sourceTable(foreignKey.sourceTable())
-                  .sourceColumn(foreignKey.sourceColumn())
-                  .targetTable(foreignKey.targetTable())
-                  .targetColumn(foreignKey.targetColumn())
-                  .referencedSchema(foreignKey.referencedSchema())
-                  .isNullable(optionalColumn.get().isNullable())
-                  .build();
+              return optionalColumn
+                  .map(
+                      column ->
+                          ForeignKey.builder()
+                              .name(foreignKey.name())
+                              .sourceTable(foreignKey.sourceTable())
+                              .sourceColumn(foreignKey.sourceColumn())
+                              .targetTable(foreignKey.targetTable())
+                              .targetColumn(foreignKey.targetColumn())
+                              .referencedSchema(foreignKey.referencedSchema())
+                              .isNullable(column.isNullable())
+                              .build())
+                  .orElse(foreignKey);
             })
         .toList();
   }

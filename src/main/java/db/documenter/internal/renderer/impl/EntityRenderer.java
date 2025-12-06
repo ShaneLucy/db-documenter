@@ -34,7 +34,7 @@ public final class EntityRenderer implements PumlRenderer<Table> {
     primaryKeyColumns.forEach(
         column -> {
           final var formattedLine = lineFormatter.format(table, column, null);
-          stringBuilder.append("\t\t").append(formattedLine).append("\n");
+          stringBuilder.append("\t\t").append(formattedLine).append('\n');
         });
 
     if (!primaryKeyColumns.isEmpty() && !nonPrimaryKeyColumns.isEmpty()) {
@@ -44,7 +44,7 @@ public final class EntityRenderer implements PumlRenderer<Table> {
     nonPrimaryKeyColumns.forEach(
         column -> {
           final var formattedLine = lineFormatter.format(table, column, null);
-          stringBuilder.append("\t\t").append(formattedLine).append("\n");
+          stringBuilder.append("\t\t").append(formattedLine).append('\n');
         });
 
     stringBuilder.append("\t}\n");

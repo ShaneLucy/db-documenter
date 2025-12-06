@@ -41,9 +41,9 @@ public final class RelationshipRenderer implements PumlRenderer<Schema> {
             entry -> {
               for (final ForeignKey fk : entry.getValue()) {
                 final var formattedLine = multiplicityFormatter.format(fk, schema.name(), null);
-                stringBuilder.append(formattedLine).append("\n");
+                stringBuilder.append(formattedLine).append('\n');
               }
-              stringBuilder.append("\n");
+              stringBuilder.append('\n');
             });
 
     return stringBuilder.toString();

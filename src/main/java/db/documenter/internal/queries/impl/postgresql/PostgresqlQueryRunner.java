@@ -147,16 +147,17 @@ public final class PostgresqlQueryRunner implements QueryRunner {
         connectionHolder.connection().prepareStatement(GET_TABLE_INFO_QUERY)) {
       postgresqlPreparedStatementMapper.prepareTableInfoStatement(preparedStatement, schema);
 
-      final var resultSet = preparedStatement.executeQuery();
-      final List<Table> tables = postgresqlResultSetMapper.mapToTables(resultSet);
+      try (final var resultSet = preparedStatement.executeQuery()) {
+        final List<Table> tables = postgresqlResultSetMapper.mapToTables(resultSet);
 
-      if (LOGGER.isLoggable(Level.INFO)) {
-        LOGGER.log(
-            Level.INFO,
-            "Discovered: {0} tables in schema: {1}",
-            new Object[] {tables.size(), LogUtils.sanitizeForLog(schema)});
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Discovered: {0} tables in schema: {1}",
+              new Object[] {tables.size(), LogUtils.sanitizeForLog(schema)});
+        }
+        return tables;
       }
-      return tables;
     }
   }
 
@@ -167,18 +168,21 @@ public final class PostgresqlQueryRunner implements QueryRunner {
       postgresqlPreparedStatementMapper.prepareColumnInfoStatement(
           preparedStatement, schema, table.name());
 
-      final var resultSet = preparedStatement.executeQuery();
-      final List<Column> columns = postgresqlResultSetMapper.mapToColumns(resultSet);
+      try (final var resultSet = preparedStatement.executeQuery()) {
+        final List<Column> columns = postgresqlResultSetMapper.mapToColumns(resultSet);
 
-      if (LOGGER.isLoggable(Level.INFO)) {
-        LOGGER.log(
-            Level.INFO,
-            "Discovered: {0} columns for table: {1} in schema: {2}",
-            new Object[] {
-              columns.size(), LogUtils.sanitizeForLog(table.name()), LogUtils.sanitizeForLog(schema)
-            });
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Discovered: {0} columns for table: {1} in schema: {2}",
+              new Object[] {
+                columns.size(),
+                LogUtils.sanitizeForLog(table.name()),
+                LogUtils.sanitizeForLog(schema)
+              });
+        }
+        return columns;
       }
-      return columns;
     }
   }
 
@@ -189,9 +193,9 @@ public final class PostgresqlQueryRunner implements QueryRunner {
       postgresqlPreparedStatementMapper.preparePrimaryKeyInfoStatement(
           preparedStatement, schema, table);
 
-      final var resultSet = preparedStatement.executeQuery();
-
-      return postgresqlResultSetMapper.mapToPrimaryKey(resultSet);
+      try (final var resultSet = preparedStatement.executeQuery()) {
+        return postgresqlResultSetMapper.mapToPrimaryKey(resultSet);
+      }
     }
   }
 
@@ -203,21 +207,21 @@ public final class PostgresqlQueryRunner implements QueryRunner {
       postgresqlPreparedStatementMapper.prepareForeignKeyInfoStatement(
           preparedStatement, schema, table);
 
-      final var resultSet = preparedStatement.executeQuery();
+      try (final var resultSet = preparedStatement.executeQuery()) {
+        final List<ForeignKey> foreignKeys = postgresqlResultSetMapper.mapToForeignKeys(resultSet);
 
-      final List<ForeignKey> foreignKeys = postgresqlResultSetMapper.mapToForeignKeys(resultSet);
-
-      if (LOGGER.isLoggable(Level.INFO)) {
-        LOGGER.log(
-            Level.INFO,
-            "Discovered: {0} foreign keys for table: {1} in schema: {2}",
-            new Object[] {
-              foreignKeys.size(),
-              LogUtils.sanitizeForLog(table.name()),
-              LogUtils.sanitizeForLog(schema)
-            });
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Discovered: {0} foreign keys for table: {1} in schema: {2}",
+              new Object[] {
+                foreignKeys.size(),
+                LogUtils.sanitizeForLog(table.name()),
+                LogUtils.sanitizeForLog(schema)
+              });
+        }
+        return foreignKeys;
       }
-      return foreignKeys;
     }
   }
 
@@ -227,18 +231,18 @@ public final class PostgresqlQueryRunner implements QueryRunner {
         connectionHolder.connection().prepareStatement(GET_ENUMS_QUERY)) {
       postgresqlPreparedStatementMapper.prepareEnumInfoStatement(preparedStatement, schema);
 
-      final var resultSet = preparedStatement.executeQuery();
+      try (final var resultSet = preparedStatement.executeQuery()) {
+        final List<DbEnum> dbEnums = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
 
-      final List<DbEnum> dbEnums = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Discovered: {0} enums in schema: {1}",
+              new Object[] {dbEnums.size(), LogUtils.sanitizeForLog(schema)});
+        }
 
-      if (LOGGER.isLoggable(Level.INFO)) {
-        LOGGER.log(
-            Level.INFO,
-            "Discovered: {0} enums in schema: {1}",
-            new Object[] {dbEnums.size(), LogUtils.sanitizeForLog(schema)});
+        return dbEnums;
       }
-
-      return dbEnums;
     }
   }
 
@@ -249,22 +253,22 @@ public final class PostgresqlQueryRunner implements QueryRunner {
       postgresqlPreparedStatementMapper.prepareEnumValuesStatement(
           preparedStatement, schema, dbEnum.enumName());
 
-      final var resultSet = preparedStatement.executeQuery();
+      try (final var resultSet = preparedStatement.executeQuery()) {
+        final List<String> dbEnumValues = postgresqlResultSetMapper.mapToDbEnumValues(resultSet);
 
-      final List<String> dbEnumValues = postgresqlResultSetMapper.mapToDbEnumValues(resultSet);
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Discovered: {0} values for enum {1} in schema: {2}",
+              new Object[] {
+                dbEnumValues.size(),
+                LogUtils.sanitizeForLog(dbEnum.enumName()),
+                LogUtils.sanitizeForLog(schema)
+              });
+        }
 
-      if (LOGGER.isLoggable(Level.INFO)) {
-        LOGGER.log(
-            Level.INFO,
-            "Discovered: {0} values for enum {1} in schema: {2}",
-            new Object[] {
-              dbEnumValues.size(),
-              LogUtils.sanitizeForLog(dbEnum.enumName()),
-              LogUtils.sanitizeForLog(schema)
-            });
+        return dbEnumValues;
       }
-
-      return dbEnumValues;
     }
   }
 

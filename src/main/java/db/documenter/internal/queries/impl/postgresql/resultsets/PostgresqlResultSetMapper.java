@@ -110,6 +110,11 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
   }
 
   @Override
+  // ArrayList is only created when a new enum name is encountered, not every iteration.
+  // This is idiomatic Java for grouping data by key.
+  // PMD wants ConcurrentHashMap, but this is a local variable with no concurrent access.
+  // LinkedHashMap is correct for preserving insertion order.
+  @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseConcurrentHashMap"})
   public List<DbEnum> mapToDbEnumInfo(final ResultSet resultSet) throws SQLException {
     final Map<String, List<String>> enumToColumns = new LinkedHashMap<>();
 

@@ -28,9 +28,8 @@ public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
       LOGGER.log(Level.INFO, "Rendering PlantUML output");
     }
 
-    final var stringBuilder = new StringBuilder();
-    stringBuilder.append("@startuml\n");
-    stringBuilder.append("hide methods\nhide stereotypes\n\n");
+    final var stringBuilder = new StringBuilder(256);
+    stringBuilder.append("@startuml\nhide methods\nhide stereotypes\n\n");
 
     schemas.forEach(
         schema -> {
@@ -38,11 +37,11 @@ public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
 
           schema
               .dbEnums()
-              .forEach(dbEnum -> stringBuilder.append(enumRenderer.render(dbEnum)).append("\n"));
+              .forEach(dbEnum -> stringBuilder.append(enumRenderer.render(dbEnum)).append('\n'));
 
           schema
               .tables()
-              .forEach(table -> stringBuilder.append(entityRenderer.render(table)).append("\n"));
+              .forEach(table -> stringBuilder.append(entityRenderer.render(table)).append('\n'));
 
           logSchemaInfo(schema);
           stringBuilder.append("}\n\n");
