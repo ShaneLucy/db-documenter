@@ -10,7 +10,7 @@ public final class ConstraintEntityLineFormatter implements EntityLineFormatter 
 
   @Override
   public String format(final Table table, final Column column, final String current) {
-    if (column.constraints() == null || column.constraints().isEmpty()) {
+    if (column.constraints().isEmpty()) {
       return current;
     }
 

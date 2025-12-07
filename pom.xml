@@ -32,6 +32,7 @@
     <checkstyle.version>3.6.0</checkstyle.version>
     <jspecify.version>1.0.0</jspecify.version>
     <spotbugs.version>4.9.8.1</spotbugs.version>
+    <spotbugs-annotations.version>4.9.8</spotbugs-annotations.version>
     <pmd.version>3.28.0</pmd.version>
     <spotless.version>3.1.0</spotless.version>
     <findsecbugs.version>1.13.0</findsecbugs.version>
@@ -43,6 +44,12 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+      <version>${spotbugs-annotations.version}</version>
+      <scope>compile</scope>
+    </dependency>
     <!-- Annotations -->
     <dependency>
       <groupId>org.jspecify</groupId>
@@ -51,6 +58,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <!-- Test -->
       <groupId>org.gaul</groupId>
       <artifactId>modernizer-maven-annotations</artifactId>
       <version>${modernizer.version}</version>
@@ -80,8 +88,6 @@
       <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
-
-    <!-- Test -->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
@@ -291,6 +297,19 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${maven-javadoc.version}</version>
+        <configuration>
+          <additionalOptions>
+            <additionalOption>--add-reads</additionalOption>
+            <additionalOption>db.documenter=ALL-UNNAMED</additionalOption>
+          </additionalOptions>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-annotations</artifactId>
+            <version>${spotbugs-annotations.version}</version>
+          </dependency>
+        </dependencies>
         <executions>
           <!-- Public API Documentation -->
           <execution>
@@ -321,8 +340,12 @@
               <sourcepath>${project.build.sourceDirectory}</sourcepath>
               <subpackages>db.documenter</subpackages>
               <additionalOptions>
+                <additionalOption>--add-modules</additionalOption>
+                <additionalOption>com.github.spotbugs.annotations</additionalOption>
                 <additionalOption>--add-reads</additionalOption>
                 <additionalOption>db.documenter=ALL-UNNAMED</additionalOption>
+                <additionalOption>--add-reads</additionalOption>
+                <additionalOption>db.documenter=com.github.spotbugs.annotations</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
                 <additionalOption>db.documenter/db.documenter.internal.api=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>

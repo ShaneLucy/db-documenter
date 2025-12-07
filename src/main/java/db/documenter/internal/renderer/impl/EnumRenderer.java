@@ -3,7 +3,7 @@ package db.documenter.internal.renderer.impl;
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.renderer.api.PumlRenderer;
 
-public class EnumRenderer implements PumlRenderer<DbEnum> {
+public final class EnumRenderer implements PumlRenderer<DbEnum> {
 
   @Override
   public String render(final DbEnum dbEnum) {

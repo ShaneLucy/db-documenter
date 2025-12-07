@@ -45,7 +45,7 @@ public final class PostgresqlPreparedStatementMapper implements PreparedStatemen
 
   @Override
   public void prepareEnumValuesStatement(
-      PreparedStatement preparedStatement, final String schema, final String enumName)
+      final PreparedStatement preparedStatement, final String schema, final String enumName)
       throws SQLException {
     preparedStatement.setString(1, schema);
     preparedStatement.setString(2, enumName);

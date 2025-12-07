@@ -1,10 +1,15 @@
 package db.documenter.internal.queries.impl.postgresql;
 
-import db.documenter.internal.models.db.*;
+import db.documenter.internal.models.db.Column;
+import db.documenter.internal.models.db.DbEnum;
+import db.documenter.internal.models.db.ForeignKey;
+import db.documenter.internal.models.db.PrimaryKey;
+import db.documenter.internal.models.db.Table;
 import db.documenter.internal.queries.api.PreparedStatementMapper;
 import db.documenter.internal.queries.api.QueryRunner;
 import db.documenter.internal.queries.api.ResultSetMapper;
 import db.documenter.internal.utils.LogUtils;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -15,7 +20,12 @@ public final class PostgresqlQueryRunner implements QueryRunner {
 
   private final PreparedStatementMapper postgresqlPreparedStatementMapper;
   private final ResultSetMapper postgresqlResultSetMapper;
-  private final ConnectionHolder connectionHolder;
+
+  @SuppressFBWarnings(
+      value = "EI_EXPOSE_REP2",
+      justification =
+          "Connection lifecycle managed by caller (SchemaBuilder) via try-with-resources. Field is final and private.")
+  private final Connection connection;
 
   private static final Logger LOGGER = Logger.getLogger(PostgresqlQueryRunner.class.getName());
 
@@ -138,13 +148,12 @@ public final class PostgresqlQueryRunner implements QueryRunner {
       final Connection connection) {
     this.postgresqlPreparedStatementMapper = postgresqlPreparedStatementMapper;
     this.postgresqlResultSetMapper = postgresqlResultSetMapper;
-    this.connectionHolder = new ConnectionHolder(connection);
+    this.connection = connection;
   }
 
   @Override
   public List<Table> getTableInfo(final String schema) throws SQLException {
-    try (final var preparedStatement =
-        connectionHolder.connection().prepareStatement(GET_TABLE_INFO_QUERY)) {
+    try (final var preparedStatement = connection.prepareStatement(GET_TABLE_INFO_QUERY)) {
       postgresqlPreparedStatementMapper.prepareTableInfoStatement(preparedStatement, schema);
 
       try (final var resultSet = preparedStatement.executeQuery()) {
@@ -163,8 +172,7 @@ public final class PostgresqlQueryRunner implements QueryRunner {
 
   @Override
   public List<Column> getColumnInfo(final String schema, final Table table) throws SQLException {
-    try (final var preparedStatement =
-        connectionHolder.connection().prepareStatement(GET_COLUMN_INFO_QUERY)) {
+    try (final var preparedStatement = connection.prepareStatement(GET_COLUMN_INFO_QUERY)) {
       postgresqlPreparedStatementMapper.prepareColumnInfoStatement(
           preparedStatement, schema, table.name());
 
@@ -188,8 +196,7 @@ public final class PostgresqlQueryRunner implements QueryRunner {
 
   @Override
   public PrimaryKey getPrimaryKeyInfo(final String schema, final Table table) throws SQLException {
-    try (final var preparedStatement =
-        connectionHolder.connection().prepareStatement(GET_PRIMARY_KEY_INFO_QUERY)) {
+    try (final var preparedStatement = connection.prepareStatement(GET_PRIMARY_KEY_INFO_QUERY)) {
       postgresqlPreparedStatementMapper.preparePrimaryKeyInfoStatement(
           preparedStatement, schema, table);
 
@@ -202,8 +209,7 @@ public final class PostgresqlQueryRunner implements QueryRunner {
   @Override
   public List<ForeignKey> getForeignKeyInfo(final String schema, final Table table)
       throws SQLException {
-    try (final var preparedStatement =
-        connectionHolder.connection().prepareStatement(GET_FOREIGN_KEY_INFO)) {
+    try (final var preparedStatement = connection.prepareStatement(GET_FOREIGN_KEY_INFO)) {
       postgresqlPreparedStatementMapper.prepareForeignKeyInfoStatement(
           preparedStatement, schema, table);
 
@@ -227,8 +233,7 @@ public final class PostgresqlQueryRunner implements QueryRunner {
 
   @Override
   public List<DbEnum> getEnumInfo(final String schema) throws SQLException {
-    try (final var preparedStatement =
-        connectionHolder.connection().prepareStatement(GET_ENUMS_QUERY)) {
+    try (final var preparedStatement = connection.prepareStatement(GET_ENUMS_QUERY)) {
       postgresqlPreparedStatementMapper.prepareEnumInfoStatement(preparedStatement, schema);
 
       try (final var resultSet = preparedStatement.executeQuery()) {
@@ -248,8 +253,7 @@ public final class PostgresqlQueryRunner implements QueryRunner {
 
   @Override
   public List<String> getEnumValues(final String schema, final DbEnum dbEnum) throws SQLException {
-    try (final var preparedStatement =
-        connectionHolder.connection().prepareStatement(GET_ENUM_FIELDS_QUERY)) {
+    try (final var preparedStatement = connection.prepareStatement(GET_ENUM_FIELDS_QUERY)) {
       postgresqlPreparedStatementMapper.prepareEnumValuesStatement(
           preparedStatement, schema, dbEnum.enumName());
 
@@ -268,16 +272,6 @@ public final class PostgresqlQueryRunner implements QueryRunner {
         }
 
         return dbEnumValues;
-      }
-    }
-  }
-
-  private record ConnectionHolder(Connection connection) implements AutoCloseable {
-
-    @Override
-    public void close() throws SQLException {
-      if (connection != null && !connection().isClosed()) {
-        connection().close();
       }
     }
   }
