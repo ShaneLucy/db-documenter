@@ -1177,7 +1177,7 @@ SELECT
     COUNT(DISTINCT CASE WHEN po.status = 'received' THEN po.po_id END) AS completed_orders,
     AVG(CASE
         WHEN po.actual_delivery_date IS NOT NULL AND po.expected_delivery_date IS NOT NULL
-        THEN EXTRACT(DAY FROM (po.actual_delivery_date - po.expected_delivery_date))
+        THEN (po.actual_delivery_date - po.expected_delivery_date)
         ELSE NULL
     END) AS avg_delivery_delay_days,
     SUM(po.total_amount) AS total_purchase_value,

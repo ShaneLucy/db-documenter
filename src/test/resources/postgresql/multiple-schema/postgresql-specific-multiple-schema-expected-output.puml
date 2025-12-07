@@ -29,7 +29,7 @@ package "auth" {
 		password_hash: character varying(255) <<CHECK>>
 		password_changed_at: timestamp with time zone <<DEFAULT>>
 		profile: jsonb <<DEFAULT>>
-		preferred_languages: text[] <<DEFAULT>>
+		preferred_languages: ARRAY <<DEFAULT>>
 		status: account_status <<DEFAULT>>
 		search_vector: tsvector <<NULLABLE>>
 		created_at: timestamp with time zone <<DEFAULT>>
@@ -43,11 +43,11 @@ package "auth" {
 	entity "user_mfa" {
 		**id: uuid** <<DEFAULT>>
 		--
-		user_id: uuid <<FK>>
+		user_id: uuid <<FK,UNIQUE>>
 		method: mfa_method
 		secret_encrypted: bytea <<NULLABLE>>
-		backup_codes: text[] <<NULLABLE>>
-		is_primary: boolean <<DEFAULT>>
+		backup_codes: ARRAY <<NULLABLE>>
+		is_primary: boolean <<UNIQUE,DEFAULT>>
 		is_verified: boolean <<DEFAULT>>
 		verified_at: timestamp with time zone <<NULLABLE>>
 		metadata: jsonb <<DEFAULT>>
@@ -74,7 +74,7 @@ package "auth" {
 		code: character varying(100) <<UNIQUE>>
 		name: character varying(200)
 		description: text <<NULLABLE>>
-		categories: text[] <<DEFAULT>>
+		categories: ARRAY <<DEFAULT>>
 		resource: character varying(50) <<UNIQUE>>
 		action: character varying(50) <<UNIQUE>>
 		created_at: timestamp with time zone <<DEFAULT>>
@@ -92,10 +92,11 @@ package "auth" {
 	entity "user_roles" {
 		**user_id: uuid** <<FK>>
 		**role_id: integer** <<FK>>
-		**organization_id: uuid** <<FK>>
+		**organization_id_key: uuid**
 		--
-		valid_from: timestamp with time zone <<DEFAULT>>
-		valid_until: timestamp with time zone <<NULLABLE,CHECK>>
+		organization_id: uuid <<FK,NULLABLE>>
+		valid_from: timestamp with time zone <<DEFAULT,CHECK>>
+		valid_until: timestamp with time zone <<CHECK,NULLABLE>>
 		assigned_at: timestamp with time zone <<DEFAULT>>
 		assigned_by: uuid <<FK,NULLABLE>>
 	}
@@ -106,7 +107,7 @@ package "auth" {
 		user_id: uuid <<FK>>
 		token_hash: character varying(64) <<UNIQUE>>
 		metadata: jsonb <<DEFAULT>>
-		created_at: timestamp with time zone <<DEFAULT>>
+		created_at: timestamp with time zone <<DEFAULT,CHECK>>
 		expires_at: timestamp with time zone <<CHECK>>
 		last_activity: timestamp with time zone <<DEFAULT>>
 		revoked_at: timestamp with time zone <<NULLABLE>>
@@ -116,6 +117,17 @@ package "auth" {
 }
 
 package "core" {
+	entity "address_type" <<enum>> {
+	}
+
+	entity "subscription_tier" <<enum>> {
+		free
+		starter
+		professional
+		enterprise
+		custom
+	}
+
 	entity "project_status" <<enum>> {
 		planning
 		active
@@ -123,14 +135,6 @@ package "core" {
 		completed
 		archived
 		cancelled
-	}
-
-	entity "priority_level" <<enum>> {
-		critical
-		high
-		medium
-		low
-		none
 	}
 
 	entity "task_status" <<enum>> {
@@ -143,12 +147,18 @@ package "core" {
 		cancelled
 	}
 
-	entity "subscription_tier" <<enum>> {
-		free
-		starter
-		professional
-		enterprise
-		custom
+	entity "priority_level" <<enum>> {
+		critical
+		high
+		medium
+		low
+		none
+	}
+
+	entity "money_amount" <<enum>> {
+	}
+
+	entity "account_status" <<enum>> {
 	}
 
 	entity "organizations" {
@@ -160,7 +170,7 @@ package "core" {
 		subscription_tier: subscription_tier <<DEFAULT>>
 		subscription_data: jsonb <<DEFAULT>>
 		settings: jsonb <<DEFAULT>>
-		allowed_domains: text[] <<DEFAULT>>
+		allowed_domains: ARRAY <<DEFAULT>>
 		search_vector: tsvector <<NULLABLE>>
 		created_at: timestamp with time zone <<DEFAULT>>
 		updated_at: timestamp with time zone <<DEFAULT>>
@@ -184,16 +194,16 @@ package "core" {
 	entity "projects" {
 		**id: uuid** <<DEFAULT>>
 		--
-		organization_id: uuid <<FK>>
+		organization_id: uuid <<FK,UNIQUE>>
 		key: character varying(10) <<UNIQUE>>
 		name: character varying(200)
 		description: text <<NULLABLE>>
 		status: project_status <<DEFAULT>>
 		lead_id: uuid <<FK,NULLABLE>>
-		start_date: date <<NULLABLE>>
-		target_end_date: date <<NULLABLE,CHECK>>
-		actual_end_date: date <<NULLABLE,CHECK>>
-		tags: text[] <<DEFAULT>>
+		start_date: date <<CHECK,NULLABLE>>
+		target_end_date: date <<CHECK,NULLABLE>>
+		actual_end_date: date <<CHECK,NULLABLE>>
+		tags: ARRAY <<DEFAULT>>
 		color: character(7) <<DEFAULT,CHECK,NULLABLE>>
 		custom_fields: jsonb <<DEFAULT>>
 		settings: jsonb <<DEFAULT>>
@@ -207,25 +217,25 @@ package "core" {
 	entity "tasks" {
 		**id: uuid** <<DEFAULT>>
 		--
-		project_id: uuid <<FK>>
+		project_id: uuid <<FK,UNIQUE>>
 		task_number: integer <<UNIQUE>>
 		title: character varying(500)
 		description: text <<NULLABLE>>
-		status: task_status <<DEFAULT>>
+		status: project_status <<DEFAULT,CHECK>>
 		priority: priority_level <<DEFAULT>>
-		assignee_ids: uuid[] <<DEFAULT>>
+		assignee_ids: ARRAY <<DEFAULT>>
 		reporter_id: uuid <<FK,NULLABLE>>
 		parent_task_id: uuid <<FK,NULLABLE>>
-		path: uuid[] <<DEFAULT>>
+		path: ARRAY <<DEFAULT>>
 		depth: integer <<DEFAULT>>
 		due_date: timestamp with time zone <<NULLABLE>>
 		started_at: timestamp with time zone <<NULLABLE>>
-		completed_at: timestamp with time zone <<NULLABLE>>
-		estimated_minutes: integer <<NULLABLE,CHECK>>
+		completed_at: timestamp with time zone <<CHECK,NULLABLE>>
+		estimated_minutes: integer <<CHECK,NULLABLE>>
 		logged_minutes: integer <<DEFAULT,CHECK>>
-		remaining_minutes: integer <<DEFAULT,NULLABLE>>
-		story_points: smallint <<NULLABLE,CHECK>>
-		labels: text[] <<DEFAULT>>
+		remaining_minutes: integer <<NULLABLE>>
+		story_points: smallint <<CHECK,NULLABLE>>
+		labels: ARRAY <<DEFAULT>>
 		custom_fields: jsonb <<DEFAULT>>
 		search_vector: tsvector <<NULLABLE>>
 		created_at: timestamp with time zone <<DEFAULT>>
@@ -235,7 +245,7 @@ package "core" {
 
 	entity "task_dependencies" {
 		**predecessor_id: uuid** <<FK,CHECK>>
-		**successor_id: uuid** <<FK>>
+		**successor_id: uuid** <<FK,CHECK>>
 		--
 		dependency_type: character varying(20) <<DEFAULT,CHECK>>
 		lag_days: integer <<DEFAULT>>
@@ -248,9 +258,9 @@ package "core" {
 		--
 		task_id: uuid <<FK>>
 		user_id: uuid <<FK>>
-		started_at: timestamp with time zone
-		ended_at: timestamp with time zone <<NULLABLE,CHECK>>
-		duration_minutes: integer <<DEFAULT,NULLABLE>>
+		started_at: timestamp with time zone <<CHECK>>
+		ended_at: timestamp with time zone <<CHECK,NULLABLE>>
+		duration_minutes: integer <<NULLABLE>>
 		description: text <<NULLABLE>>
 		is_billable: boolean <<DEFAULT>>
 		billing_rate: money_amount <<NULLABLE>>
@@ -265,9 +275,9 @@ package "core" {
 		resource_id: uuid
 		booked_by: uuid <<FK>>
 		organization_id: uuid <<FK>>
-		booking_start: timestamp with time zone
+		booking_start: timestamp with time zone <<CHECK>>
 		booking_end: timestamp with time zone <<CHECK>>
-		booking_range: tstzrange <<DEFAULT>>
+		booking_range: tstzrange <<NULLABLE>>
 		title: character varying(200)
 		description: text <<NULLABLE>>
 		recurrence: jsonb <<NULLABLE>>
@@ -283,7 +293,7 @@ package "core" {
 		content_html: text <<NULLABLE>>
 		search_vector: tsvector <<NULLABLE>>
 		parent_id: uuid <<FK,NULLABLE>>
-		mentioned_user_ids: uuid[] <<DEFAULT>>
+		mentioned_user_ids: ARRAY <<DEFAULT>>
 		reactions: jsonb <<DEFAULT>>
 		author_id: uuid <<FK>>
 		is_edited: boolean <<DEFAULT>>
@@ -293,14 +303,57 @@ package "core" {
 		deleted_at: timestamp with time zone <<NULLABLE>>
 	}
 
+	entity "active_organization_members_view" {
+		organization_id: uuid <<NULLABLE>>
+		user_id: uuid <<NULLABLE>>
+		member_role: character varying(50) <<NULLABLE>>
+		display_name: character varying <<NULLABLE>>
+		email: character varying(255) <<NULLABLE>>
+		avatar_url: jsonb <<NULLABLE>>
+		account_status: account_status <<NULLABLE>>
+		accepted_at: timestamp with time zone <<NULLABLE>>
+		last_login_at: timestamp with time zone <<NULLABLE>>
+	}
+
+	entity "project_summary_view" {
+		id: uuid <<NULLABLE>>
+		organization_id: uuid <<NULLABLE>>
+		key: character varying(10) <<NULLABLE>>
+		name: character varying(200) <<NULLABLE>>
+		status: project_status <<NULLABLE>>
+		lead_id: uuid <<NULLABLE>>
+		lead_email: character varying(255) <<NULLABLE>>
+		total_tasks: bigint <<NULLABLE>>
+		completed_tasks: bigint <<NULLABLE>>
+		active_tasks: bigint <<NULLABLE>>
+		overdue_tasks: bigint <<NULLABLE>>
+		start_date: date <<NULLABLE>>
+		target_end_date: date <<NULLABLE>>
+		created_at: timestamp with time zone <<NULLABLE>>
+		updated_at: timestamp with time zone <<NULLABLE>>
+	}
+
+	entity "user_task_workload_view" {
+		user_id: uuid <<NULLABLE>>
+		email: character varying(255) <<NULLABLE>>
+		username: character varying(50) <<NULLABLE>>
+		total_assigned_tasks: bigint <<NULLABLE>>
+		active_tasks: bigint <<NULLABLE>>
+		blocked_tasks: bigint <<NULLABLE>>
+		overdue_tasks: bigint <<NULLABLE>>
+		remaining_estimated_minutes: bigint <<NULLABLE>>
+		remaining_story_points: bigint <<NULLABLE>>
+		project_ids: ARRAY <<NULLABLE>>
+	}
+
 }
 
 package "analytics" {
 	entity "daily_project_stats" {
-		**id: bigint** <<AUTO_INCREMENT>>
 		**stat_date: date**
 		**project_id: uuid**
 		--
+		id: bigint <<AUTO_INCREMENT,DEFAULT>>
 		organization_id: uuid
 		tasks_backlog: integer <<DEFAULT>>
 		tasks_todo: integer <<DEFAULT>>
@@ -316,7 +369,103 @@ package "analytics" {
 		estimated_minutes: bigint <<NULLABLE>>
 		logged_minutes: bigint <<NULLABLE>>
 		active_member_count: integer <<DEFAULT>>
-		active_member_ids: uuid[] <<DEFAULT>>
+		active_member_ids: ARRAY <<DEFAULT>>
+		computed_at: timestamp with time zone <<DEFAULT>>
+	}
+
+	entity "daily_project_stats_2024_q4" {
+		**stat_date: date**
+		**project_id: uuid**
+		--
+		id: bigint <<AUTO_INCREMENT,DEFAULT>>
+		organization_id: uuid
+		tasks_backlog: integer <<DEFAULT>>
+		tasks_todo: integer <<DEFAULT>>
+		tasks_in_progress: integer <<DEFAULT>>
+		tasks_in_review: integer <<DEFAULT>>
+		tasks_blocked: integer <<DEFAULT>>
+		tasks_done: integer <<DEFAULT>>
+		tasks_cancelled: integer <<DEFAULT>>
+		tasks_total: integer <<DEFAULT>>
+		tasks_completed_pct: numeric <<NULLABLE>>
+		story_points_total: integer <<NULLABLE>>
+		story_points_completed: integer <<NULLABLE>>
+		estimated_minutes: bigint <<NULLABLE>>
+		logged_minutes: bigint <<NULLABLE>>
+		active_member_count: integer <<DEFAULT>>
+		active_member_ids: ARRAY <<DEFAULT>>
+		computed_at: timestamp with time zone <<DEFAULT>>
+	}
+
+	entity "daily_project_stats_2025_q1" {
+		**stat_date: date**
+		**project_id: uuid**
+		--
+		id: bigint <<AUTO_INCREMENT,DEFAULT>>
+		organization_id: uuid
+		tasks_backlog: integer <<DEFAULT>>
+		tasks_todo: integer <<DEFAULT>>
+		tasks_in_progress: integer <<DEFAULT>>
+		tasks_in_review: integer <<DEFAULT>>
+		tasks_blocked: integer <<DEFAULT>>
+		tasks_done: integer <<DEFAULT>>
+		tasks_cancelled: integer <<DEFAULT>>
+		tasks_total: integer <<DEFAULT>>
+		tasks_completed_pct: numeric <<NULLABLE>>
+		story_points_total: integer <<NULLABLE>>
+		story_points_completed: integer <<NULLABLE>>
+		estimated_minutes: bigint <<NULLABLE>>
+		logged_minutes: bigint <<NULLABLE>>
+		active_member_count: integer <<DEFAULT>>
+		active_member_ids: ARRAY <<DEFAULT>>
+		computed_at: timestamp with time zone <<DEFAULT>>
+	}
+
+	entity "daily_project_stats_2025_q2" {
+		**stat_date: date**
+		**project_id: uuid**
+		--
+		id: bigint <<AUTO_INCREMENT,DEFAULT>>
+		organization_id: uuid
+		tasks_backlog: integer <<DEFAULT>>
+		tasks_todo: integer <<DEFAULT>>
+		tasks_in_progress: integer <<DEFAULT>>
+		tasks_in_review: integer <<DEFAULT>>
+		tasks_blocked: integer <<DEFAULT>>
+		tasks_done: integer <<DEFAULT>>
+		tasks_cancelled: integer <<DEFAULT>>
+		tasks_total: integer <<DEFAULT>>
+		tasks_completed_pct: numeric <<NULLABLE>>
+		story_points_total: integer <<NULLABLE>>
+		story_points_completed: integer <<NULLABLE>>
+		estimated_minutes: bigint <<NULLABLE>>
+		logged_minutes: bigint <<NULLABLE>>
+		active_member_count: integer <<DEFAULT>>
+		active_member_ids: ARRAY <<DEFAULT>>
+		computed_at: timestamp with time zone <<DEFAULT>>
+	}
+
+	entity "daily_project_stats_default" {
+		**stat_date: date**
+		**project_id: uuid**
+		--
+		id: bigint <<AUTO_INCREMENT,DEFAULT>>
+		organization_id: uuid
+		tasks_backlog: integer <<DEFAULT>>
+		tasks_todo: integer <<DEFAULT>>
+		tasks_in_progress: integer <<DEFAULT>>
+		tasks_in_review: integer <<DEFAULT>>
+		tasks_blocked: integer <<DEFAULT>>
+		tasks_done: integer <<DEFAULT>>
+		tasks_cancelled: integer <<DEFAULT>>
+		tasks_total: integer <<DEFAULT>>
+		tasks_completed_pct: numeric <<NULLABLE>>
+		story_points_total: integer <<NULLABLE>>
+		story_points_completed: integer <<NULLABLE>>
+		estimated_minutes: bigint <<NULLABLE>>
+		logged_minutes: bigint <<NULLABLE>>
+		active_member_count: integer <<DEFAULT>>
+		active_member_ids: ARRAY <<DEFAULT>>
 		computed_at: timestamp with time zone <<DEFAULT>>
 	}
 
@@ -330,7 +479,7 @@ package "analytics" {
 		comments_posted: integer <<DEFAULT>>
 		time_entries_count: integer <<DEFAULT>>
 		minutes_logged: integer <<DEFAULT>>
-		active_project_ids: uuid[] <<DEFAULT>>
+		active_project_ids: ARRAY <<DEFAULT>>
 		activity_breakdown: jsonb <<DEFAULT>>
 		computed_at: timestamp with time zone <<DEFAULT>>
 	}
@@ -350,9 +499,15 @@ package "audit" {
 		bulk_operation
 	}
 
+	entity "task_status" <<enum>> {
+	}
+
+	entity "project_status" <<enum>> {
+	}
+
 	entity "audit_log" {
-		**id: bigint** <<AUTO_INCREMENT>>
-		**event_time: timestamp with time zone**
+		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
+		**event_time: timestamp with time zone** <<DEFAULT>>
 		--
 		user_id: uuid <<NULLABLE>>
 		session_id: uuid <<NULLABLE>>
@@ -364,14 +519,94 @@ package "audit" {
 		entity_id: text
 		old_values: jsonb <<NULLABLE>>
 		new_values: jsonb <<NULLABLE>>
-		changed_fields: text[] <<DEFAULT>>
+		changed_fields: ARRAY <<DEFAULT>>
+		context: jsonb <<DEFAULT>>
+		request_id: uuid <<NULLABLE>>
+		correlation_id: uuid <<NULLABLE>>
+	}
+
+	entity "audit_log_2024_11" {
+		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
+		**event_time: timestamp with time zone** <<DEFAULT>>
+		--
+		user_id: uuid <<NULLABLE>>
+		session_id: uuid <<NULLABLE>>
+		ip_address: inet <<NULLABLE>>
+		user_agent: text <<NULLABLE>>
+		organization_id: uuid <<NULLABLE>>
+		action: action_type
+		entity_type: character varying(100)
+		entity_id: text
+		old_values: jsonb <<NULLABLE>>
+		new_values: jsonb <<NULLABLE>>
+		changed_fields: ARRAY <<DEFAULT>>
+		context: jsonb <<DEFAULT>>
+		request_id: uuid <<NULLABLE>>
+		correlation_id: uuid <<NULLABLE>>
+	}
+
+	entity "audit_log_2024_12" {
+		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
+		**event_time: timestamp with time zone** <<DEFAULT>>
+		--
+		user_id: uuid <<NULLABLE>>
+		session_id: uuid <<NULLABLE>>
+		ip_address: inet <<NULLABLE>>
+		user_agent: text <<NULLABLE>>
+		organization_id: uuid <<NULLABLE>>
+		action: action_type
+		entity_type: character varying(100)
+		entity_id: text
+		old_values: jsonb <<NULLABLE>>
+		new_values: jsonb <<NULLABLE>>
+		changed_fields: ARRAY <<DEFAULT>>
+		context: jsonb <<DEFAULT>>
+		request_id: uuid <<NULLABLE>>
+		correlation_id: uuid <<NULLABLE>>
+	}
+
+	entity "audit_log_2025_01" {
+		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
+		**event_time: timestamp with time zone** <<DEFAULT>>
+		--
+		user_id: uuid <<NULLABLE>>
+		session_id: uuid <<NULLABLE>>
+		ip_address: inet <<NULLABLE>>
+		user_agent: text <<NULLABLE>>
+		organization_id: uuid <<NULLABLE>>
+		action: action_type
+		entity_type: character varying(100)
+		entity_id: text
+		old_values: jsonb <<NULLABLE>>
+		new_values: jsonb <<NULLABLE>>
+		changed_fields: ARRAY <<DEFAULT>>
+		context: jsonb <<DEFAULT>>
+		request_id: uuid <<NULLABLE>>
+		correlation_id: uuid <<NULLABLE>>
+	}
+
+	entity "audit_log_default" {
+		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
+		**event_time: timestamp with time zone** <<DEFAULT>>
+		--
+		user_id: uuid <<NULLABLE>>
+		session_id: uuid <<NULLABLE>>
+		ip_address: inet <<NULLABLE>>
+		user_agent: text <<NULLABLE>>
+		organization_id: uuid <<NULLABLE>>
+		action: action_type
+		entity_type: character varying(100)
+		entity_id: text
+		old_values: jsonb <<NULLABLE>>
+		new_values: jsonb <<NULLABLE>>
+		changed_fields: ARRAY <<DEFAULT>>
 		context: jsonb <<DEFAULT>>
 		request_id: uuid <<NULLABLE>>
 		correlation_id: uuid <<NULLABLE>>
 	}
 
 	entity "entity_changes" {
-		**id: bigint** <<AUTO_INCREMENT>>
+		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
 		--
 		entity_type: character varying(100)
 		entity_id: uuid
@@ -383,13 +618,12 @@ package "audit" {
 	}
 
 	entity "task_changes" {
-		**id: bigint** <<AUTO_INCREMENT>>
-		--
+		id: bigint <<AUTO_INCREMENT,DEFAULT>>
 		entity_type: character varying(100) <<CHECK>>
 		entity_id: uuid
 		version: integer <<DEFAULT>>
 		changed_at: timestamp with time zone <<DEFAULT>>
-		changed_by: uuid <<FK,NULLABLE>>
+		changed_by: uuid <<NULLABLE>>
 		change_type: character varying(20)
 		data_snapshot: jsonb
 		project_id: uuid
@@ -399,22 +633,21 @@ package "audit" {
 	}
 
 	entity "project_changes" {
-		**id: bigint** <<AUTO_INCREMENT>>
-		--
+		id: bigint <<AUTO_INCREMENT,DEFAULT>>
 		entity_type: character varying(100) <<CHECK>>
 		entity_id: uuid
 		version: integer <<DEFAULT>>
 		changed_at: timestamp with time zone <<DEFAULT>>
-		changed_by: uuid <<FK,NULLABLE>>
+		changed_by: uuid <<NULLABLE>>
 		change_type: character varying(20)
 		data_snapshot: jsonb
 		organization_id: uuid
-		status_before: project_status <<NULLABLE>>
-		status_after: project_status <<NULLABLE>>
+		status_before: task_status <<NULLABLE>>
+		status_after: task_status <<NULLABLE>>
 	}
 
 	entity "access_log" {
-		**id: bigint** <<AUTO_INCREMENT>>
+		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
 		--
 		event_time: timestamp with time zone <<DEFAULT>>
 		user_id: uuid <<FK,NULLABLE>>
@@ -431,39 +664,31 @@ package "audit" {
 		geo_city: character varying(100) <<NULLABLE>>
 		geo_coordinates: point <<NULLABLE>>
 		risk_score: smallint <<NULLABLE>>
-		risk_factors: text[] <<NULLABLE>>
+		risk_factors: ARRAY <<NULLABLE>>
 		metadata: jsonb <<DEFAULT>>
 	}
 
 }
 
-roles ||--o{ roles
-
-users ||--|{ user_mfa
-users ||--|{ sessions
-users ||--o{ role_permissions
-users ||--|{ user_roles
-users ||--o{ user_roles
+core.organizations ||--o{ auth.user_roles
 
 permissions ||--|{ role_permissions
 
+roles ||--o{ roles
 roles ||--|{ role_permissions
 roles ||--|{ user_roles
 
-organizations ||--|{ user_roles
+users ||--|{ user_mfa
+users ||--o{ role_permissions
+users ||--|{ user_roles
+users ||--o{ user_roles
+users ||--|{ sessions
+
+comments ||--o{ comments
+
 organizations ||--|{ organization_members
 organizations ||--|{ projects
-
-users ||--|{ organization_members
-users ||--o{ organization_members
-users ||--o{ organizations
-users ||--o{ projects
-users ||--o{ projects
-users ||--|{ resource_bookings
-users ||--|{ comments
-users ||--o{ tasks
-users ||--o{ tasks
-users ||--o{ task_dependencies
+organizations ||--|{ resource_bookings
 
 projects ||--|{ tasks
 
@@ -472,17 +697,21 @@ tasks ||--|{ task_dependencies
 tasks ||--|{ task_dependencies
 tasks ||--|{ time_entries
 
-users ||--|{ time_entries
-
-organizations ||--|{ resource_bookings
-
-comments ||--o{ comments
+auth.users ||--o{ core.organizations
+auth.users ||--|{ core.organization_members
+auth.users ||--o{ core.organization_members
+auth.users ||--o{ core.projects
+auth.users ||--o{ core.projects
+auth.users ||--o{ core.tasks
+auth.users ||--o{ core.tasks
+auth.users ||--o{ core.task_dependencies
+auth.users ||--|{ core.time_entries
+auth.users ||--|{ core.resource_bookings
+auth.users ||--|{ core.comments
 
 auth.users ||--|{ analytics.user_activity_summary
 
-auth.users ||--|{ audit.entity_changes
-auth.users ||--|{ audit.task_changes
-auth.users ||--|{ audit.project_changes
-auth.users ||--|{ audit.access_log
+auth.users ||--o{ audit.entity_changes
+auth.users ||--o{ audit.access_log
 
 @enduml

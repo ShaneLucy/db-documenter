@@ -11,6 +11,7 @@
 --   - audit: Change tracking and compliance logging
 --
 -- PostgreSQL-Specific Features Demonstrated:
+--   - Extensions (btree_gist for exclusion constraints)
 --   - Custom ENUM types
 --   - Custom COMPOSITE types
 --   - Array types (text[], integer[], uuid[])
@@ -28,19 +29,18 @@
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------
--- Extensions
--- -----------------------------------------------------------------------------
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";      -- For gen_random_uuid()
-CREATE EXTENSION IF NOT EXISTS "btree_gist";    -- Required for exclusion constraints with multiple types
-CREATE EXTENSION IF NOT EXISTS "pg_trgm";       -- Trigram similarity for fuzzy text search
-
--- -----------------------------------------------------------------------------
 -- Create Schemas
 -- -----------------------------------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS auth;
 CREATE SCHEMA IF NOT EXISTS core;
 CREATE SCHEMA IF NOT EXISTS analytics;
 CREATE SCHEMA IF NOT EXISTS audit;
+
+-- -----------------------------------------------------------------------------
+-- Extensions
+-- -----------------------------------------------------------------------------
+-- btree_gist: Required for exclusion constraints with equality operators on scalar types
+CREATE EXTENSION IF NOT EXISTS btree_gist;
 
 -- =============================================================================
 -- CUSTOM TYPES (must be created before tables that use them)
@@ -336,6 +336,11 @@ CREATE TABLE auth.user_roles (
     -- NULL means global role
     organization_id uuid,  -- FK added after core.organizations is created
 
+    -- Generated column for primary key uniqueness (treats NULL as sentinel UUID)
+    organization_id_key uuid GENERATED ALWAYS AS (
+        COALESCE(organization_id, '00000000-0000-0000-0000-000000000000'::uuid)
+    ) STORED,
+
     -- Temporal validity (role assignment with expiration)
     valid_from      timestamptz NOT NULL DEFAULT now(),
     valid_until     timestamptz,
@@ -343,15 +348,15 @@ CREATE TABLE auth.user_roles (
     assigned_at     timestamptz NOT NULL DEFAULT now(),
     assigned_by     uuid REFERENCES auth.users(id) ON DELETE SET NULL,
 
-    PRIMARY KEY (user_id, role_id, COALESCE(organization_id, '00000000-0000-0000-0000-000000000000'::uuid)),
+    PRIMARY KEY (user_id, role_id, organization_id_key),
 
     -- Check that valid_until is after valid_from
     CONSTRAINT user_roles_valid_range CHECK (valid_until IS NULL OR valid_until > valid_from)
 );
 
--- Partial index for currently valid roles
-CREATE INDEX idx_user_roles_current ON auth.user_roles (user_id, role_id)
-    WHERE valid_until IS NULL OR valid_until > now();
+-- Index for role lookups (includes valid_until for query filtering)
+-- Note: Cannot use now() in partial index (STABLE function, not IMMUTABLE)
+CREATE INDEX idx_user_roles_current ON auth.user_roles (user_id, role_id, valid_until);
 
 -- -----------------------------------------------------------------------------
 -- Sessions - User session tracking
@@ -1536,6 +1541,11 @@ GROUP BY u.id, u.email, u.username;
 
 -- PostgreSQL-Specific Features Used in This Schema:
 --
+-- 0. Extensions:
+--    - btree_gist: Enables GiST indexes on scalar types (varchar, uuid, int, etc.)
+--      Required for exclusion constraints with equality operators (WITH =)
+--      Example: resource_bookings uses = on varchar/uuid with && on tstzrange
+--
 -- 1. ENUM Types:
 --    - auth.account_status, auth.mfa_method
 --    - core.project_status, core.priority_level, core.task_status, core.subscription_tier
@@ -1572,7 +1582,7 @@ GROUP BY u.id, u.email, u.username;
 --
 -- 8. Exclusion Constraints:
 --    - resource_bookings.bookings_no_overlap prevents double-booking
---    Uses GiST index with && operator for range overlap
+--    Uses GiST index with = operators (requires btree_gist) and && operator for range overlap
 --
 -- 9. Partial Indexes:
 --    - idx_users_active_email indexes only active users
