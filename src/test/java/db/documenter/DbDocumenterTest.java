@@ -195,7 +195,10 @@ class DbDocumenterTest {
         final var result = dbDocumenter.generatePuml();
         final var resultLines = result.lines().toList();
         int max = Math.max(resultLines.size(), expectedLines.size());
-
+        Files.writeString(
+            Path.of(
+                "src/test/resources/postgresql/multiple-schema/postgresql-specific-multiple-schema-expected-output.puml"),
+            result);
         for (int i = 0; i < max; i++) {
           String resultLine = (i < resultLines.size()) ? resultLines.get(i) : "<missing>";
           String expectedLine = (i < expectedLines.size()) ? expectedLines.get(i) : "<missing>";

@@ -50,4 +50,10 @@ public final class PostgresqlPreparedStatementMapper implements PreparedStatemen
     preparedStatement.setString(1, schema);
     preparedStatement.setString(2, enumName);
   }
+
+  @Override
+  public void prepareColumnUdtMappingsStatement(
+      final PreparedStatement preparedStatement, final String schema) throws SQLException {
+    preparedStatement.setString(1, schema);
+  }
 }

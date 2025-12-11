@@ -1,16 +1,22 @@
 package db.documenter.internal.builder;
 
 import db.documenter.internal.connection.api.ConnectionManager;
+import db.documenter.internal.models.db.ColumnKey;
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.Schema;
 import db.documenter.internal.models.db.Table;
+import db.documenter.internal.models.db.postgresql.EnumKey;
+import db.documenter.internal.models.db.postgresql.UdtReference;
 import db.documenter.internal.queries.QueryRunnerFactory;
 import db.documenter.internal.utils.LogUtils;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /** Builds database schema information by orchestrating table and enum builders. */
 public final class SchemaBuilder {
@@ -53,8 +59,32 @@ public final class SchemaBuilder {
 
         final var queryRunner = queryRunnerFactory.createQueryRunner(connection);
 
+        // Build enums
         final List<DbEnum> dbEnums = enumBuilder.buildEnums(queryRunner, schemaName);
-        final List<Table> tables = tableBuilder.buildTables(queryRunner, schemaName, dbEnums);
+
+        // Create EnumKey map for O(1) lookup
+        final Map<EnumKey, DbEnum> enumsByKey =
+            dbEnums.stream()
+                .collect(
+                    Collectors.toMap(
+                        dbEnum -> new EnumKey(dbEnum.schemaName(), dbEnum.enumName()),
+                        Function.identity()));
+
+        if (LOGGER.isLoggable(Level.FINE)) {
+          LOGGER.log(
+              Level.FINE,
+              "Created enum lookup map with {0} entries for schema: {1}",
+              new Object[] {enumsByKey.size(), LogUtils.sanitizeForLog(schemaName)});
+        }
+
+        // Get column UDT mappings
+        final Map<ColumnKey, UdtReference> columnUdtMappings =
+            queryRunner.getColumnUdtMappings(schemaName);
+
+        // Build tables with new parameters
+        final List<Table> tables =
+            tableBuilder.buildTables(
+                queryRunner, schemaName, dbEnums, enumsByKey, columnUdtMappings);
 
         result.add(Schema.builder().name(schemaName).tables(tables).dbEnums(dbEnums).build());
 

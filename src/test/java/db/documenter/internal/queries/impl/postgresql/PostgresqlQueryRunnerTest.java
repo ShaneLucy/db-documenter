@@ -1758,7 +1758,6 @@ class PostgresqlQueryRunnerTest {
       assertEquals(1, result.size());
       DbEnum info = result.getFirst();
 
-      assertEquals(List.of("status"), info.columnNames());
       assertEquals("order_status", info.enumName());
     }
   }
@@ -1770,7 +1769,7 @@ class PostgresqlQueryRunnerTest {
     void itIdentifiesTheOrderStatusEnumValues() throws SQLException {
       final var dbEnum =
           DbEnum.builder()
-              .columnNames(List.of("status"))
+              .schemaName("public")
               .enumName("order_status")
               .enumValues(List.of())
               .build();

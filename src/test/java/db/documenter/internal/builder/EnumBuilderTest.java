@@ -46,16 +46,12 @@ class EnumBuilderTest {
     void buildsEnumsWithValues() throws SQLException {
       final DbEnum dbEnum1 =
           DbEnum.builder()
+              .schemaName("test_schema")
               .enumName("status")
-              .columnNames(List.of("status"))
               .enumValues(List.of())
               .build();
       final DbEnum dbEnum2 =
-          DbEnum.builder()
-              .enumName("role")
-              .columnNames(List.of("role"))
-              .enumValues(List.of())
-              .build();
+          DbEnum.builder().schemaName("test_schema").enumName("role").enumValues(List.of()).build();
 
       when(queryRunner.getEnumInfo("test_schema")).thenReturn(List.of(dbEnum1, dbEnum2));
       when(queryRunner.getEnumValues("test_schema", dbEnum1))
@@ -75,8 +71,8 @@ class EnumBuilderTest {
     void buildsEnumWithEmptyValues() throws SQLException {
       final DbEnum dbEnum =
           DbEnum.builder()
+              .schemaName("test_schema")
               .enumName("empty")
-              .columnNames(List.of("empty"))
               .enumValues(List.of())
               .build();
 
@@ -104,8 +100,8 @@ class EnumBuilderTest {
     void propagatesSQLExceptionFromGetEnumValues() throws SQLException {
       final DbEnum dbEnum =
           DbEnum.builder()
+              .schemaName("test_schema")
               .enumName("status")
-              .columnNames(List.of("status"))
               .enumValues(List.of())
               .build();
 

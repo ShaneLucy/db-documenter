@@ -3,19 +3,24 @@ package db.documenter.internal.builder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import db.documenter.internal.connection.api.ConnectionManager;
+import db.documenter.internal.models.db.ColumnKey;
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.Schema;
 import db.documenter.internal.models.db.Table;
+import db.documenter.internal.models.db.postgresql.UdtReference;
 import db.documenter.internal.queries.QueryRunnerFactory;
 import db.documenter.internal.queries.api.QueryRunner;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -57,18 +62,26 @@ class SchemaBuilderTest {
     void buildsSchemaWithTablesAndEnums() throws SQLException {
       final DbEnum dbEnum =
           DbEnum.builder()
+              .schemaName("test_schema")
               .enumName("status")
-              .columnNames(List.of("status"))
               .enumValues(List.of("active", "inactive"))
               .build();
 
       final Table table =
           Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
 
+      final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of();
+
       when(connectionManager.getConnection()).thenReturn(connection);
       when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
       when(enumBuilder.buildEnums(queryRunner, "test_schema")).thenReturn(List.of(dbEnum));
-      when(tableBuilder.buildTables(queryRunner, "test_schema", List.of(dbEnum)))
+      when(queryRunner.getColumnUdtMappings("test_schema")).thenReturn(columnUdtMappings);
+      when(tableBuilder.buildTables(
+              eq(queryRunner),
+              eq("test_schema"),
+              eq(List.of(dbEnum)),
+              any(),
+              eq(columnUdtMappings)))
           .thenReturn(List.of(table));
 
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("test_schema"));
@@ -79,37 +92,37 @@ class SchemaBuilderTest {
       assertEquals(List.of(table), result.getFirst().tables());
 
       verify(connection).close();
+      verify(queryRunner).getColumnUdtMappings("test_schema");
     }
 
     @Test
     void buildsMultipleSchemas() throws SQLException {
       final DbEnum dbEnum1 =
-          DbEnum.builder()
-              .enumName("status")
-              .columnNames(List.of("status"))
-              .enumValues(List.of())
-              .build();
+          DbEnum.builder().schemaName("schema1").enumName("status").enumValues(List.of()).build();
       final DbEnum dbEnum2 =
-          DbEnum.builder()
-              .enumName("role")
-              .columnNames(List.of("role"))
-              .enumValues(List.of())
-              .build();
+          DbEnum.builder().schemaName("schema2").enumName("role").enumValues(List.of()).build();
 
       final Table table1 =
           Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
       final Table table2 =
           Table.builder().name("orders").columns(List.of()).foreignKeys(List.of()).build();
 
+      final Map<ColumnKey, UdtReference> columnUdtMappings1 = Map.of();
+      final Map<ColumnKey, UdtReference> columnUdtMappings2 = Map.of();
+
       when(connectionManager.getConnection()).thenReturn(connection);
       when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
 
       when(enumBuilder.buildEnums(queryRunner, "schema1")).thenReturn(List.of(dbEnum1));
-      when(tableBuilder.buildTables(queryRunner, "schema1", List.of(dbEnum1)))
+      when(queryRunner.getColumnUdtMappings("schema1")).thenReturn(columnUdtMappings1);
+      when(tableBuilder.buildTables(
+              eq(queryRunner), eq("schema1"), eq(List.of(dbEnum1)), any(), eq(columnUdtMappings1)))
           .thenReturn(List.of(table1));
 
       when(enumBuilder.buildEnums(queryRunner, "schema2")).thenReturn(List.of(dbEnum2));
-      when(tableBuilder.buildTables(queryRunner, "schema2", List.of(dbEnum2)))
+      when(queryRunner.getColumnUdtMappings("schema2")).thenReturn(columnUdtMappings2);
+      when(tableBuilder.buildTables(
+              eq(queryRunner), eq("schema2"), eq(List.of(dbEnum2)), any(), eq(columnUdtMappings2)))
           .thenReturn(List.of(table2));
 
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("schema1", "schema2"));
@@ -128,10 +141,14 @@ class SchemaBuilderTest {
       final Table table =
           Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
 
+      final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of();
+
       when(connectionManager.getConnection()).thenReturn(connection);
       when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
       when(enumBuilder.buildEnums(queryRunner, "test_schema")).thenReturn(List.of());
-      when(tableBuilder.buildTables(queryRunner, "test_schema", List.of()))
+      when(queryRunner.getColumnUdtMappings("test_schema")).thenReturn(columnUdtMappings);
+      when(tableBuilder.buildTables(
+              eq(queryRunner), eq("test_schema"), eq(List.of()), any(), eq(columnUdtMappings)))
           .thenReturn(List.of(table));
 
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("test_schema"));
@@ -145,15 +162,23 @@ class SchemaBuilderTest {
     void buildsSchemaWithNoTables() throws SQLException {
       final DbEnum dbEnum =
           DbEnum.builder()
+              .schemaName("test_schema")
               .enumName("status")
-              .columnNames(List.of("status"))
               .enumValues(List.of())
               .build();
+
+      final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of();
 
       when(connectionManager.getConnection()).thenReturn(connection);
       when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
       when(enumBuilder.buildEnums(queryRunner, "test_schema")).thenReturn(List.of(dbEnum));
-      when(tableBuilder.buildTables(queryRunner, "test_schema", List.of(dbEnum)))
+      when(queryRunner.getColumnUdtMappings("test_schema")).thenReturn(columnUdtMappings);
+      when(tableBuilder.buildTables(
+              eq(queryRunner),
+              eq("test_schema"),
+              eq(List.of(dbEnum)),
+              any(),
+              eq(columnUdtMappings)))
           .thenReturn(List.of());
 
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("test_schema"));
@@ -191,10 +216,14 @@ class SchemaBuilderTest {
 
     @Test
     void propagatesSQLExceptionFromTableBuilder() throws SQLException {
+      final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of();
+
       when(connectionManager.getConnection()).thenReturn(connection);
       when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
       when(enumBuilder.buildEnums(queryRunner, "test_schema")).thenReturn(List.of());
-      when(tableBuilder.buildTables(queryRunner, "test_schema", List.of()))
+      when(queryRunner.getColumnUdtMappings("test_schema")).thenReturn(columnUdtMappings);
+      when(tableBuilder.buildTables(
+              eq(queryRunner), eq("test_schema"), eq(List.of()), any(), eq(columnUdtMappings)))
           .thenThrow(new SQLException("Failed to build tables"));
 
       final SQLException exception =

@@ -3,21 +3,28 @@ package db.documenter.internal.builder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import db.documenter.internal.mapper.ColumnMapper;
+import db.documenter.internal.mapper.ColumnMappingContext;
 import db.documenter.internal.mapper.ForeignKeyMapper;
 import db.documenter.internal.mapper.TableMapper;
 import db.documenter.internal.models.db.Column;
+import db.documenter.internal.models.db.ColumnKey;
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
+import db.documenter.internal.models.db.postgresql.EnumKey;
+import db.documenter.internal.models.db.postgresql.UdtReference;
 import db.documenter.internal.queries.api.QueryRunner;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -48,7 +55,8 @@ class TableBuilderTest {
     void returnsEmptyListWhenNoTablesExist() throws SQLException {
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of());
 
-      final List<Table> result = tableBuilder.buildTables(queryRunner, "test_schema", List.of());
+      final List<Table> result =
+          tableBuilder.buildTables(queryRunner, "test_schema", List.of(), Map.of(), Map.of());
 
       assertTrue(result.isEmpty());
     }
@@ -110,10 +118,14 @@ class TableBuilderTest {
               .foreignKeys(List.of(enrichedForeignKey))
               .build();
 
+      final Map<EnumKey, DbEnum> enumsByKey = Map.of();
+      final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of();
+
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of(table1, table2));
 
       when(queryRunner.getColumnInfo("test_schema", table1)).thenReturn(List.of(rawColumn1));
-      when(columnMapper.mapUserDefinedTypes(List.of(rawColumn1), List.of()))
+      when(columnMapper.mapUserDefinedTypes(
+              eq(List.of(rawColumn1)), any(ColumnMappingContext.class)))
           .thenReturn(List.of(mappedColumn1));
       when(queryRunner.getPrimaryKeyInfo("test_schema", table1)).thenReturn(primaryKey);
       when(queryRunner.getForeignKeyInfo("test_schema", table1)).thenReturn(List.of());
@@ -126,7 +138,8 @@ class TableBuilderTest {
           .thenReturn(builtTable1);
 
       when(queryRunner.getColumnInfo("test_schema", table2)).thenReturn(List.of(rawColumn2));
-      when(columnMapper.mapUserDefinedTypes(List.of(rawColumn2), List.of()))
+      when(columnMapper.mapUserDefinedTypes(
+              eq(List.of(rawColumn2)), any(ColumnMappingContext.class)))
           .thenReturn(List.of(mappedColumn2));
       when(queryRunner.getPrimaryKeyInfo("test_schema", table2)).thenReturn(primaryKey);
       when(queryRunner.getForeignKeyInfo("test_schema", table2)).thenReturn(List.of(rawForeignKey));
@@ -139,7 +152,9 @@ class TableBuilderTest {
               "orders", List.of(mappedColumn2), primaryKey, List.of(enrichedForeignKey)))
           .thenReturn(builtTable2);
 
-      final List<Table> result = tableBuilder.buildTables(queryRunner, "test_schema", List.of());
+      final List<Table> result =
+          tableBuilder.buildTables(
+              queryRunner, "test_schema", List.of(), enumsByKey, columnUdtMappings);
 
       assertEquals(2, result.size());
       assertEquals("users", result.getFirst().name());
@@ -147,13 +162,13 @@ class TableBuilderTest {
     }
 
     @Test
-    void passesDbEnumsToColumnMapper() throws SQLException {
+    void passesEnumsByKeyAndColumnUdtMappingsToColumnMapper() throws SQLException {
       final Table table =
           Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
       final DbEnum dbEnum =
           DbEnum.builder()
+              .schemaName("test_schema")
               .enumName("status")
-              .columnNames(List.of("status"))
               .enumValues(List.of())
               .build();
 
@@ -173,9 +188,16 @@ class TableBuilderTest {
               .foreignKeys(List.of())
               .build();
 
+      final var enumKey = new EnumKey("test_schema", "status");
+      final Map<EnumKey, DbEnum> enumsByKey = Map.of(enumKey, dbEnum);
+      final var columnKey = new ColumnKey("users", "status");
+      final var udtReference = new UdtReference("test_schema", "status");
+      final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of(columnKey, udtReference);
+
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of(table));
       when(queryRunner.getColumnInfo("test_schema", table)).thenReturn(List.of(rawColumn));
-      when(columnMapper.mapUserDefinedTypes(List.of(rawColumn), List.of(dbEnum)))
+      when(columnMapper.mapUserDefinedTypes(
+              eq(List.of(rawColumn)), any(ColumnMappingContext.class)))
           .thenReturn(List.of(mappedColumn));
       when(queryRunner.getPrimaryKeyInfo("test_schema", table)).thenReturn(primaryKey);
       when(queryRunner.getForeignKeyInfo("test_schema", table)).thenReturn(List.of());
@@ -188,9 +210,11 @@ class TableBuilderTest {
           .thenReturn(builtTable);
 
       final List<Table> result =
-          tableBuilder.buildTables(queryRunner, "test_schema", List.of(dbEnum));
+          tableBuilder.buildTables(
+              queryRunner, "test_schema", List.of(dbEnum), enumsByKey, columnUdtMappings);
 
-      verify(columnMapper).mapUserDefinedTypes(List.of(rawColumn), List.of(dbEnum));
+      verify(columnMapper)
+          .mapUserDefinedTypes(eq(List.of(rawColumn)), any(ColumnMappingContext.class));
       assertEquals(1, result.size());
     }
 
@@ -202,7 +226,9 @@ class TableBuilderTest {
       final SQLException exception =
           assertThrows(
               SQLException.class,
-              () -> tableBuilder.buildTables(queryRunner, "test_schema", List.of()));
+              () ->
+                  tableBuilder.buildTables(
+                      queryRunner, "test_schema", List.of(), Map.of(), Map.of()));
 
       assertEquals("Connection failed", exception.getMessage());
     }
@@ -219,7 +245,9 @@ class TableBuilderTest {
       final SQLException exception =
           assertThrows(
               SQLException.class,
-              () -> tableBuilder.buildTables(queryRunner, "test_schema", List.of()));
+              () ->
+                  tableBuilder.buildTables(
+                      queryRunner, "test_schema", List.of(), Map.of(), Map.of()));
 
       assertEquals("Failed to fetch columns", exception.getMessage());
     }

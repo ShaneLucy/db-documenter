@@ -1,9 +1,12 @@
 package db.documenter.internal.queries.api;
 
 import db.documenter.internal.models.db.*;
+import db.documenter.internal.models.db.ColumnKey;
+import db.documenter.internal.models.db.postgresql.UdtReference;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public interface ResultSetMapper {
 
@@ -18,4 +21,6 @@ public interface ResultSetMapper {
   List<DbEnum> mapToDbEnumInfo(ResultSet resultSet) throws SQLException;
 
   List<String> mapToDbEnumValues(ResultSet resultSet) throws SQLException;
+
+  Map<ColumnKey, UdtReference> mapToColumnUdtMappings(ResultSet resultSet) throws SQLException;
 }

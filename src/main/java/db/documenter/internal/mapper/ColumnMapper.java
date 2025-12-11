@@ -1,12 +1,16 @@
 package db.documenter.internal.mapper;
 
 import db.documenter.internal.models.db.Column;
+import db.documenter.internal.models.db.ColumnKey;
 import db.documenter.internal.models.db.Constraint;
-import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.ForeignKey;
+import db.documenter.internal.models.db.postgresql.EnumKey;
+import db.documenter.internal.utils.LogUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Pure transformation mapper for enriching column metadata.
@@ -29,8 +33,13 @@ import java.util.Objects;
  * <pre>{@code
  * ColumnMapper mapper = new ColumnMapper();
  *
+ * // Create context for UDT resolution
+ * ColumnMappingContext context = new ColumnMappingContext(
+ *     columnUdtMappings, enumsByKey, "users", "core"
+ * );
+ *
  * // Map USER-DEFINED types to enum names
- * List<Column> enrichedColumns = mapper.mapUserDefinedTypes(rawColumns, dbEnums);
+ * List<Column> enrichedColumns = mapper.mapUserDefinedTypes(rawColumns, context);
  *
  * // Add FK constraint to foreign key columns
  * List<Column> finalColumns = mapper.enrichWithForeignKeyConstraints(
@@ -41,46 +50,35 @@ import java.util.Objects;
  */
 public final class ColumnMapper {
 
+  private static final Logger LOGGER = Logger.getLogger(ColumnMapper.class.getName());
+
   /**
-   * Maps USER-DEFINED column types to their corresponding enum type names.
+   * Maps USER-DEFINED column types to their corresponding enum type names with cross-schema
+   * resolution.
    *
    * <p>In PostgreSQL, custom enum types (created with {@code CREATE TYPE}) appear as "USER-DEFINED"
-   * in the data type field. This method resolves the actual enum type name by matching the column
-   * name against the list of database enums.
+   * in the data type field. This method resolves the actual enum type name using the column mapping
+   * context, which provides O(1) lookup of both UDT definitions and enum metadata.
    *
-   * <p><b>Transformation Logic:</b> For each column with dataType "USER-DEFINED", find a matching
-   * DbEnum by column name and replace the dataType with the enum's type name. If no match is found,
-   * the column is returned unchanged.
+   * <p><b>Cross-Schema Resolution:</b> Uses the context's mappings to correctly handle enums
+   * defined in different schemas than the tables using them.
    *
-   * <p><b>Usage Example:</b>
+   * <p><b>Schema Qualification Rules:</b>
    *
-   * <pre>{@code
-   * // Raw column from database: dataType = "USER-DEFINED"
-   * Column statusColumn = Column.builder()
-   *     .name("status")
-   *     .dataType("USER-DEFINED")
-   *     .constraints(List.of())
-   *     .build();
-   *
-   * DbEnum orderStatusEnum = DbEnum.builder()
-   *     .enumName("order_status")
-   *     .columnName("status")
-   *     .enumValues(List.of("PENDING", "SHIPPED"))
-   *     .build();
-   *
-   * // After mapping: dataType = "order_status"
-   * List<Column> result = mapper.mapUserDefinedTypes(
-   *     List.of(statusColumn),
-   *     List.of(orderStatusEnum)
-   * );
-   * }</pre>
+   * <ul>
+   *   <li>Same schema: Use unqualified name (e.g., {@code account_status})
+   *   <li>Different schema: Use qualified name (e.g., {@code auth.account_status})
+   *   <li>UDT not in documented schemas: Use qualified name with WARNING log
+   * </ul>
    *
    * @param rawColumns the raw columns from database metadata
-   * @param dbEnums the list of {@link DbEnum} instances for type mapping
+   * @param context the column mapping context containing UDT mappings and enum definitions
    * @return list of {@link Column} instances with USER-DEFINED types resolved to enum type names
    */
+  // Complexity is necessary for cross-schema resolution and secure logging
+  @SuppressWarnings("PMD.CognitiveComplexity")
   public List<Column> mapUserDefinedTypes(
-      final List<Column> rawColumns, final List<DbEnum> dbEnums) {
+      final List<Column> rawColumns, final ColumnMappingContext context) {
     return rawColumns.stream()
         .map(
             column -> {
@@ -88,12 +86,66 @@ public final class ColumnMapper {
                 return column;
               }
 
-              final var dataType =
-                  dbEnums.stream()
-                      .filter(dbEnum -> dbEnum.columnNames().contains(column.name()))
-                      .findFirst()
-                      .map(DbEnum::enumName)
-                      .orElse(column.dataType());
+              final var columnKey = new ColumnKey(context.currentTableName(), column.name());
+              final var udtReference = context.columnUdtMappings().get(columnKey);
+
+              if (udtReference == null) {
+                if (LOGGER.isLoggable(Level.WARNING)) {
+                  LOGGER.log(
+                      Level.WARNING,
+                      "No UDT mapping found for column {0}.{1}.{2}",
+                      new Object[] {
+                        LogUtils.sanitizeForLog(context.currentSchema()),
+                        LogUtils.sanitizeForLog(context.currentTableName()),
+                        LogUtils.sanitizeForLog(column.name())
+                      });
+                }
+                return column;
+              }
+
+              // O(1) lookup using EnumKey
+              final var enumKey = new EnumKey(udtReference.udtSchema(), udtReference.udtName());
+              final var matchingEnum = context.enumsByKey().get(enumKey);
+
+              final String dataType;
+              if (matchingEnum != null) {
+                // Enum found in documented schemas - apply qualification rules
+                if (context.currentSchema().equals(udtReference.udtSchema())) {
+                  // Same schema: unqualified name
+                  dataType = udtReference.udtName();
+                } else {
+                  // Different schema: qualified name
+                  dataType = udtReference.udtSchema() + "." + udtReference.udtName();
+
+                  if (LOGGER.isLoggable(Level.FINE)) {
+                    LOGGER.log(
+                        Level.FINE,
+                        "Cross-schema type reference: {0}.{1}.{2} -> {3}.{4}",
+                        new Object[] {
+                          LogUtils.sanitizeForLog(context.currentSchema()),
+                          LogUtils.sanitizeForLog(context.currentTableName()),
+                          LogUtils.sanitizeForLog(column.name()),
+                          LogUtils.sanitizeForLog(udtReference.udtSchema()),
+                          LogUtils.sanitizeForLog(udtReference.udtName())
+                        });
+                  }
+                }
+              } else {
+                // Enum not in documented schemas - warn and use qualified name
+                dataType = udtReference.udtSchema() + "." + udtReference.udtName();
+
+                if (LOGGER.isLoggable(Level.WARNING)) {
+                  LOGGER.log(
+                      Level.WARNING,
+                      "Column {0}.{1} references type {2}.{3} which is not in documented schemas",
+                      new Object[] {
+                        LogUtils.sanitizeForLog(context.currentTableName()),
+                        LogUtils.sanitizeForLog(column.name()),
+                        LogUtils.sanitizeForLog(udtReference.udtSchema()),
+                        LogUtils.sanitizeForLog(udtReference.udtName())
+                      });
+                }
+              }
 
               return Column.builder()
                   .name(column.name())

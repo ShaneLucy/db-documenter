@@ -1,10 +1,12 @@
 package db.documenter.internal.queries.impl.postgresql;
 
 import db.documenter.internal.models.db.Column;
+import db.documenter.internal.models.db.ColumnKey;
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
+import db.documenter.internal.models.db.postgresql.UdtReference;
 import db.documenter.internal.queries.api.PreparedStatementMapper;
 import db.documenter.internal.queries.api.QueryRunner;
 import db.documenter.internal.queries.api.ResultSetMapper;
@@ -13,6 +15,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,6 +50,7 @@ public final class PostgresqlQueryRunner implements QueryRunner {
              c.ordinal_position,
              c.is_nullable,
              c.data_type,
+             c.udt_schema,
              c.character_maximum_length,
              c.column_default,
              CASE
@@ -81,7 +85,7 @@ public final class PostgresqlQueryRunner implements QueryRunner {
            WHERE c.table_schema = ?
              AND c.table_name = ?
            GROUP BY c.column_name, c.ordinal_position, c.is_nullable, c.data_type,
-                    c.character_maximum_length, c.column_default
+                    c.udt_schema, c.character_maximum_length, c.column_default
            ORDER BY c.ordinal_position;
            """;
 
@@ -122,12 +126,27 @@ public final class PostgresqlQueryRunner implements QueryRunner {
 
   private static final String GET_ENUMS_QUERY =
       """
+          SELECT DISTINCT
+            n.nspname AS udt_schema,
+            t.typname AS udt_name
+          FROM pg_type t
+          JOIN pg_namespace n ON t.typnamespace = n.oid
+          WHERE n.nspname = ?
+            AND t.typtype = 'e'
+          ORDER BY t.typname;
+          """;
+
+  private static final String GET_COLUMN_ENUM_MAPPINGS_QUERY =
+      """
           SELECT
-            column_name,
-            udt_name
-          FROM information_schema.columns
-          WHERE table_schema = ?
-          AND data_type = 'USER-DEFINED';
+            c.table_name,
+            c.column_name,
+            c.udt_schema,
+            c.udt_name
+          FROM information_schema.columns c
+          WHERE c.table_schema = ?
+            AND c.data_type = 'USER-DEFINED'
+          ORDER BY c.table_name, c.ordinal_position;
           """;
 
   private static final String GET_ENUM_FIELDS_QUERY =
@@ -272,6 +291,30 @@ public final class PostgresqlQueryRunner implements QueryRunner {
         }
 
         return dbEnumValues;
+      }
+    }
+  }
+
+  @Override
+  public Map<ColumnKey, UdtReference> getColumnUdtMappings(final String schemaName)
+      throws SQLException {
+    try (final var preparedStatement =
+        connection.prepareStatement(GET_COLUMN_ENUM_MAPPINGS_QUERY)) {
+      postgresqlPreparedStatementMapper.prepareColumnUdtMappingsStatement(
+          preparedStatement, schemaName);
+
+      try (final var resultSet = preparedStatement.executeQuery()) {
+        final Map<ColumnKey, UdtReference> columnUdtMappings =
+            postgresqlResultSetMapper.mapToColumnUdtMappings(resultSet);
+
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Discovered: {0} column UDT mappings in schema: {1}",
+              new Object[] {columnUdtMappings.size(), LogUtils.sanitizeForLog(schemaName)});
+        }
+
+        return columnUdtMappings;
       }
     }
   }

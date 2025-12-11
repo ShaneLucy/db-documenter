@@ -32,11 +32,11 @@ public final class EnumBuilder {
     final List<DbEnum> result = new ArrayList<>();
 
     for (final DbEnum dbEnum : dbEnums) {
-      final List<String> dbEnumValues = queryRunner.getEnumValues(schema, dbEnum);
+      final List<String> dbEnumValues = queryRunner.getEnumValues(dbEnum.schemaName(), dbEnum);
       result.add(
           DbEnum.builder()
+              .schemaName(dbEnum.schemaName())
               .enumName(dbEnum.enumName())
-              .columnNames(dbEnum.columnNames())
               .enumValues(dbEnumValues)
               .build());
     }

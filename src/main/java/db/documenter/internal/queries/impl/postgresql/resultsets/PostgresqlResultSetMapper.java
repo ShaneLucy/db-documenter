@@ -1,6 +1,8 @@
 package db.documenter.internal.queries.impl.postgresql.resultsets;
 
 import db.documenter.internal.models.db.*;
+import db.documenter.internal.models.db.ColumnKey;
+import db.documenter.internal.models.db.postgresql.UdtReference;
 import db.documenter.internal.queries.api.ResultSetMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -110,29 +112,18 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
   }
 
   @Override
-  // ArrayList is only created when a new enum name is encountered, not every iteration.
-  // This is idiomatic Java for grouping data by key.
-  // PMD wants ConcurrentHashMap, but this is a local variable with no concurrent access.
-  // LinkedHashMap is correct for preserving insertion order.
-  @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseConcurrentHashMap"})
   public List<DbEnum> mapToDbEnumInfo(final ResultSet resultSet) throws SQLException {
-    final Map<String, List<String>> enumToColumns = new LinkedHashMap<>();
+    final List<DbEnum> dbEnums = new ArrayList<>();
 
     while (resultSet.next()) {
-      final var enumName = resultSet.getString("udt_name");
-      final var columnName = resultSet.getString("column_name");
-      enumToColumns.computeIfAbsent(enumName, k -> new ArrayList<>()).add(columnName);
+      final var udtSchema = resultSet.getString("udt_schema");
+      final var udtName = resultSet.getString("udt_name");
+
+      dbEnums.add(
+          DbEnum.builder().schemaName(udtSchema).enumName(udtName).enumValues(List.of()).build());
     }
 
-    return enumToColumns.entrySet().stream()
-        .map(
-            entry ->
-                DbEnum.builder()
-                    .enumName(entry.getKey())
-                    .columnNames(entry.getValue())
-                    .enumValues(List.of())
-                    .build())
-        .toList();
+    return dbEnums;
   }
 
   @Override
@@ -144,5 +135,30 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
     }
 
     return dbEnumValues;
+  }
+
+  @Override
+  // ColumnKey and UdtReference are only created when a new mapping is encountered.
+  // This is standard Java pattern for mapping database rows to domain objects.
+  // PMD wants ConcurrentHashMap, but this is a local variable with no concurrent access.
+  // LinkedHashMap is correct for preserving insertion order.
+  @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseConcurrentHashMap"})
+  public Map<ColumnKey, UdtReference> mapToColumnUdtMappings(final ResultSet resultSet)
+      throws SQLException {
+    final Map<ColumnKey, UdtReference> mappings = new LinkedHashMap<>();
+
+    while (resultSet.next()) {
+      final var tableName = resultSet.getString("table_name");
+      final var columnName = resultSet.getString("column_name");
+      final var udtSchema = resultSet.getString("udt_schema");
+      final var udtName = resultSet.getString("udt_name");
+
+      final var columnKey = new ColumnKey(tableName, columnName);
+      final var udtReference = new UdtReference(udtSchema, udtName);
+
+      mappings.put(columnKey, udtReference);
+    }
+
+    return mappings;
   }
 }
