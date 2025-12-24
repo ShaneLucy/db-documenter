@@ -23,4 +23,7 @@ public interface PreparedStatementMapper {
 
   void prepareEnumValuesStatement(
       PreparedStatement preparedStatement, String schema, String enumName) throws SQLException;
+
+  void prepareColumnUdtMappingsStatement(PreparedStatement preparedStatement, String schema)
+      throws SQLException;
 }

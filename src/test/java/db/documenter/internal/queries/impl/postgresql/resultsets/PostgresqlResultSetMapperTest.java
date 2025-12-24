@@ -550,36 +550,36 @@ class PostgresqlResultSetMapperTest {
     @Test
     void mapsSingleRow() throws Exception {
       when(resultSet.next()).thenReturn(true, false);
-      when(resultSet.getString("column_name")).thenReturn("col1");
       when(resultSet.getString("udt_name")).thenReturn("enum1");
+      when(resultSet.getString("udt_schema")).thenReturn("public");
 
       List<DbEnum> result = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
 
       assertEquals(1, result.size());
-      assertEquals(List.of("col1"), result.getFirst().columnNames());
       assertEquals("enum1", result.getFirst().enumName());
+      assertEquals("public", result.getFirst().schemaName());
     }
 
     @Test
     void mapsMultipleRows() throws Exception {
       when(resultSet.next()).thenReturn(true, true, false);
-      when(resultSet.getString("column_name")).thenReturn("col1", "col2");
       when(resultSet.getString("udt_name")).thenReturn("enum1", "enum2");
+      when(resultSet.getString("udt_schema")).thenReturn("public", "core");
 
       List<DbEnum> result = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
 
       assertEquals(2, result.size());
-      assertEquals(List.of("col1"), result.getFirst().columnNames());
       assertEquals("enum1", result.getFirst().enumName());
-      assertEquals(List.of("col2"), result.get(1).columnNames());
+      assertEquals("public", result.getFirst().schemaName());
       assertEquals("enum2", result.get(1).enumName());
+      assertEquals("core", result.get(1).schemaName());
     }
 
     @Test
     void handlesNullValues() throws Exception {
       when(resultSet.next()).thenReturn(true, false);
-      when(resultSet.getString("column_name")).thenReturn(null);
       when(resultSet.getString("udt_name")).thenReturn(null);
+      when(resultSet.getString("udt_schema")).thenReturn(null);
 
       assertThrows(
           db.documenter.internal.exceptions.ValidationException.class,
@@ -589,12 +589,27 @@ class PostgresqlResultSetMapperTest {
     @Test
     void itDoesNotSetDbEnumValues() throws SQLException {
       when(resultSet.next()).thenReturn(true, false);
-      when(resultSet.getString("column_name")).thenReturn("col1");
       when(resultSet.getString("udt_name")).thenReturn("enum1");
+      when(resultSet.getString("udt_schema")).thenReturn("public");
 
       List<DbEnum> result = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
 
       assertEquals(0, result.getFirst().enumValues().size());
+    }
+
+    @Test
+    void whenSameEnumNameInDifferentSchemasThenCreatesDistinctEnums() throws SQLException {
+      when(resultSet.next()).thenReturn(true, true, false);
+      when(resultSet.getString("udt_name")).thenReturn("project_status", "project_status");
+      when(resultSet.getString("udt_schema")).thenReturn("core", "audit");
+
+      List<DbEnum> result = postgresqlResultSetMapper.mapToDbEnumInfo(resultSet);
+
+      assertEquals(2, result.size());
+      assertEquals("project_status", result.getFirst().enumName());
+      assertEquals("core", result.getFirst().schemaName());
+      assertEquals("project_status", result.get(1).enumName());
+      assertEquals("audit", result.get(1).schemaName());
     }
   }
 

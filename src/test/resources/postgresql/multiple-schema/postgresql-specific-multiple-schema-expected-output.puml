@@ -117,15 +117,12 @@ package "auth" {
 }
 
 package "core" {
-	entity "address_type" <<enum>> {
-	}
-
-	entity "subscription_tier" <<enum>> {
-		free
-		starter
-		professional
-		enterprise
-		custom
+	entity "priority_level" <<enum>> {
+		critical
+		high
+		medium
+		low
+		none
 	}
 
 	entity "project_status" <<enum>> {
@@ -135,6 +132,14 @@ package "core" {
 		completed
 		archived
 		cancelled
+	}
+
+	entity "subscription_tier" <<enum>> {
+		free
+		starter
+		professional
+		enterprise
+		custom
 	}
 
 	entity "task_status" <<enum>> {
@@ -147,26 +152,12 @@ package "core" {
 		cancelled
 	}
 
-	entity "priority_level" <<enum>> {
-		critical
-		high
-		medium
-		low
-		none
-	}
-
-	entity "money_amount" <<enum>> {
-	}
-
-	entity "account_status" <<enum>> {
-	}
-
 	entity "organizations" {
 		**id: uuid** <<DEFAULT>>
 		--
 		name: character varying(200)
 		slug: character varying(100) <<UNIQUE,CHECK>>
-		billing_address: address_type <<NULLABLE>>
+		billing_address: core.address_type <<NULLABLE>>
 		subscription_tier: subscription_tier <<DEFAULT>>
 		subscription_data: jsonb <<DEFAULT>>
 		settings: jsonb <<DEFAULT>>
@@ -221,7 +212,7 @@ package "core" {
 		task_number: integer <<UNIQUE>>
 		title: character varying(500)
 		description: text <<NULLABLE>>
-		status: project_status <<DEFAULT,CHECK>>
+		status: task_status <<DEFAULT,CHECK>>
 		priority: priority_level <<DEFAULT>>
 		assignee_ids: ARRAY <<DEFAULT>>
 		reporter_id: uuid <<FK,NULLABLE>>
@@ -263,7 +254,7 @@ package "core" {
 		duration_minutes: integer <<NULLABLE>>
 		description: text <<NULLABLE>>
 		is_billable: boolean <<DEFAULT>>
-		billing_rate: money_amount <<NULLABLE>>
+		billing_rate: core.money_amount <<NULLABLE>>
 		created_at: timestamp with time zone <<DEFAULT>>
 		updated_at: timestamp with time zone <<DEFAULT>>
 	}
@@ -310,7 +301,7 @@ package "core" {
 		display_name: character varying <<NULLABLE>>
 		email: character varying(255) <<NULLABLE>>
 		avatar_url: jsonb <<NULLABLE>>
-		account_status: account_status <<NULLABLE>>
+		account_status: auth.account_status <<NULLABLE>>
 		accepted_at: timestamp with time zone <<NULLABLE>>
 		last_login_at: timestamp with time zone <<NULLABLE>>
 	}
@@ -499,12 +490,6 @@ package "audit" {
 		bulk_operation
 	}
 
-	entity "task_status" <<enum>> {
-	}
-
-	entity "project_status" <<enum>> {
-	}
-
 	entity "audit_log" {
 		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
 		**event_time: timestamp with time zone** <<DEFAULT>>
@@ -628,8 +613,8 @@ package "audit" {
 		data_snapshot: jsonb
 		project_id: uuid
 		task_number: integer
-		status_before: task_status <<NULLABLE>>
-		status_after: task_status <<NULLABLE>>
+		status_before: core.task_status <<NULLABLE>>
+		status_after: core.task_status <<NULLABLE>>
 	}
 
 	entity "project_changes" {
@@ -642,8 +627,8 @@ package "audit" {
 		change_type: character varying(20)
 		data_snapshot: jsonb
 		organization_id: uuid
-		status_before: task_status <<NULLABLE>>
-		status_after: task_status <<NULLABLE>>
+		status_before: core.project_status <<NULLABLE>>
+		status_after: core.project_status <<NULLABLE>>
 	}
 
 	entity "access_log" {

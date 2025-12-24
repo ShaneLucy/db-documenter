@@ -1,14 +1,18 @@
 package db.documenter.internal.builder;
 
 import db.documenter.internal.connection.api.ConnectionManager;
+import db.documenter.internal.models.db.ColumnKey;
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.Schema;
 import db.documenter.internal.models.db.Table;
+import db.documenter.internal.models.db.postgresql.EnumKey;
+import db.documenter.internal.models.db.postgresql.UdtReference;
 import db.documenter.internal.queries.QueryRunnerFactory;
 import db.documenter.internal.utils.LogUtils;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,7 +58,14 @@ public final class SchemaBuilder {
         final var queryRunner = queryRunnerFactory.createQueryRunner(connection);
 
         final List<DbEnum> dbEnums = enumBuilder.buildEnums(queryRunner, schemaName);
-        final List<Table> tables = tableBuilder.buildTables(queryRunner, schemaName, dbEnums);
+
+        final Map<EnumKey, DbEnum> enumsByKey = enumBuilder.buildEnumKeys(dbEnums, schemaName);
+
+        final Map<ColumnKey, UdtReference> columnUdtMappings =
+            queryRunner.getColumnUdtMappings(schemaName);
+
+        final List<Table> tables =
+            tableBuilder.buildTables(queryRunner, schemaName, enumsByKey, columnUdtMappings);
 
         result.add(Schema.builder().name(schemaName).tables(tables).dbEnums(dbEnums).build());
 

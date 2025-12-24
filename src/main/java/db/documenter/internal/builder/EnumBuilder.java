@@ -1,13 +1,17 @@
 package db.documenter.internal.builder;
 
 import db.documenter.internal.models.db.DbEnum;
+import db.documenter.internal.models.db.postgresql.EnumKey;
 import db.documenter.internal.queries.api.QueryRunner;
 import db.documenter.internal.utils.LogUtils;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /** Builds database enum type information from schema metadata. */
 public final class EnumBuilder {
@@ -32,15 +36,33 @@ public final class EnumBuilder {
     final List<DbEnum> result = new ArrayList<>();
 
     for (final DbEnum dbEnum : dbEnums) {
-      final List<String> dbEnumValues = queryRunner.getEnumValues(schema, dbEnum);
+      final List<String> dbEnumValues = queryRunner.getEnumValues(dbEnum.schemaName(), dbEnum);
       result.add(
           DbEnum.builder()
+              .schemaName(dbEnum.schemaName())
               .enumName(dbEnum.enumName())
-              .columnNames(dbEnum.columnNames())
               .enumValues(dbEnumValues)
               .build());
     }
 
     return result;
+  }
+
+  public Map<EnumKey, DbEnum> buildEnumKeys(final List<DbEnum> dbEnums, final String schema) {
+    final Map<EnumKey, DbEnum> enumsByKey =
+        dbEnums.stream()
+            .collect(
+                Collectors.toMap(
+                    dbEnum -> new EnumKey(dbEnum.schemaName(), dbEnum.enumName()),
+                    Function.identity()));
+
+    if (LOGGER.isLoggable(Level.FINE)) {
+      LOGGER.log(
+          Level.FINE,
+          "Created enum lookup map with {0} entries for schema: {1}",
+          new Object[] {enumsByKey.size(), LogUtils.sanitizeForLog(schema)});
+    }
+
+    return enumsByKey;
   }
 }
