@@ -57,7 +57,7 @@ package "public" {
 		sku: character varying(30) <<UNIQUE>>
 		name: character varying(200)
 		description: text <<NULLABLE>>
-		price: numeric <<CHECK>>
+		price: numeric(19,2) <<CHECK>>
 		attributes: jsonb <<DEFAULT,NULLABLE>>
 		created_at: timestamp without time zone <<DEFAULT>>
 		stock: integer <<DEFAULT>>
@@ -87,7 +87,7 @@ package "public" {
 		ship_date: timestamp without time zone <<NULLABLE>>
 		shipping_address_id: bigint <<FK,NULLABLE>>
 		status: order_status <<DEFAULT>>
-		total: numeric <<CHECK>>
+		total: numeric(19,2) <<CHECK>>
 		metadata: jsonb <<DEFAULT,NULLABLE>>
 	}
 
@@ -97,9 +97,9 @@ package "public" {
 		order_id: bigint <<FK,UNIQUE>>
 		product_id: bigint <<FK,UNIQUE>>
 		product_snapshot: jsonb
-		unit_price: numeric <<CHECK>>
+		unit_price: numeric(19,2) <<CHECK>>
 		quantity: integer <<CHECK>>
-		line_total: numeric <<CHECK>>
+		line_total: numeric(19,2) <<CHECK>>
 	}
 
 	entity "payment" {
@@ -107,7 +107,7 @@ package "public" {
 		--
 		order_id: bigint <<FK>>
 		paid_at: timestamp with time zone <<DEFAULT>>
-		amount: numeric <<CHECK>>
+		amount: numeric(19,2) <<CHECK>>
 		method: character varying(50)
 		provider_transaction_id: character varying(255) <<NULLABLE>>
 		raw_response: jsonb <<NULLABLE>>

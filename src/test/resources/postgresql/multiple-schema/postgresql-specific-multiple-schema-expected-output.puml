@@ -29,7 +29,7 @@ package "auth" {
 		password_hash: character varying(255) <<CHECK>>
 		password_changed_at: timestamp with time zone <<DEFAULT>>
 		profile: jsonb <<DEFAULT>>
-		preferred_languages: ARRAY <<DEFAULT>>
+		preferred_languages: text[] <<DEFAULT>>
 		status: account_status <<DEFAULT>>
 		search_vector: tsvector <<NULLABLE>>
 		created_at: timestamp with time zone <<DEFAULT>>
@@ -46,7 +46,7 @@ package "auth" {
 		user_id: uuid <<FK,UNIQUE>>
 		method: mfa_method
 		secret_encrypted: bytea <<NULLABLE>>
-		backup_codes: ARRAY <<NULLABLE>>
+		backup_codes: text[] <<NULLABLE>>
 		is_primary: boolean <<UNIQUE,DEFAULT>>
 		is_verified: boolean <<DEFAULT>>
 		verified_at: timestamp with time zone <<NULLABLE>>
@@ -74,7 +74,7 @@ package "auth" {
 		code: character varying(100) <<UNIQUE>>
 		name: character varying(200)
 		description: text <<NULLABLE>>
-		categories: ARRAY <<DEFAULT>>
+		categories: text[] <<DEFAULT>>
 		resource: character varying(50) <<UNIQUE>>
 		action: character varying(50) <<UNIQUE>>
 		created_at: timestamp with time zone <<DEFAULT>>
@@ -180,7 +180,7 @@ package "core" {
 		subscription_tier: subscription_tier <<DEFAULT>>
 		subscription_data: jsonb <<DEFAULT>>
 		settings: jsonb <<DEFAULT>>
-		allowed_domains: ARRAY <<DEFAULT>>
+		allowed_domains: text[] <<DEFAULT>>
 		search_vector: tsvector <<NULLABLE>>
 		created_at: timestamp with time zone <<DEFAULT>>
 		updated_at: timestamp with time zone <<DEFAULT>>
@@ -213,7 +213,7 @@ package "core" {
 		start_date: date <<CHECK,NULLABLE>>
 		target_end_date: date <<CHECK,NULLABLE>>
 		actual_end_date: date <<CHECK,NULLABLE>>
-		tags: ARRAY <<DEFAULT>>
+		tags: text[] <<DEFAULT>>
 		color: character(7) <<DEFAULT,CHECK,NULLABLE>>
 		custom_fields: jsonb <<DEFAULT>>
 		settings: jsonb <<DEFAULT>>
@@ -233,10 +233,10 @@ package "core" {
 		description: text <<NULLABLE>>
 		status: task_status <<DEFAULT,CHECK>>
 		priority: priority_level <<DEFAULT>>
-		assignee_ids: ARRAY <<DEFAULT>>
+		assignee_ids: uuid[] <<DEFAULT>>
 		reporter_id: uuid <<FK,NULLABLE>>
 		parent_task_id: uuid <<FK,NULLABLE>>
-		path: ARRAY <<DEFAULT>>
+		path: uuid[] <<DEFAULT>>
 		depth: integer <<DEFAULT>>
 		due_date: timestamp with time zone <<NULLABLE>>
 		started_at: timestamp with time zone <<NULLABLE>>
@@ -245,7 +245,7 @@ package "core" {
 		logged_minutes: integer <<DEFAULT,CHECK>>
 		remaining_minutes: integer <<NULLABLE,GENERATED>>
 		story_points: smallint <<CHECK,NULLABLE>>
-		labels: ARRAY <<DEFAULT>>
+		labels: text[] <<DEFAULT>>
 		custom_fields: jsonb <<DEFAULT>>
 		search_vector: tsvector <<NULLABLE>>
 		created_at: timestamp with time zone <<DEFAULT>>
@@ -303,7 +303,7 @@ package "core" {
 		content_html: text <<NULLABLE>>
 		search_vector: tsvector <<NULLABLE>>
 		parent_id: uuid <<FK,NULLABLE>>
-		mentioned_user_ids: ARRAY <<DEFAULT>>
+		mentioned_user_ids: uuid[] <<DEFAULT>>
 		reactions: jsonb <<DEFAULT>>
 		author_id: uuid <<FK>>
 		is_edited: boolean <<DEFAULT>>
@@ -353,7 +353,7 @@ package "core" {
 		overdue_tasks: bigint <<NULLABLE>>
 		remaining_estimated_minutes: bigint <<NULLABLE>>
 		remaining_story_points: bigint <<NULLABLE>>
-		project_ids: ARRAY <<NULLABLE>>
+		project_ids: uuid[] <<NULLABLE>>
 	}
 
 }
@@ -373,13 +373,13 @@ package "analytics" {
 		tasks_done: integer <<DEFAULT>>
 		tasks_cancelled: integer <<DEFAULT>>
 		tasks_total: integer <<DEFAULT>>
-		tasks_completed_pct: numeric <<NULLABLE>>
+		tasks_completed_pct: numeric(5,2) <<NULLABLE>>
 		story_points_total: integer <<NULLABLE>>
 		story_points_completed: integer <<NULLABLE>>
 		estimated_minutes: bigint <<NULLABLE>>
 		logged_minutes: bigint <<NULLABLE>>
 		active_member_count: integer <<DEFAULT>>
-		active_member_ids: ARRAY <<DEFAULT>>
+		active_member_ids: uuid[] <<DEFAULT>>
 		computed_at: timestamp with time zone <<DEFAULT>>
 	}
 
@@ -397,13 +397,13 @@ package "analytics" {
 		tasks_done: integer <<DEFAULT>>
 		tasks_cancelled: integer <<DEFAULT>>
 		tasks_total: integer <<DEFAULT>>
-		tasks_completed_pct: numeric <<NULLABLE>>
+		tasks_completed_pct: numeric(5,2) <<NULLABLE>>
 		story_points_total: integer <<NULLABLE>>
 		story_points_completed: integer <<NULLABLE>>
 		estimated_minutes: bigint <<NULLABLE>>
 		logged_minutes: bigint <<NULLABLE>>
 		active_member_count: integer <<DEFAULT>>
-		active_member_ids: ARRAY <<DEFAULT>>
+		active_member_ids: uuid[] <<DEFAULT>>
 		computed_at: timestamp with time zone <<DEFAULT>>
 	}
 
@@ -421,13 +421,13 @@ package "analytics" {
 		tasks_done: integer <<DEFAULT>>
 		tasks_cancelled: integer <<DEFAULT>>
 		tasks_total: integer <<DEFAULT>>
-		tasks_completed_pct: numeric <<NULLABLE>>
+		tasks_completed_pct: numeric(5,2) <<NULLABLE>>
 		story_points_total: integer <<NULLABLE>>
 		story_points_completed: integer <<NULLABLE>>
 		estimated_minutes: bigint <<NULLABLE>>
 		logged_minutes: bigint <<NULLABLE>>
 		active_member_count: integer <<DEFAULT>>
-		active_member_ids: ARRAY <<DEFAULT>>
+		active_member_ids: uuid[] <<DEFAULT>>
 		computed_at: timestamp with time zone <<DEFAULT>>
 	}
 
@@ -445,13 +445,13 @@ package "analytics" {
 		tasks_done: integer <<DEFAULT>>
 		tasks_cancelled: integer <<DEFAULT>>
 		tasks_total: integer <<DEFAULT>>
-		tasks_completed_pct: numeric <<NULLABLE>>
+		tasks_completed_pct: numeric(5,2) <<NULLABLE>>
 		story_points_total: integer <<NULLABLE>>
 		story_points_completed: integer <<NULLABLE>>
 		estimated_minutes: bigint <<NULLABLE>>
 		logged_minutes: bigint <<NULLABLE>>
 		active_member_count: integer <<DEFAULT>>
-		active_member_ids: ARRAY <<DEFAULT>>
+		active_member_ids: uuid[] <<DEFAULT>>
 		computed_at: timestamp with time zone <<DEFAULT>>
 	}
 
@@ -469,13 +469,13 @@ package "analytics" {
 		tasks_done: integer <<DEFAULT>>
 		tasks_cancelled: integer <<DEFAULT>>
 		tasks_total: integer <<DEFAULT>>
-		tasks_completed_pct: numeric <<NULLABLE>>
+		tasks_completed_pct: numeric(5,2) <<NULLABLE>>
 		story_points_total: integer <<NULLABLE>>
 		story_points_completed: integer <<NULLABLE>>
 		estimated_minutes: bigint <<NULLABLE>>
 		logged_minutes: bigint <<NULLABLE>>
 		active_member_count: integer <<DEFAULT>>
-		active_member_ids: ARRAY <<DEFAULT>>
+		active_member_ids: uuid[] <<DEFAULT>>
 		computed_at: timestamp with time zone <<DEFAULT>>
 	}
 
@@ -489,7 +489,7 @@ package "analytics" {
 		comments_posted: integer <<DEFAULT>>
 		time_entries_count: integer <<DEFAULT>>
 		minutes_logged: integer <<DEFAULT>>
-		active_project_ids: ARRAY <<DEFAULT>>
+		active_project_ids: uuid[] <<DEFAULT>>
 		activity_breakdown: jsonb <<DEFAULT>>
 		computed_at: timestamp with time zone <<DEFAULT>>
 	}
@@ -523,7 +523,7 @@ package "audit" {
 		entity_id: text
 		old_values: jsonb <<NULLABLE>>
 		new_values: jsonb <<NULLABLE>>
-		changed_fields: ARRAY <<DEFAULT>>
+		changed_fields: text[] <<DEFAULT>>
 		context: jsonb <<DEFAULT>>
 		request_id: uuid <<NULLABLE>>
 		correlation_id: uuid <<NULLABLE>>
@@ -543,7 +543,7 @@ package "audit" {
 		entity_id: text
 		old_values: jsonb <<NULLABLE>>
 		new_values: jsonb <<NULLABLE>>
-		changed_fields: ARRAY <<DEFAULT>>
+		changed_fields: text[] <<DEFAULT>>
 		context: jsonb <<DEFAULT>>
 		request_id: uuid <<NULLABLE>>
 		correlation_id: uuid <<NULLABLE>>
@@ -563,7 +563,7 @@ package "audit" {
 		entity_id: text
 		old_values: jsonb <<NULLABLE>>
 		new_values: jsonb <<NULLABLE>>
-		changed_fields: ARRAY <<DEFAULT>>
+		changed_fields: text[] <<DEFAULT>>
 		context: jsonb <<DEFAULT>>
 		request_id: uuid <<NULLABLE>>
 		correlation_id: uuid <<NULLABLE>>
@@ -583,7 +583,7 @@ package "audit" {
 		entity_id: text
 		old_values: jsonb <<NULLABLE>>
 		new_values: jsonb <<NULLABLE>>
-		changed_fields: ARRAY <<DEFAULT>>
+		changed_fields: text[] <<DEFAULT>>
 		context: jsonb <<DEFAULT>>
 		request_id: uuid <<NULLABLE>>
 		correlation_id: uuid <<NULLABLE>>
@@ -603,7 +603,7 @@ package "audit" {
 		entity_id: text
 		old_values: jsonb <<NULLABLE>>
 		new_values: jsonb <<NULLABLE>>
-		changed_fields: ARRAY <<DEFAULT>>
+		changed_fields: text[] <<DEFAULT>>
 		context: jsonb <<DEFAULT>>
 		request_id: uuid <<NULLABLE>>
 		correlation_id: uuid <<NULLABLE>>
@@ -668,7 +668,7 @@ package "audit" {
 		geo_city: character varying(100) <<NULLABLE>>
 		geo_coordinates: point <<NULLABLE>>
 		risk_score: smallint <<NULLABLE>>
-		risk_factors: ARRAY <<NULLABLE>>
+		risk_factors: text[] <<NULLABLE>>
 		metadata: jsonb <<DEFAULT>>
 	}
 

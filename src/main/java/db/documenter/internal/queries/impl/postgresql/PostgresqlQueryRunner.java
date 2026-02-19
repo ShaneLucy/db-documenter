@@ -50,9 +50,14 @@ public final class PostgresqlQueryRunner implements QueryRunner {
              c.column_name,
              c.ordinal_position,
              c.is_nullable,
-             c.data_type,
+             CASE
+               WHEN c.data_type = 'ARRAY' THEN SUBSTRING(c.udt_name FROM 2) || '[]'
+               ELSE c.data_type
+             END AS data_type,
              c.udt_schema,
              c.character_maximum_length,
+             c.numeric_precision,
+             c.numeric_scale,
              c.column_default,
              c.is_generated,
              c.generation_expression,
@@ -88,8 +93,9 @@ public final class PostgresqlQueryRunner implements QueryRunner {
            WHERE c.table_schema = ?
              AND c.table_name = ?
            GROUP BY c.column_name, c.ordinal_position, c.is_nullable, c.data_type,
-                    c.udt_schema, c.character_maximum_length, c.column_default,
-                    c.is_generated, c.generation_expression
+                    c.udt_name, c.udt_schema, c.character_maximum_length,
+                    c.numeric_precision, c.numeric_scale,
+                    c.column_default, c.is_generated, c.generation_expression
            ORDER BY c.ordinal_position;
            """;
 

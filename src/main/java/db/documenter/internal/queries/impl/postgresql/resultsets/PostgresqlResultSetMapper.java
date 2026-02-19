@@ -33,16 +33,43 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
     final List<Column> columns = new ArrayList<>();
     while (resultSet.next()) {
       final List<Constraint> constraints = buildConstraints(resultSet);
+      final String dataType = resolveDataType(resultSet);
 
       columns.add(
           Column.builder()
               .name(resultSet.getString("column_name"))
-              .dataType(resultSet.getString("data_type"))
+              .dataType(dataType)
               .maximumLength(resultSet.getInt("character_maximum_length"))
               .constraints(constraints)
               .build());
     }
     return columns;
+  }
+
+  /**
+   * Resolves the display data type for a column, applying NUMERIC precision/scale formatting.
+   *
+   * <p>Array types are already converted to the {@code element_type[]} form by the SQL query.
+   * NUMERIC columns with explicit precision and scale are formatted as {@code numeric(p,s)} to
+   * preserve schema-defined constraints in the generated diagram.
+   *
+   * @param resultSet the current result set row
+   * @return the resolved data type string for display
+   * @throws SQLException if a database access error occurs
+   */
+  private String resolveDataType(final ResultSet resultSet) throws SQLException {
+    final var dataType = resultSet.getString("data_type");
+    final var isNumericDataType = "numeric".equals(dataType);
+
+    if (isNumericDataType) {
+      final var precision = resultSet.getObject("numeric_precision", Integer.class);
+      final var scale = resultSet.getObject("numeric_scale", Integer.class);
+      if (precision != null && scale != null) {
+        return "numeric(" + precision + "," + scale + ")";
+      }
+    }
+
+    return dataType;
   }
 
   private List<Constraint> buildConstraints(final ResultSet resultSet) throws SQLException {

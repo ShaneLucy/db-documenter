@@ -452,6 +452,97 @@ class PostgresqlResultSetMapperTest {
               .constraints()
               .contains(db.documenter.internal.models.db.Constraint.GENERATED));
     }
+
+    @Nested
+    class ResolveDataTypeTests {
+
+      @Test
+      void whenDataTypeIsNumericWithPrecisionAndScaleThenFormatsCorrectly() throws SQLException {
+        when(resultSet.next()).thenReturn(true, false);
+        when(resultSet.getString("column_name")).thenReturn("price");
+        when(resultSet.getString("is_nullable")).thenReturn("NO");
+        when(resultSet.getString("data_type")).thenReturn("numeric");
+        when(resultSet.getInt("character_maximum_length")).thenReturn(0);
+        when(resultSet.getBoolean("is_unique")).thenReturn(false);
+        when(resultSet.getString("check_constraint")).thenReturn(null);
+        when(resultSet.getString("column_default")).thenReturn(null);
+        when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+        when(resultSet.getString("is_generated")).thenReturn("NEVER");
+        when(resultSet.getObject("numeric_precision", Integer.class)).thenReturn(19);
+        when(resultSet.getObject("numeric_scale", Integer.class)).thenReturn(2);
+
+        final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+        assertEquals(1, result.size());
+        assertEquals("numeric(19,2)", result.getFirst().dataType());
+        verifyNoMoreInteractions(resultSet);
+      }
+
+      @Test
+      void whenDataTypeIsNumericWithoutPrecisionThenReturnsPlainNumeric() throws SQLException {
+        when(resultSet.next()).thenReturn(true, false);
+        when(resultSet.getString("column_name")).thenReturn("amount");
+        when(resultSet.getString("is_nullable")).thenReturn("NO");
+        when(resultSet.getString("data_type")).thenReturn("numeric");
+        when(resultSet.getInt("character_maximum_length")).thenReturn(0);
+        when(resultSet.getBoolean("is_unique")).thenReturn(false);
+        when(resultSet.getString("check_constraint")).thenReturn(null);
+        when(resultSet.getString("column_default")).thenReturn(null);
+        when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+        when(resultSet.getString("is_generated")).thenReturn("NEVER");
+        when(resultSet.getObject("numeric_precision", Integer.class)).thenReturn(null);
+        when(resultSet.getObject("numeric_scale", Integer.class)).thenReturn(null);
+
+        final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+        assertEquals(1, result.size());
+        assertEquals("numeric", result.getFirst().dataType());
+        verifyNoMoreInteractions(resultSet);
+      }
+
+      @Test
+      void whenDataTypeIsNumericWithDifferentPrecisionAndScaleThenFormatsCorrectly()
+          throws SQLException {
+        when(resultSet.next()).thenReturn(true, false);
+        when(resultSet.getString("column_name")).thenReturn("ratio");
+        when(resultSet.getString("is_nullable")).thenReturn("NO");
+        when(resultSet.getString("data_type")).thenReturn("numeric");
+        when(resultSet.getInt("character_maximum_length")).thenReturn(0);
+        when(resultSet.getBoolean("is_unique")).thenReturn(false);
+        when(resultSet.getString("check_constraint")).thenReturn(null);
+        when(resultSet.getString("column_default")).thenReturn(null);
+        when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+        when(resultSet.getString("is_generated")).thenReturn("NEVER");
+        when(resultSet.getObject("numeric_precision", Integer.class)).thenReturn(5);
+        when(resultSet.getObject("numeric_scale", Integer.class)).thenReturn(2);
+
+        final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+        assertEquals(1, result.size());
+        assertEquals("numeric(5,2)", result.getFirst().dataType());
+        verifyNoMoreInteractions(resultSet);
+      }
+
+      @Test
+      void whenDataTypeIsNotNumericThenReturnsDataTypeUnchanged() throws SQLException {
+        when(resultSet.next()).thenReturn(true, false);
+        when(resultSet.getString("column_name")).thenReturn("count");
+        when(resultSet.getString("is_nullable")).thenReturn("NO");
+        when(resultSet.getString("data_type")).thenReturn("integer");
+        when(resultSet.getInt("character_maximum_length")).thenReturn(0);
+        when(resultSet.getBoolean("is_unique")).thenReturn(false);
+        when(resultSet.getString("check_constraint")).thenReturn(null);
+        when(resultSet.getString("column_default")).thenReturn(null);
+        when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+        when(resultSet.getString("is_generated")).thenReturn("NEVER");
+
+        final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+        assertEquals(1, result.size());
+        assertEquals("integer", result.getFirst().dataType());
+        verifyNoMoreInteractions(resultSet);
+      }
+    }
   }
 
   @Nested

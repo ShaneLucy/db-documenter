@@ -498,7 +498,7 @@ class PostgresqlQueryRunnerTest {
         assertEquals("character varying", skuColumn.dataType());
         assertEquals("character varying", nameColumn.dataType());
         assertEquals("text", descriptionColumn.dataType());
-        assertEquals("numeric", priceColumn.dataType());
+        assertEquals("numeric(19,2)", priceColumn.dataType());
         assertEquals("jsonb", attributesColumn.dataType());
         assertEquals("timestamp without time zone", createdAtColumn.dataType());
         assertEquals("integer", stockColumn.dataType());
@@ -763,7 +763,7 @@ class PostgresqlQueryRunnerTest {
         assertEquals("timestamp without time zone", shipDateColumn.dataType());
         assertEquals("bigint", shippingAddressIdColumn.dataType());
         assertEquals("USER-DEFINED", statusColumn.dataType());
-        assertEquals("numeric", totalColumn.dataType());
+        assertEquals("numeric(19,2)", totalColumn.dataType());
         assertEquals("jsonb", metadataColumn.dataType());
       }
 
@@ -866,9 +866,9 @@ class PostgresqlQueryRunnerTest {
         assertEquals("bigint", orderIdColumn.dataType());
         assertEquals("bigint", productIdColumn.dataType());
         assertEquals("jsonb", productSnapshotColumn.dataType());
-        assertEquals("numeric", unitPriceColumn.dataType());
+        assertEquals("numeric(19,2)", unitPriceColumn.dataType());
         assertEquals("integer", quantityColumn.dataType());
-        assertEquals("numeric", lineTotalColumn.dataType());
+        assertEquals("numeric(19,2)", lineTotalColumn.dataType());
       }
 
       @Test
@@ -964,7 +964,7 @@ class PostgresqlQueryRunnerTest {
         assertEquals("uuid", idColumn.dataType());
         assertEquals("bigint", orderIdColumn.dataType());
         assertEquals("timestamp with time zone", paidAtColumn.dataType());
-        assertEquals("numeric", amountColumn.dataType());
+        assertEquals("numeric(19,2)", amountColumn.dataType());
         assertEquals("character varying", methodColumn.dataType());
         assertEquals("character varying", providerTransactionIdColumn.dataType());
         assertEquals("jsonb", rawResponseColumn.dataType());

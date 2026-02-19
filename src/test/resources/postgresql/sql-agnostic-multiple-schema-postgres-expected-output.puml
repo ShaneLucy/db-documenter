@@ -18,7 +18,7 @@ package "ecommerce" {
 		created_at: timestamp without time zone
 		updated_at: timestamp without time zone <<NULLABLE>>
 		last_login_at: timestamp without time zone <<NULLABLE>>
-		credit_balance: numeric <<DEFAULT,CHECK,NULLABLE>>
+		credit_balance: numeric(19,2) <<DEFAULT,CHECK,NULLABLE>>
 		loyalty_points: integer <<DEFAULT,NULLABLE>>
 		bio: text <<NULLABLE>>
 	}
@@ -28,7 +28,7 @@ package "ecommerce" {
 		**referred_user_id: bigint** <<FK,CHECK>>
 		--
 		referral_date: timestamp without time zone
-		referral_bonus: numeric <<DEFAULT,NULLABLE>>
+		referral_bonus: numeric(10,2) <<DEFAULT,NULLABLE>>
 		status: character varying(20) <<DEFAULT,CHECK>>
 	}
 
@@ -64,9 +64,9 @@ package "ecommerce" {
 		product_name: character varying(200)
 		description: text <<NULLABLE>>
 		category_id: integer <<FK,NULLABLE>>
-		unit_price: numeric <<CHECK>>
-		cost_price: numeric <<NULLABLE>>
-		weight_kg: numeric <<NULLABLE>>
+		unit_price: numeric(19,4) <<CHECK>>
+		cost_price: numeric(19,4) <<NULLABLE>>
+		weight_kg: numeric(10,3) <<NULLABLE>>
 		dimensions_cm: character varying(50) <<NULLABLE>>
 		is_active: boolean <<DEFAULT,NULLABLE>>
 		is_featured: boolean <<DEFAULT,NULLABLE>>
@@ -110,11 +110,11 @@ package "ecommerce" {
 		delivered_date: timestamp without time zone <<NULLABLE>>
 		shipping_address_id: bigint <<FK,NULLABLE>>
 		billing_address_id: bigint <<FK,NULLABLE>>
-		subtotal: numeric
-		tax_amount: numeric <<DEFAULT,NULLABLE>>
-		shipping_cost: numeric <<DEFAULT,NULLABLE>>
-		discount_amount: numeric <<DEFAULT,NULLABLE>>
-		total_amount: numeric <<CHECK>>
+		subtotal: numeric(19,2)
+		tax_amount: numeric(19,2) <<DEFAULT,NULLABLE>>
+		shipping_cost: numeric(19,2) <<DEFAULT,NULLABLE>>
+		discount_amount: numeric(19,2) <<DEFAULT,NULLABLE>>
+		total_amount: numeric(19,2) <<CHECK>>
 		notes: text <<NULLABLE>>
 	}
 
@@ -125,9 +125,9 @@ package "ecommerce" {
 		product_id: bigint <<FK>>
 		product_name: character varying(200)
 		quantity: integer <<CHECK>>
-		unit_price: numeric
-		discount_percent: numeric <<DEFAULT,CHECK,NULLABLE>>
-		line_total: numeric
+		unit_price: numeric(19,4)
+		discount_percent: numeric(5,2) <<DEFAULT,CHECK,NULLABLE>>
+		line_total: numeric(19,2)
 	}
 
 	entity "payments" {
@@ -136,7 +136,7 @@ package "ecommerce" {
 		order_id: bigint <<FK>>
 		payment_method: character varying(50)
 		payment_status: character varying(20) <<DEFAULT,CHECK>>
-		amount: numeric <<CHECK>>
+		amount: numeric(19,2) <<CHECK>>
 		currency_code: character(3) <<DEFAULT,CHECK,NULLABLE>>
 		transaction_id: character varying(100) <<NULLABLE>>
 		payment_date: timestamp without time zone <<NULLABLE>>
@@ -150,9 +150,9 @@ package "ecommerce" {
 		coupon_code: character varying(50) <<UNIQUE>>
 		description: character varying(200) <<NULLABLE>>
 		discount_type: character varying(20) <<CHECK>>
-		discount_value: numeric <<CHECK>>
-		min_purchase_amount: numeric <<NULLABLE>>
-		max_discount_amount: numeric <<NULLABLE>>
+		discount_value: numeric(10,2) <<CHECK>>
+		min_purchase_amount: numeric(19,2) <<NULLABLE>>
+		max_discount_amount: numeric(19,2) <<NULLABLE>>
 		valid_from: timestamp without time zone
 		valid_until: timestamp without time zone
 		usage_limit: integer <<NULLABLE>>
@@ -165,7 +165,7 @@ package "ecommerce" {
 		**order_id: bigint** <<FK>>
 		--
 		user_id: bigint <<FK>>
-		discount_applied: numeric
+		discount_applied: numeric(19,2)
 		used_at: timestamp without time zone
 	}
 
@@ -183,7 +183,7 @@ package "ecommerce" {
 		--
 		product_id: bigint <<FK,NULLABLE>>
 		promotion_name: character varying(100)
-		discount_percent: numeric <<NULLABLE>>
+		discount_percent: numeric(5,2) <<NULLABLE>>
 		start_date: date
 		end_date: date <<NULLABLE>>
 		created_at: timestamp without time zone <<DEFAULT,NULLABLE>>
@@ -203,8 +203,8 @@ package "ecommerce" {
 		small_int_col: smallint <<CHECK,NULLABLE>>
 		integer_col: integer <<NULLABLE>>
 		bigint_col: bigint <<NULLABLE>>
-		numeric_col: numeric <<NULLABLE>>
-		decimal_col: numeric <<NULLABLE>>
+		numeric_col: numeric(20,6) <<NULLABLE>>
+		decimal_col: numeric(15,4) <<NULLABLE>>
 		real_col: real <<CHECK,NULLABLE>>
 		double_col: double precision <<NULLABLE>>
 		float_col: real <<NULLABLE>>
@@ -240,10 +240,10 @@ package "ecommerce" {
 		order_id: bigint <<FK>>
 		invoice_number: character varying(50) <<UNIQUE>>
 		invoice_date: date <<DEFAULT>>
-		subtotal: numeric <<CHECK>>
-		tax_rate: numeric <<DEFAULT>>
-		tax_amount: numeric <<NULLABLE,GENERATED>>
-		total_amount: numeric <<NULLABLE,GENERATED>>
+		subtotal: numeric(19,2) <<CHECK>>
+		tax_rate: numeric(5,4) <<DEFAULT>>
+		tax_amount: numeric(19,2) <<NULLABLE,GENERATED>>
+		total_amount: numeric(19,2) <<NULLABLE,GENERATED>>
 		due_date: date <<NULLABLE>>
 		paid_date: date <<NULLABLE>>
 		status: character varying(20) <<DEFAULT,CHECK,NULLABLE>>
@@ -271,9 +271,9 @@ package "ecommerce" {
 		billing_period: interval
 		trial_period: interval <<NULLABLE>>
 		grace_period: interval <<DEFAULT,NULLABLE>>
-		monthly_price: numeric <<CHECK>>
-		annual_price: numeric <<NULLABLE>>
-		setup_fee: numeric <<DEFAULT,NULLABLE>>
+		monthly_price: numeric(10,2) <<CHECK>>
+		annual_price: numeric(10,2) <<NULLABLE>>
+		setup_fee: numeric(10,2) <<DEFAULT,NULLABLE>>
 		max_users: integer <<DEFAULT,CHECK,NULLABLE>>
 		is_active: boolean <<DEFAULT,NULLABLE>>
 		created_at: timestamp without time zone <<DEFAULT,NULLABLE>>
@@ -300,7 +300,7 @@ package "ecommerce" {
 		department_name: character varying(100) <<UNIQUE>>
 		department_head_id: bigint <<FK,NULLABLE>>
 		parent_department_id: integer <<FK,NULLABLE>>
-		budget: numeric <<NULLABLE>>
+		budget: numeric(19,2) <<NULLABLE>>
 		location: character varying(100) <<NULLABLE>>
 		created_at: timestamp without time zone <<DEFAULT,NULLABLE>>
 	}
@@ -318,8 +318,8 @@ package "ecommerce" {
 		job_title: character varying(100) <<NULLABLE>>
 		hire_date: date <<CHECK>>
 		termination_date: date <<CHECK,NULLABLE>>
-		salary: numeric <<CHECK,NULLABLE>>
-		commission_rate: numeric <<DEFAULT,CHECK,NULLABLE>>
+		salary: numeric(19,2) <<CHECK,NULLABLE>>
+		commission_rate: numeric(5,4) <<DEFAULT,CHECK,NULLABLE>>
 		is_active: boolean <<DEFAULT,NULLABLE>>
 	}
 
@@ -352,8 +352,8 @@ package "ecommerce" {
 		status: character varying(20) <<DEFAULT>>
 		priority: integer <<DEFAULT,CHECK>>
 		count: integer <<DEFAULT>>
-		amount: numeric <<DEFAULT>>
-		rate: numeric <<DEFAULT>>
+		amount: numeric(10,2) <<DEFAULT>>
+		rate: numeric(5,4) <<DEFAULT>>
 		is_enabled: boolean <<DEFAULT>>
 		is_deleted: boolean <<DEFAULT>>
 		created_at: timestamp without time zone <<DEFAULT>>
@@ -364,13 +364,13 @@ package "ecommerce" {
 	entity "constraint_showcase" {
 		**id: integer**
 		--
-		percentage: numeric <<CHECK,NULLABLE>>
+		percentage: numeric(5,2) <<CHECK,NULLABLE>>
 		rating: integer <<CHECK,NULLABLE>>
 		status: character varying(20) <<CHECK,NULLABLE>>
 		start_date: date <<CHECK,NULLABLE>>
 		end_date: date <<CHECK,NULLABLE>>
 		email: character varying(255) <<CHECK,NULLABLE>>
-		price: numeric <<CHECK,NULLABLE>>
+		price: numeric(19,2) <<CHECK,NULLABLE>>
 		quantity: integer <<CHECK,NULLABLE>>
 		discount_code: character varying(20) <<CHECK,NULLABLE>>
 	}
@@ -394,7 +394,7 @@ package "ecommerce" {
 		customer_email: character varying(255) <<NULLABLE>>
 		order_status: character varying(20) <<NULLABLE>>
 		order_date: timestamp without time zone <<NULLABLE>>
-		total_amount: numeric <<NULLABLE>>
+		total_amount: numeric(19,2) <<NULLABLE>>
 		item_count: bigint <<NULLABLE>>
 		total_quantity: bigint <<NULLABLE>>
 	}
@@ -404,8 +404,8 @@ package "ecommerce" {
 		stock_keeping_unit: character varying(50) <<NULLABLE>>
 		product_title: character varying(200) <<NULLABLE>>
 		category: character varying(100) <<NULLABLE>>
-		retail_price: numeric <<NULLABLE>>
-		wholesale_price: numeric <<NULLABLE>>
+		retail_price: numeric(19,4) <<NULLABLE>>
+		wholesale_price: numeric(19,4) <<NULLABLE>>
 		profit_margin_percent: numeric <<NULLABLE>>
 		in_stock: boolean <<NULLABLE>>
 		featured_item: boolean <<NULLABLE>>
@@ -428,7 +428,7 @@ package "inventory" {
 		country_code: character(2)
 		phone_number: character varying(20) <<NULLABLE>>
 		email: character varying(100) <<NULLABLE>>
-		capacity_sqm: numeric <<CHECK,NULLABLE>>
+		capacity_sqm: numeric(10,2) <<CHECK,NULLABLE>>
 		is_active: boolean <<DEFAULT,NULLABLE>>
 		opened_date: date <<NULLABLE>>
 	}
@@ -446,7 +446,7 @@ package "inventory" {
 		city: character varying(100) <<NULLABLE>>
 		country_code: character(2) <<NULLABLE>>
 		payment_terms: character varying(50) <<NULLABLE>>
-		credit_limit: numeric <<NULLABLE>>
+		credit_limit: numeric(19,2) <<NULLABLE>>
 		is_active: boolean <<DEFAULT,NULLABLE>>
 		rating: smallint <<CHECK,NULLABLE>>
 		created_at: timestamp without time zone
@@ -457,7 +457,7 @@ package "inventory" {
 		**supplier_id: integer** <<FK>>
 		--
 		supplier_sku: character varying(50) <<NULLABLE>>
-		unit_cost: numeric <<CHECK>>
+		unit_cost: numeric(19,4) <<CHECK>>
 		lead_time_days: integer <<CHECK,NULLABLE>>
 		min_order_quantity: integer <<DEFAULT,NULLABLE>>
 		is_preferred: boolean <<DEFAULT,NULLABLE>>
@@ -488,10 +488,10 @@ package "inventory" {
 		expected_delivery_date: date <<NULLABLE>>
 		actual_delivery_date: date <<NULLABLE>>
 		status: character varying(20) <<DEFAULT,CHECK>>
-		subtotal: numeric
-		tax_amount: numeric <<DEFAULT,NULLABLE>>
-		shipping_cost: numeric <<DEFAULT,NULLABLE>>
-		total_amount: numeric <<CHECK>>
+		subtotal: numeric(19,2)
+		tax_amount: numeric(19,2) <<DEFAULT,NULLABLE>>
+		shipping_cost: numeric(19,2) <<DEFAULT,NULLABLE>>
+		total_amount: numeric(19,2) <<CHECK>>
 		notes: text <<NULLABLE>>
 		created_by: character varying(100) <<NULLABLE>>
 	}
@@ -503,8 +503,8 @@ package "inventory" {
 		product_id: bigint <<FK>>
 		quantity_ordered: integer <<CHECK>>
 		quantity_received: integer <<DEFAULT,CHECK,NULLABLE>>
-		unit_cost: numeric
-		line_total: numeric
+		unit_cost: numeric(19,4)
+		line_total: numeric(19,2)
 		received_date: date <<NULLABLE>>
 	}
 
@@ -556,7 +556,7 @@ package "inventory" {
 		shelf: character varying(10) <<NULLABLE>>
 		bin: character varying(10) <<NULLABLE>>
 		description: character varying(200) <<NULLABLE>>
-		capacity_cubic_meters: numeric <<NULLABLE>>
+		capacity_cubic_meters: numeric(10,2) <<NULLABLE>>
 		is_active: boolean <<DEFAULT,NULLABLE>>
 	}
 
@@ -567,8 +567,8 @@ package "inventory" {
 		location_code: character varying(10) <<FK,UNIQUE>>
 		bin_number: character varying(20) <<UNIQUE>>
 		product_id: bigint <<FK,NULLABLE>>
-		max_weight_kg: numeric <<CHECK,NULLABLE>>
-		current_weight_kg: numeric <<DEFAULT,CHECK,NULLABLE>>
+		max_weight_kg: numeric(10,2) <<CHECK,NULLABLE>>
+		current_weight_kg: numeric(10,2) <<DEFAULT,CHECK,NULLABLE>>
 		is_refrigerated: boolean <<DEFAULT,NULLABLE>>
 	}
 
@@ -576,7 +576,7 @@ package "inventory" {
 		product_id: bigint <<NULLABLE>>
 		sku: character varying(50) <<NULLABLE>>
 		product_name: character varying(200) <<NULLABLE>>
-		unit_price: numeric <<NULLABLE>>
+		unit_price: numeric(19,4) <<NULLABLE>>
 		category_name: character varying(100) <<NULLABLE>>
 		warehouse_code: character varying(20) <<NULLABLE>>
 		warehouse_name: character varying(100) <<NULLABLE>>
@@ -594,14 +594,14 @@ package "analytics" {
 		**report_date: date**
 		--
 		total_orders: integer <<DEFAULT,NULLABLE>>
-		total_revenue: numeric <<DEFAULT,NULLABLE>>
+		total_revenue: numeric(19,2) <<DEFAULT,NULLABLE>>
 		total_items_sold: integer <<DEFAULT,NULLABLE>>
 		unique_customers: integer <<DEFAULT,NULLABLE>>
-		average_order_value: numeric <<DEFAULT,NULLABLE>>
+		average_order_value: numeric(19,2) <<DEFAULT,NULLABLE>>
 		new_customers: integer <<DEFAULT,NULLABLE>>
 		returning_customers: integer <<DEFAULT,NULLABLE>>
 		cancelled_orders: integer <<DEFAULT,NULLABLE>>
-		refunded_amount: numeric <<DEFAULT,NULLABLE>>
+		refunded_amount: numeric(19,2) <<DEFAULT,NULLABLE>>
 		generated_at: timestamp without time zone
 	}
 
@@ -610,13 +610,13 @@ package "analytics" {
 		**product_id: bigint** <<FK>>
 		--
 		units_sold: integer <<DEFAULT,NULLABLE>>
-		revenue: numeric <<DEFAULT,NULLABLE>>
-		cost: numeric <<DEFAULT,NULLABLE>>
-		profit: numeric <<DEFAULT,NULLABLE>>
-		profit_margin: numeric <<DEFAULT,NULLABLE>>
+		revenue: numeric(19,2) <<DEFAULT,NULLABLE>>
+		cost: numeric(19,2) <<DEFAULT,NULLABLE>>
+		profit: numeric(19,2) <<DEFAULT,NULLABLE>>
+		profit_margin: numeric(5,2) <<DEFAULT,NULLABLE>>
 		page_views: integer <<DEFAULT,NULLABLE>>
-		conversion_rate: numeric <<DEFAULT,NULLABLE>>
-		average_rating: numeric <<NULLABLE>>
+		conversion_rate: numeric(5,2) <<DEFAULT,NULLABLE>>
+		average_rating: numeric(3,2) <<NULLABLE>>
 		review_count: integer <<DEFAULT,NULLABLE>>
 	}
 
@@ -625,8 +625,8 @@ package "analytics" {
 		--
 		segment_name: character varying(50) <<UNIQUE>>
 		description: text <<NULLABLE>>
-		min_lifetime_value: numeric <<NULLABLE>>
-		max_lifetime_value: numeric <<NULLABLE>>
+		min_lifetime_value: numeric(19,2) <<NULLABLE>>
+		max_lifetime_value: numeric(19,2) <<NULLABLE>>
 		min_order_count: integer <<NULLABLE>>
 		max_order_count: integer <<NULLABLE>>
 		is_active: boolean <<DEFAULT,NULLABLE>>
@@ -637,7 +637,7 @@ package "analytics" {
 		**segment_id: integer** <<FK>>
 		**assigned_date: date**
 		--
-		lifetime_value: numeric <<NULLABLE>>
+		lifetime_value: numeric(19,2) <<NULLABLE>>
 		order_count: integer <<NULLABLE>>
 		last_order_date: date <<NULLABLE>>
 	}
@@ -651,9 +651,9 @@ package "analytics" {
 		ending_inventory: integer <<NULLABLE>>
 		units_sold: integer <<NULLABLE>>
 		units_purchased: integer <<NULLABLE>>
-		average_inventory: numeric <<NULLABLE>>
-		turnover_ratio: numeric <<NULLABLE>>
-		days_of_inventory: numeric <<NULLABLE>>
+		average_inventory: numeric(10,2) <<NULLABLE>>
+		turnover_ratio: numeric(10,4) <<NULLABLE>>
+		days_of_inventory: numeric(10,2) <<NULLABLE>>
 	}
 
 	entity "supplier_performance" {
@@ -663,9 +663,9 @@ package "analytics" {
 		total_orders: integer <<DEFAULT,NULLABLE>>
 		on_time_deliveries: integer <<DEFAULT,NULLABLE>>
 		late_deliveries: integer <<DEFAULT,NULLABLE>>
-		total_amount: numeric <<DEFAULT,NULLABLE>>
-		average_lead_time_days: numeric <<NULLABLE>>
-		quality_score: numeric <<CHECK,NULLABLE>>
+		total_amount: numeric(19,2) <<DEFAULT,NULLABLE>>
+		average_lead_time_days: numeric(10,2) <<NULLABLE>>
+		quality_score: numeric(5,2) <<CHECK,NULLABLE>>
 	}
 
 	entity "campaigns" {
@@ -675,8 +675,8 @@ package "analytics" {
 		campaign_type: character varying(50) <<NULLABLE>>
 		start_date: date
 		end_date: date <<NULLABLE>>
-		budget: numeric <<NULLABLE>>
-		actual_spend: numeric <<DEFAULT,NULLABLE>>
+		budget: numeric(19,2) <<NULLABLE>>
+		actual_spend: numeric(19,2) <<DEFAULT,NULLABLE>>
 		target_audience: character varying(100) <<NULLABLE>>
 		is_active: boolean <<DEFAULT,NULLABLE>>
 	}
@@ -688,11 +688,11 @@ package "analytics" {
 		impressions: integer <<DEFAULT,NULLABLE>>
 		clicks: integer <<DEFAULT,NULLABLE>>
 		conversions: integer <<DEFAULT,NULLABLE>>
-		revenue: numeric <<DEFAULT,NULLABLE>>
-		cost: numeric <<DEFAULT,NULLABLE>>
-		click_through_rate: numeric <<NULLABLE>>
-		conversion_rate: numeric <<NULLABLE>>
-		return_on_ad_spend: numeric <<NULLABLE>>
+		revenue: numeric(19,2) <<DEFAULT,NULLABLE>>
+		cost: numeric(19,2) <<DEFAULT,NULLABLE>>
+		click_through_rate: numeric(5,4) <<NULLABLE>>
+		conversion_rate: numeric(5,4) <<NULLABLE>>
+		return_on_ad_spend: numeric(10,2) <<NULLABLE>>
 	}
 
 	entity "order" {
@@ -707,7 +707,7 @@ package "analytics" {
 		primary: date <<NULLABLE>>
 		foreign: timestamp without time zone <<NULLABLE>>
 		null: character varying(10) <<NULLABLE>>
-		default: numeric <<NULLABLE>>
+		default: numeric(10,2) <<NULLABLE>>
 	}
 
 	entity "very_long_table_name_testing_identifier_length_limits_max" {
@@ -723,7 +723,7 @@ package "analytics" {
 		--
 		name: character varying(100) <<NULLABLE>>
 		description: text <<NULLABLE>>
-		amount: numeric <<NULLABLE>>
+		amount: numeric(10,2) <<NULLABLE>>
 		quantity: integer <<NULLABLE>>
 		is_active: boolean <<NULLABLE>>
 		created_at: timestamp without time zone <<NULLABLE>>
@@ -737,7 +737,7 @@ package "analytics" {
 		code: character varying(20)
 		name: character varying(100)
 		description: text
-		amount: numeric
+		amount: numeric(10,2)
 		quantity: integer
 		is_active: boolean
 		created_at: timestamp without time zone
@@ -767,9 +767,9 @@ package "analytics" {
 		supplier_id: integer <<FK,NULLABLE>>
 		department_id: integer <<FK,NULLABLE>>
 		order_count: integer <<DEFAULT,CHECK,NULLABLE>>
-		revenue: numeric <<DEFAULT,CHECK,NULLABLE>>
-		cost: numeric <<DEFAULT,NULLABLE>>
-		profit: numeric <<NULLABLE,GENERATED>>
+		revenue: numeric(19,2) <<DEFAULT,CHECK,NULLABLE>>
+		cost: numeric(19,2) <<DEFAULT,NULLABLE>>
+		profit: numeric(19,2) <<NULLABLE,GENERATED>>
 		inventory_level: integer <<NULLABLE>>
 		supplier_lead_time_days: integer <<NULLABLE>>
 		employee_count: integer <<DEFAULT,NULLABLE>>
