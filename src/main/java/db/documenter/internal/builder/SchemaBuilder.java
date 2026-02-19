@@ -2,6 +2,7 @@ package db.documenter.internal.builder;
 
 import db.documenter.internal.connection.api.ConnectionManager;
 import db.documenter.internal.models.db.ColumnKey;
+import db.documenter.internal.models.db.DbCompositeType;
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.Schema;
 import db.documenter.internal.models.db.Table;
@@ -16,28 +17,31 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** Builds database schema information by orchestrating table and enum builders. */
+/** Builds database schema information by orchestrating table, enum, and composite type builders. */
 public final class SchemaBuilder {
   private static final Logger LOGGER = Logger.getLogger(SchemaBuilder.class.getName());
 
   private final ConnectionManager connectionManager;
   private final QueryRunnerFactory queryRunnerFactory;
   private final EnumBuilder enumBuilder;
+  private final CompositeTypeBuilder compositeTypeBuilder;
   private final TableBuilder tableBuilder;
 
   public SchemaBuilder(
       final ConnectionManager connectionManager,
       final QueryRunnerFactory queryRunnerFactory,
       final EnumBuilder enumBuilder,
+      final CompositeTypeBuilder compositeTypeBuilder,
       final TableBuilder tableBuilder) {
     this.connectionManager = connectionManager;
     this.queryRunnerFactory = queryRunnerFactory;
     this.enumBuilder = enumBuilder;
+    this.compositeTypeBuilder = compositeTypeBuilder;
     this.tableBuilder = tableBuilder;
   }
 
   /**
-   * Builds a list of schemas with their tables and enums.
+   * Builds a list of schemas with their tables, enums, and composite types.
    *
    * @param schemaNames the list of schema names to build
    * @return list of {@link Schema} instances
@@ -61,19 +65,33 @@ public final class SchemaBuilder {
 
         final Map<EnumKey, DbEnum> enumsByKey = enumBuilder.buildEnumKeys(dbEnums, schemaName);
 
+        final List<DbCompositeType> compositeTypes =
+            compositeTypeBuilder.buildCompositeTypes(queryRunner, schemaName);
+
         final Map<ColumnKey, UdtReference> columnUdtMappings =
             queryRunner.getColumnUdtMappings(schemaName);
 
         final List<Table> tables =
             tableBuilder.buildTables(queryRunner, schemaName, enumsByKey, columnUdtMappings);
 
-        result.add(Schema.builder().name(schemaName).tables(tables).dbEnums(dbEnums).build());
+        result.add(
+            Schema.builder()
+                .name(schemaName)
+                .tables(tables)
+                .dbEnums(dbEnums)
+                .compositeTypes(compositeTypes)
+                .build());
 
         if (LOGGER.isLoggable(Level.INFO)) {
           LOGGER.log(
               Level.INFO,
-              "Completed schema: {0} ({1} tables, {2} enums)",
-              new Object[] {LogUtils.sanitizeForLog(schemaName), tables.size(), dbEnums.size()});
+              "Completed schema: {0} ({1} tables, {2} enums, {3} composite types)",
+              new Object[] {
+                LogUtils.sanitizeForLog(schemaName),
+                tables.size(),
+                dbEnums.size(),
+                compositeTypes.size()
+              });
         }
       } catch (final SQLException e) {
         if (LOGGER.isLoggable(Level.SEVERE)) {

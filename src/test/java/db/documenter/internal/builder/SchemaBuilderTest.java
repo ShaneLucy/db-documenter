@@ -34,6 +34,7 @@ class SchemaBuilderTest {
   @Mock private ConnectionManager connectionManager;
   @Mock private QueryRunnerFactory queryRunnerFactory;
   @Mock private EnumBuilder enumBuilder;
+  @Mock private CompositeTypeBuilder compositeTypeBuilder;
   @Mock private TableBuilder tableBuilder;
   @Mock private Connection connection;
   @Mock private QueryRunner queryRunner;
@@ -43,9 +44,16 @@ class SchemaBuilderTest {
   @BeforeEach
   void setUp() {
     reset(
-        connectionManager, queryRunnerFactory, enumBuilder, tableBuilder, connection, queryRunner);
+        connectionManager,
+        queryRunnerFactory,
+        enumBuilder,
+        compositeTypeBuilder,
+        tableBuilder,
+        connection,
+        queryRunner);
     schemaBuilder =
-        new SchemaBuilder(connectionManager, queryRunnerFactory, enumBuilder, tableBuilder);
+        new SchemaBuilder(
+            connectionManager, queryRunnerFactory, enumBuilder, compositeTypeBuilder, tableBuilder);
   }
 
   @Nested
@@ -75,6 +83,8 @@ class SchemaBuilderTest {
       when(connectionManager.getConnection()).thenReturn(connection);
       when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
       when(enumBuilder.buildEnums(queryRunner, "test_schema")).thenReturn(List.of(dbEnum));
+      when(compositeTypeBuilder.buildCompositeTypes(queryRunner, "test_schema"))
+          .thenReturn(List.of());
       when(queryRunner.getColumnUdtMappings("test_schema")).thenReturn(columnUdtMappings);
       when(tableBuilder.buildTables(
               eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
@@ -110,11 +120,13 @@ class SchemaBuilderTest {
       when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
 
       when(enumBuilder.buildEnums(queryRunner, "schema1")).thenReturn(List.of(dbEnum1));
+      when(compositeTypeBuilder.buildCompositeTypes(queryRunner, "schema1")).thenReturn(List.of());
       when(queryRunner.getColumnUdtMappings("schema1")).thenReturn(columnUdtMappings1);
       when(tableBuilder.buildTables(eq(queryRunner), eq("schema1"), any(), eq(columnUdtMappings1)))
           .thenReturn(List.of(table1));
 
       when(enumBuilder.buildEnums(queryRunner, "schema2")).thenReturn(List.of(dbEnum2));
+      when(compositeTypeBuilder.buildCompositeTypes(queryRunner, "schema2")).thenReturn(List.of());
       when(queryRunner.getColumnUdtMappings("schema2")).thenReturn(columnUdtMappings2);
       when(tableBuilder.buildTables(eq(queryRunner), eq("schema2"), any(), eq(columnUdtMappings2)))
           .thenReturn(List.of(table2));
@@ -140,6 +152,8 @@ class SchemaBuilderTest {
       when(connectionManager.getConnection()).thenReturn(connection);
       when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
       when(enumBuilder.buildEnums(queryRunner, "test_schema")).thenReturn(List.of());
+      when(compositeTypeBuilder.buildCompositeTypes(queryRunner, "test_schema"))
+          .thenReturn(List.of());
       when(queryRunner.getColumnUdtMappings("test_schema")).thenReturn(columnUdtMappings);
       when(tableBuilder.buildTables(
               eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
@@ -166,6 +180,8 @@ class SchemaBuilderTest {
       when(connectionManager.getConnection()).thenReturn(connection);
       when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
       when(enumBuilder.buildEnums(queryRunner, "test_schema")).thenReturn(List.of(dbEnum));
+      when(compositeTypeBuilder.buildCompositeTypes(queryRunner, "test_schema"))
+          .thenReturn(List.of());
       when(queryRunner.getColumnUdtMappings("test_schema")).thenReturn(columnUdtMappings);
       when(tableBuilder.buildTables(
               eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
@@ -211,6 +227,8 @@ class SchemaBuilderTest {
       when(connectionManager.getConnection()).thenReturn(connection);
       when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
       when(enumBuilder.buildEnums(queryRunner, "test_schema")).thenReturn(List.of());
+      when(compositeTypeBuilder.buildCompositeTypes(queryRunner, "test_schema"))
+          .thenReturn(List.of());
       when(queryRunner.getColumnUdtMappings("test_schema")).thenReturn(columnUdtMappings);
       when(tableBuilder.buildTables(
               eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))

@@ -165,4 +165,47 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
 
     return mappings;
   }
+
+  @Override
+  // CompositeField objects are created for each attribute row.
+  // LinkedHashMap preserves insertion order and is not accessed concurrently.
+  @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseConcurrentHashMap"})
+  public List<DbCompositeType> mapToDbCompositeTypeInfo(final ResultSet resultSet)
+      throws SQLException {
+    final Map<String, DbCompositeType.Builder> compositeTypeBuilders = new LinkedHashMap<>();
+
+    while (resultSet.next()) {
+      final var schemaName = resultSet.getString("schema_name");
+      final var typeName = resultSet.getString("type_name");
+      final var attributeName = resultSet.getString("attribute_name");
+      final var attributeType = resultSet.getString("attribute_type");
+      final var attributePosition = resultSet.getInt("attribute_position");
+
+      final var typeKey = schemaName + "." + typeName;
+
+      compositeTypeBuilders.computeIfAbsent(
+          typeKey,
+          k -> {
+            final var builder = DbCompositeType.builder().schemaName(schemaName).typeName(typeName);
+            builder.fields(new ArrayList<>());
+            return builder;
+          });
+
+      if (attributeName != null) {
+        final var field =
+            CompositeField.builder()
+                .fieldName(attributeName)
+                .fieldType(attributeType)
+                .position(attributePosition)
+                .build();
+
+        final var builder = compositeTypeBuilders.get(typeKey);
+        final var currentFields = new ArrayList<>(builder.build().fields());
+        currentFields.add(field);
+        builder.fields(currentFields);
+      }
+    }
+
+    return compositeTypeBuilders.values().stream().map(DbCompositeType.Builder::build).toList();
+  }
 }

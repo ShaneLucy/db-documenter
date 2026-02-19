@@ -2,6 +2,7 @@ package db.documenter.internal.queries.impl.postgresql;
 
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.ColumnKey;
+import db.documenter.internal.models.db.DbCompositeType;
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.PrimaryKey;
@@ -164,6 +165,27 @@ public final class PostgresqlQueryRunner implements QueryRunner {
           ORDER BY e.enumsortorder;
           """;
 
+  private static final String GET_COMPOSITE_TYPES_QUERY =
+      """
+          SELECT
+              t.typname AS type_name,
+              n.nspname AS schema_name,
+              a.attname AS attribute_name,
+              pg_catalog.format_type(a.atttypid, a.atttypmod) AS attribute_type,
+              a.attnum AS attribute_position
+          FROM pg_type t
+          JOIN pg_namespace n ON n.oid = t.typnamespace
+          LEFT JOIN pg_attribute a ON a.attrelid = t.typrelid AND a.attnum > 0 AND NOT a.attisdropped
+          WHERE n.nspname = ?
+            AND t.typtype = 'c'
+            AND t.typrelid != 0
+            AND NOT EXISTS (
+                SELECT 1 FROM pg_class c
+                WHERE c.oid = t.typrelid AND c.relkind IN ('r', 'v', 'm', 'p')
+            )
+          ORDER BY t.typname, a.attnum;
+          """;
+
   public PostgresqlQueryRunner(
       final PreparedStatementMapper postgresqlPreparedStatementMapper,
       final ResultSetMapper postgresqlResultSetMapper,
@@ -318,6 +340,28 @@ public final class PostgresqlQueryRunner implements QueryRunner {
         }
 
         return columnUdtMappings;
+      }
+    }
+  }
+
+  @Override
+  public List<DbCompositeType> getCompositeTypeInfo(final String schema) throws SQLException {
+    try (final var preparedStatement = connection.prepareStatement(GET_COMPOSITE_TYPES_QUERY)) {
+      postgresqlPreparedStatementMapper.prepareCompositeTypeInfoStatement(
+          preparedStatement, schema);
+
+      try (final var resultSet = preparedStatement.executeQuery()) {
+        final List<DbCompositeType> compositeTypes =
+            postgresqlResultSetMapper.mapToDbCompositeTypeInfo(resultSet);
+
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Discovered: {0} composite types in schema: {1}",
+              new Object[] {compositeTypes.size(), LogUtils.sanitizeForLog(schema)});
+        }
+
+        return compositeTypes;
       }
     }
   }

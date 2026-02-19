@@ -38,4 +38,10 @@ public final class Validators {
       throw new ValidationException(propertyName + " must not contain null elements");
     }
   }
+
+  public static void isPositive(final int number, final String propertyName) {
+    if (number <= 0) {
+      throw new ValidationException(propertyName + " must be positive");
+    }
+  }
 }

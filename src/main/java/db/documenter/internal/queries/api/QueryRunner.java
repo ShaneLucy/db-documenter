@@ -2,6 +2,7 @@ package db.documenter.internal.queries.api;
 
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.ColumnKey;
+import db.documenter.internal.models.db.DbCompositeType;
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.PrimaryKey;
@@ -55,4 +56,32 @@ public interface QueryRunner {
    * @throws SQLException if database query fails
    */
   Map<ColumnKey, UdtReference> getColumnUdtMappings(String schemaName) throws SQLException;
+
+  /**
+   * Retrieves all composite types defined in the specified schema.
+   *
+   * <p>Composite types are user-defined types created with {@code CREATE TYPE ... AS (...)} that
+   * define structured types with multiple named fields. These are distinct from tables in that they
+   * are type definitions, not data containers.
+   *
+   * <p><b>PlantUML Rendering:</b> Composite types are rendered with the {@code <<composite>>}
+   * stereotype to visually distinguish them from tables and enums.
+   *
+   * <p><b>Example:</b>
+   *
+   * <pre>{@code
+   * // PostgreSQL: CREATE TYPE core.address AS (
+   * //   street varchar(200),
+   * //   city varchar(100),
+   * //   postal_code varchar(10)
+   * // );
+   * List<DbCompositeType> compositeTypes = queryRunner.getCompositeTypeInfo("core");
+   * // Returns list containing the 'address' composite type with its 3 fields
+   * }</pre>
+   *
+   * @param schema the schema to query for composite types
+   * @return immutable list of composite types; never null, may be empty if no composite types exist
+   * @throws SQLException if database query fails
+   */
+  List<DbCompositeType> getCompositeTypeInfo(String schema) throws SQLException;
 }

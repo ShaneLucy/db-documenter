@@ -5,13 +5,14 @@ import db.documenter.internal.validation.Validators;
 import java.util.List;
 
 /**
- * Represents a database schema containing tables and custom enum types.
+ * Represents a database schema containing tables, custom enum types, and composite types.
  *
- * <p>This record is the top-level container for database metadata, grouping related tables and enum
- * types within a named schema. In PostgreSQL, a schema is a namespace within a database.
+ * <p>This record is the top-level container for database metadata, grouping related tables, enum
+ * types, and composite types within a named schema. In PostgreSQL, a schema is a namespace within a
+ * database.
  *
- * <p><b>Immutability:</b> This record is immutable and thread-safe. Both the tables and dbEnums
- * lists are defensively copied to prevent external modification.
+ * <p><b>Immutability:</b> This record is immutable and thread-safe. All lists (tables, dbEnums,
+ * compositeTypes) are defensively copied to prevent external modification.
  *
  * <p><b>Validation:</b> All parameters are validated as non-null in the compact constructor.
  *
@@ -22,23 +23,30 @@ import java.util.List;
  *     .name("public")
  *     .tables(List.of(usersTable, ordersTable))
  *     .dbEnums(List.of(orderStatusEnum))
+ *     .compositeTypes(List.of(addressType, moneyType))
  *     .build();
  * }</pre>
  *
  * @param name the schema name (e.g., "public", "inventory")
  * @param tables the {@link List} of {@link Table} instances in this schema (defensively copied)
  * @param dbEnums the {@link List} of {@link DbEnum} instances in this schema (defensively copied)
+ * @param compositeTypes the {@link List} of {@link DbCompositeType} instances in this schema
+ *     (defensively copied)
  * @see Table
  * @see DbEnum
+ * @see DbCompositeType
  */
-public record Schema(String name, List<Table> tables, List<DbEnum> dbEnums) {
+public record Schema(
+    String name, List<Table> tables, List<DbEnum> dbEnums, List<DbCompositeType> compositeTypes) {
 
   public Schema {
     Validators.isNotBlank(name, "name");
     Validators.isNotNull(tables, "tables");
     Validators.isNotNull(dbEnums, "dbEnums");
+    Validators.isNotNull(compositeTypes, "compositeTypes");
     tables = List.copyOf(tables);
     dbEnums = List.copyOf(dbEnums);
+    compositeTypes = List.copyOf(compositeTypes);
   }
 
   /**
@@ -62,6 +70,7 @@ public record Schema(String name, List<Table> tables, List<DbEnum> dbEnums) {
    *     .name("inventory")
    *     .tables(List.of(productsTable, categoriesTable))
    *     .dbEnums(List.of())
+   *     .compositeTypes(List.of(addressType))
    *     .build();
    * }</pre>
    *
@@ -71,6 +80,7 @@ public record Schema(String name, List<Table> tables, List<DbEnum> dbEnums) {
     private String name;
     private List<Table> tables;
     private List<DbEnum> dbEnums;
+    private List<DbCompositeType> compositeTypes;
 
     /**
      * Sets the schema name.
@@ -110,13 +120,27 @@ public record Schema(String name, List<Table> tables, List<DbEnum> dbEnums) {
     }
 
     /**
+     * Sets the composite types in this schema.
+     *
+     * <p><b>Defensive Copying:</b> The provided list is defensively copied to ensure immutability.
+     *
+     * @param compositeTypes the {@link List} of {@link DbCompositeType} instances (defensively
+     *     copied)
+     * @return this builder instance for method chaining
+     */
+    public Builder compositeTypes(final List<DbCompositeType> compositeTypes) {
+      this.compositeTypes = List.copyOf(compositeTypes);
+      return this;
+    }
+
+    /**
      * Builds and returns a new {@link Schema} instance.
      *
      * @return a new immutable {@link Schema} instance
      * @throws ValidationException if any required field is null
      */
     public Schema build() {
-      return new Schema(name, tables, dbEnums);
+      return new Schema(name, tables, dbEnums, compositeTypes);
     }
   }
 }

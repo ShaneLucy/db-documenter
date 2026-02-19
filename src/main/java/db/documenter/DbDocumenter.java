@@ -1,5 +1,6 @@
 package db.documenter;
 
+import db.documenter.internal.builder.CompositeTypeBuilder;
 import db.documenter.internal.builder.EnumBuilder;
 import db.documenter.internal.builder.FormatterConfigurer;
 import db.documenter.internal.builder.SchemaBuilder;
@@ -11,6 +12,7 @@ import db.documenter.internal.mapper.ForeignKeyMapper;
 import db.documenter.internal.mapper.TableMapper;
 import db.documenter.internal.models.db.Schema;
 import db.documenter.internal.queries.QueryRunnerFactory;
+import db.documenter.internal.renderer.impl.CompositeTypeRenderer;
 import db.documenter.internal.renderer.impl.EntityRenderer;
 import db.documenter.internal.renderer.impl.EnumRenderer;
 import db.documenter.internal.renderer.impl.RelationshipRenderer;
@@ -41,10 +43,12 @@ public final class DbDocumenter {
     final TableMapper tableMapper = new TableMapper();
 
     final EnumBuilder enumBuilder = new EnumBuilder();
+    final CompositeTypeBuilder compositeTypeBuilder = new CompositeTypeBuilder();
     final TableBuilder tableBuilder = new TableBuilder(columnMapper, foreignKeyMapper, tableMapper);
 
     this.schemaBuilder =
-        new SchemaBuilder(connectionManager, queryRunnerFactory, enumBuilder, tableBuilder);
+        new SchemaBuilder(
+            connectionManager, queryRunnerFactory, enumBuilder, compositeTypeBuilder, tableBuilder);
   }
 
   /**
@@ -67,8 +71,10 @@ public final class DbDocumenter {
     final var entityRenderer = new EntityRenderer(entityFormatter);
     final var relationShipRenderer = new RelationshipRenderer(multiplicityFormatter);
     final var enumRenderer = new EnumRenderer();
+    final var compositeTypeRenderer = new CompositeTypeRenderer();
     final var schemaRenderer =
-        new SchemaRenderer(entityRenderer, relationShipRenderer, enumRenderer);
+        new SchemaRenderer(
+            entityRenderer, relationShipRenderer, enumRenderer, compositeTypeRenderer);
 
     final List<Schema> schemas = schemaBuilder.buildSchemas(dbDocumenterConfig.schemas());
 

@@ -152,6 +152,25 @@ package "core" {
 		cancelled
 	}
 
+	entity "address_type" <<composite>> {
+		street_line1 : character varying(200)
+		street_line2 : character varying(200)
+		city : character varying(100)
+		state_province : character varying(100)
+		postal_code : character varying(20)
+		country_code : character(2)
+	}
+
+	entity "money_amount" <<composite>> {
+		amount : numeric(19,4)
+		currency_code : character(3)
+	}
+
+	entity "time_slot" <<composite>> {
+		start_time : timestamp with time zone
+		end_time : timestamp with time zone
+	}
+
 	entity "organizations" {
 		**id: uuid** <<DEFAULT>>
 		--

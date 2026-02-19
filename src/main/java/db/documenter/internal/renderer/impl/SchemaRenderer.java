@@ -12,14 +12,17 @@ public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
   private final EntityRenderer entityRenderer;
   private final RelationshipRenderer relationshipRenderer;
   private final EnumRenderer enumRenderer;
+  private final CompositeTypeRenderer compositeTypeRenderer;
 
   public SchemaRenderer(
       final EntityRenderer entityRenderer,
       final RelationshipRenderer relationshipRenderer,
-      final EnumRenderer enumRenderer) {
+      final EnumRenderer enumRenderer,
+      final CompositeTypeRenderer compositeTypeRenderer) {
     this.entityRenderer = entityRenderer;
     this.relationshipRenderer = relationshipRenderer;
     this.enumRenderer = enumRenderer;
+    this.compositeTypeRenderer = compositeTypeRenderer;
   }
 
   @Override
@@ -38,6 +41,14 @@ public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
           schema
               .dbEnums()
               .forEach(dbEnum -> stringBuilder.append(enumRenderer.render(dbEnum)).append('\n'));
+
+          schema
+              .compositeTypes()
+              .forEach(
+                  compositeType ->
+                      stringBuilder
+                          .append(compositeTypeRenderer.render(compositeType))
+                          .append('\n'));
 
           schema
               .tables()
@@ -61,11 +72,12 @@ public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
 
       LOGGER.log(
           Level.INFO,
-          "Rendered {0} schema with {1} table(s), {2} enum(s), {3} relationship(s)",
+          "Rendered {0} schema with {1} table(s), {2} enum(s), {3} composite type(s), {4} relationship(s)",
           new Object[] {
             LogUtils.sanitizeForLog(schema.name()),
             schema.tables().size(),
             schema.dbEnums().size(),
+            schema.compositeTypes().size(),
             totalRelationships
           });
     }

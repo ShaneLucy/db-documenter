@@ -56,4 +56,10 @@ public final class PostgresqlPreparedStatementMapper implements PreparedStatemen
       final PreparedStatement preparedStatement, final String schema) throws SQLException {
     preparedStatement.setString(1, schema);
   }
+
+  @Override
+  public void prepareCompositeTypeInfoStatement(
+      final PreparedStatement preparedStatement, final String schema) throws SQLException {
+    preparedStatement.setString(1, schema);
+  }
 }

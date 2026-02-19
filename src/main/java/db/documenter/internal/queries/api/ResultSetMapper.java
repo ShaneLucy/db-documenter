@@ -23,4 +23,6 @@ public interface ResultSetMapper {
   List<String> mapToDbEnumValues(ResultSet resultSet) throws SQLException;
 
   Map<ColumnKey, UdtReference> mapToColumnUdtMappings(ResultSet resultSet) throws SQLException;
+
+  List<DbCompositeType> mapToDbCompositeTypeInfo(ResultSet resultSet) throws SQLException;
 }

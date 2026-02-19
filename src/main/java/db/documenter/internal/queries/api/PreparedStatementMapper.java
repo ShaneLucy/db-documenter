@@ -26,4 +26,7 @@ public interface PreparedStatementMapper {
 
   void prepareColumnUdtMappingsStatement(PreparedStatement preparedStatement, String schema)
       throws SQLException;
+
+  void prepareCompositeTypeInfoStatement(PreparedStatement preparedStatement, String schema)
+      throws SQLException;
 }

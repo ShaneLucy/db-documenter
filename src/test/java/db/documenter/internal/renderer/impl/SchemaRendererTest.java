@@ -21,13 +21,16 @@ class SchemaRendererTest {
   @Mock private EntityRenderer entityRenderer;
   @Mock private RelationshipRenderer relationshipRenderer;
   @Mock private EnumRenderer enumRenderer;
+  @Mock private CompositeTypeRenderer compositeTypeRenderer;
 
   private SchemaRenderer schemaRenderer;
 
   @BeforeEach
   void setUp() {
-    reset(entityRenderer, relationshipRenderer, enumRenderer);
-    schemaRenderer = new SchemaRenderer(entityRenderer, relationshipRenderer, enumRenderer);
+    reset(entityRenderer, relationshipRenderer, enumRenderer, compositeTypeRenderer);
+    schemaRenderer =
+        new SchemaRenderer(
+            entityRenderer, relationshipRenderer, enumRenderer, compositeTypeRenderer);
   }
 
   @Nested
@@ -41,13 +44,19 @@ class SchemaRendererTest {
       assertTrue(result.contains("@enduml"));
       assertTrue(result.contains("hide methods"));
       assertTrue(result.contains("hide stereotypes"));
-      verifyNoInteractions(entityRenderer, relationshipRenderer, enumRenderer);
+      verifyNoInteractions(
+          entityRenderer, relationshipRenderer, enumRenderer, compositeTypeRenderer);
     }
 
     @Test
     void rendersSchemaPackageWithName() {
       final var schema =
-          Schema.builder().name("public").tables(List.of()).dbEnums(List.of()).build();
+          Schema.builder()
+              .name("public")
+              .tables(List.of())
+              .dbEnums(List.of())
+              .compositeTypes(List.of())
+              .build();
 
       final var result = schemaRenderer.render(List.of(schema));
 
@@ -61,7 +70,12 @@ class SchemaRendererTest {
       final var table =
           Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
       final var schema =
-          Schema.builder().name("public").tables(List.of(table)).dbEnums(List.of()).build();
+          Schema.builder()
+              .name("public")
+              .tables(List.of(table))
+              .dbEnums(List.of())
+              .compositeTypes(List.of())
+              .build();
 
       when(entityRenderer.render(table)).thenReturn("entity users {");
 
@@ -82,6 +96,7 @@ class SchemaRendererTest {
               .name("public")
               .tables(List.of(table1, table2))
               .dbEnums(List.of())
+              .compositeTypes(List.of())
               .build();
 
       when(entityRenderer.render(table1)).thenReturn("entity users {");
@@ -104,7 +119,12 @@ class SchemaRendererTest {
               .enumValues(List.of("ACTIVE", "INACTIVE"))
               .build();
       final var schema =
-          Schema.builder().name("public").dbEnums(List.of(dbEnum)).tables(List.of()).build();
+          Schema.builder()
+              .name("public")
+              .dbEnums(List.of(dbEnum))
+              .tables(List.of())
+              .compositeTypes(List.of())
+              .build();
 
       when(enumRenderer.render(dbEnum)).thenReturn("enum status {");
 
@@ -133,6 +153,7 @@ class SchemaRendererTest {
               .name("public")
               .dbEnums(List.of(dbEnum1, dbEnum2))
               .tables(List.of())
+              .compositeTypes(List.of())
               .build();
 
       when(enumRenderer.render(dbEnum1)).thenReturn("enum status {");
@@ -165,7 +186,12 @@ class SchemaRendererTest {
               .columns(List.of())
               .build();
       final var schema =
-          Schema.builder().name("public").tables(List.of(table)).dbEnums(List.of()).build();
+          Schema.builder()
+              .name("public")
+              .tables(List.of(table))
+              .dbEnums(List.of())
+              .compositeTypes(List.of())
+              .build();
 
       when(entityRenderer.render(table)).thenReturn("entity orders {");
       when(relationshipRenderer.render(schema)).thenReturn("users ||--|{ orders\n");
@@ -181,12 +207,22 @@ class SchemaRendererTest {
       final var table1 =
           Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
       final var schema1 =
-          Schema.builder().name("public").tables(List.of(table1)).dbEnums(List.of()).build();
+          Schema.builder()
+              .name("public")
+              .tables(List.of(table1))
+              .dbEnums(List.of())
+              .compositeTypes(List.of())
+              .build();
 
       final var table2 =
           Table.builder().name("products").columns(List.of()).foreignKeys(List.of()).build();
       final var schema2 =
-          Schema.builder().name("inventory").tables(List.of(table2)).dbEnums(List.of()).build();
+          Schema.builder()
+              .name("inventory")
+              .tables(List.of(table2))
+              .dbEnums(List.of())
+              .compositeTypes(List.of())
+              .build();
 
       when(entityRenderer.render(table1)).thenReturn("entity users {");
       when(entityRenderer.render(table2)).thenReturn("entity products {");
@@ -214,7 +250,12 @@ class SchemaRendererTest {
       final var table =
           Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
       final var schema =
-          Schema.builder().name("public").dbEnums(List.of(dbEnum)).tables(List.of(table)).build();
+          Schema.builder()
+              .name("public")
+              .dbEnums(List.of(dbEnum))
+              .tables(List.of(table))
+              .compositeTypes(List.of())
+              .build();
 
       when(enumRenderer.render(dbEnum)).thenReturn("enum status {\nACTIVE\n}");
       when(entityRenderer.render(table)).thenReturn("entity users {");
@@ -247,7 +288,12 @@ class SchemaRendererTest {
               .columns(List.of())
               .build();
       final var schema =
-          Schema.builder().name("public").tables(List.of(table)).dbEnums(List.of()).build();
+          Schema.builder()
+              .name("public")
+              .tables(List.of(table))
+              .dbEnums(List.of())
+              .compositeTypes(List.of())
+              .build();
 
       when(entityRenderer.render(table)).thenReturn("entity orders {");
       when(relationshipRenderer.render(schema)).thenReturn("users ||--|{ orders");
@@ -263,7 +309,12 @@ class SchemaRendererTest {
     @Test
     void includesPlantUmlStartAndEndMarkers() {
       final var schema =
-          Schema.builder().name("public").tables(List.of()).dbEnums(List.of()).build();
+          Schema.builder()
+              .name("public")
+              .tables(List.of())
+              .dbEnums(List.of())
+              .compositeTypes(List.of())
+              .build();
 
       final var result = schemaRenderer.render(List.of(schema));
 
@@ -274,7 +325,12 @@ class SchemaRendererTest {
     @Test
     void includesHideMethodsAndStereotypesDirectives() {
       final var schema =
-          Schema.builder().name("public").tables(List.of()).dbEnums(List.of()).build();
+          Schema.builder()
+              .name("public")
+              .tables(List.of())
+              .dbEnums(List.of())
+              .compositeTypes(List.of())
+              .build();
 
       final var result = schemaRenderer.render(List.of(schema));
 
@@ -316,6 +372,7 @@ class SchemaRendererTest {
               .name("public")
               .dbEnums(List.of(dbEnum))
               .tables(List.of(table1, table2))
+              .compositeTypes(List.of())
               .build();
 
       when(enumRenderer.render(dbEnum)).thenReturn("enum status {");
