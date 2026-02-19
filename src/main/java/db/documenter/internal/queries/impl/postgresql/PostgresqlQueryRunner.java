@@ -53,6 +53,8 @@ public final class PostgresqlQueryRunner implements QueryRunner {
              c.udt_schema,
              c.character_maximum_length,
              c.column_default,
+             c.is_generated,
+             c.generation_expression,
              CASE
                WHEN COUNT(DISTINCT uc.constraint_name) > 0 THEN true
                ELSE false
@@ -85,7 +87,8 @@ public final class PostgresqlQueryRunner implements QueryRunner {
            WHERE c.table_schema = ?
              AND c.table_name = ?
            GROUP BY c.column_name, c.ordinal_position, c.is_nullable, c.data_type,
-                    c.udt_schema, c.character_maximum_length, c.column_default
+                    c.udt_schema, c.character_maximum_length, c.column_default,
+                    c.is_generated, c.generation_expression
            ORDER BY c.ordinal_position;
            """;
 

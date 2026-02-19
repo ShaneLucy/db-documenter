@@ -72,6 +72,32 @@ public record Column(
   }
 
   /**
+   * Creates a new Column with a different data type, preserving all other properties.
+   *
+   * <p>This method follows the "wither" pattern common in immutable objects, returning a new
+   * instance rather than modifying the existing one.
+   *
+   * <p><b>Usage Example:</b>
+   *
+   * <pre>{@code
+   * Column original = Column.builder()
+   *     .name("status")
+   *     .dataType("USER-DEFINED")
+   *     .constraints(List.of(Constraint.NULLABLE))
+   *     .build();
+   *
+   * Column resolved = original.withDataType("order_status");
+   * // resolved has dataType="order_status", all other properties unchanged
+   * }</pre>
+   *
+   * @param newDataType the new data type for the column
+   * @return a new Column instance with the updated data type
+   */
+  public Column withDataType(final String newDataType) {
+    return new Column(this.name, newDataType, this.maximumLength, this.constraints);
+  }
+
+  /**
    * Creates a new builder for constructing Column instances.
    *
    * <p><b>Usage Example:</b>

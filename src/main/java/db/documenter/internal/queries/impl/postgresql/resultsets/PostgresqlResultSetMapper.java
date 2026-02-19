@@ -70,6 +70,10 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
       constraints.add(Constraint.NULLABLE);
     }
 
+    if (Objects.equals(resultSet.getString("is_generated"), "ALWAYS")) {
+      constraints.add(Constraint.GENERATED);
+    }
+
     return constraints;
   }
 

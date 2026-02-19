@@ -220,7 +220,7 @@ package "ecommerce" {
 		created_timestamp: timestamp without time zone <<DEFAULT,NULLABLE>>
 		created_date: date <<DEFAULT,NULLABLE>>
 		created_user: character varying(100) <<DEFAULT,NULLABLE>>
-		computed_full_description: character varying(300) <<NULLABLE>>
+		computed_full_description: character varying(300) <<NULLABLE,GENERATED>>
 	}
 
 	entity "config_settings" {
@@ -242,8 +242,8 @@ package "ecommerce" {
 		invoice_date: date <<DEFAULT>>
 		subtotal: numeric <<CHECK>>
 		tax_rate: numeric <<DEFAULT>>
-		tax_amount: numeric <<NULLABLE>>
-		total_amount: numeric <<NULLABLE>>
+		tax_amount: numeric <<NULLABLE,GENERATED>>
+		total_amount: numeric <<NULLABLE,GENERATED>>
 		due_date: date <<NULLABLE>>
 		paid_date: date <<NULLABLE>>
 		status: character varying(20) <<DEFAULT,CHECK,NULLABLE>>
@@ -255,7 +255,7 @@ package "ecommerce" {
 		first_name: character varying(100)
 		middle_name: character varying(100) <<NULLABLE>>
 		last_name: character varying(100)
-		full_name: character varying(302) <<NULLABLE>>
+		full_name: character varying(302) <<NULLABLE,GENERATED>>
 		birth_date: date <<NULLABLE>>
 		email: character varying(255) <<UNIQUE,NULLABLE>>
 		phone: character varying(20) <<NULLABLE>>
@@ -769,7 +769,7 @@ package "analytics" {
 		order_count: integer <<DEFAULT,CHECK,NULLABLE>>
 		revenue: numeric <<DEFAULT,CHECK,NULLABLE>>
 		cost: numeric <<DEFAULT,NULLABLE>>
-		profit: numeric <<NULLABLE>>
+		profit: numeric <<NULLABLE,GENERATED>>
 		inventory_level: integer <<NULLABLE>>
 		supplier_lead_time_days: integer <<NULLABLE>>
 		employee_count: integer <<DEFAULT,NULLABLE>>

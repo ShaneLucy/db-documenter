@@ -92,7 +92,7 @@ package "auth" {
 	entity "user_roles" {
 		**user_id: uuid** <<FK>>
 		**role_id: integer** <<FK>>
-		**organization_id_key: uuid**
+		**organization_id_key: uuid** <<GENERATED>>
 		--
 		organization_id: uuid <<FK,NULLABLE>>
 		valid_from: timestamp with time zone <<DEFAULT,CHECK>>
@@ -224,7 +224,7 @@ package "core" {
 		completed_at: timestamp with time zone <<CHECK,NULLABLE>>
 		estimated_minutes: integer <<CHECK,NULLABLE>>
 		logged_minutes: integer <<DEFAULT,CHECK>>
-		remaining_minutes: integer <<NULLABLE>>
+		remaining_minutes: integer <<NULLABLE,GENERATED>>
 		story_points: smallint <<CHECK,NULLABLE>>
 		labels: ARRAY <<DEFAULT>>
 		custom_fields: jsonb <<DEFAULT>>
@@ -251,7 +251,7 @@ package "core" {
 		user_id: uuid <<FK>>
 		started_at: timestamp with time zone <<CHECK>>
 		ended_at: timestamp with time zone <<CHECK,NULLABLE>>
-		duration_minutes: integer <<NULLABLE>>
+		duration_minutes: integer <<NULLABLE,GENERATED>>
 		description: text <<NULLABLE>>
 		is_billable: boolean <<DEFAULT>>
 		billing_rate: core.money_amount <<NULLABLE>>
@@ -268,7 +268,7 @@ package "core" {
 		organization_id: uuid <<FK>>
 		booking_start: timestamp with time zone <<CHECK>>
 		booking_end: timestamp with time zone <<CHECK>>
-		booking_range: tstzrange <<NULLABLE>>
+		booking_range: tstzrange <<NULLABLE,GENERATED>>
 		title: character varying(200)
 		description: text <<NULLABLE>>
 		recurrence: jsonb <<NULLABLE>>

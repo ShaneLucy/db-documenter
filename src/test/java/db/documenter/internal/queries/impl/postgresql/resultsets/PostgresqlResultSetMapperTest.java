@@ -123,6 +123,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("check_constraint")).thenReturn(null);
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+      when(resultSet.getString("is_generated")).thenReturn("NEVER");
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -148,6 +149,7 @@ class PostgresqlResultSetMapperTest {
       final List<String> checkConstraints = java.util.Arrays.asList(null, null);
       final List<String> columnDefaults = java.util.Arrays.asList(null, null);
       final List<Boolean> isAutoIncrements = List.of(false, false);
+      final List<String> isGenerateds = List.of("NEVER", "NEVER");
 
       final Iterator<String> nameIt = names.iterator();
       final Iterator<Integer> ordinalIt = ordinals.iterator();
@@ -158,6 +160,7 @@ class PostgresqlResultSetMapperTest {
       final Iterator<String> checkConstraintIt = checkConstraints.iterator();
       final Iterator<String> columnDefaultIt = columnDefaults.iterator();
       final Iterator<Boolean> isAutoIncrementIt = isAutoIncrements.iterator();
+      final Iterator<String> isGeneratedIt = isGenerateds.iterator();
 
       when(resultSet.getString("column_name")).thenAnswer(invocation -> nameIt.next());
       when(resultSet.getString("is_nullable")).thenAnswer(invocation -> nullableIt.next());
@@ -169,6 +172,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("column_default")).thenAnswer(invocation -> columnDefaultIt.next());
       when(resultSet.getBoolean("is_auto_increment"))
           .thenAnswer(invocation -> isAutoIncrementIt.next());
+      when(resultSet.getString("is_generated")).thenAnswer(invocation -> isGeneratedIt.next());
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -209,6 +213,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("check_constraint")).thenReturn(null);
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+      when(resultSet.getString("is_generated")).thenReturn("NEVER");
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -229,6 +234,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("check_constraint")).thenReturn(null);
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+      when(resultSet.getString("is_generated")).thenReturn("NEVER");
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -249,6 +255,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("check_constraint")).thenReturn(null);
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+      when(resultSet.getString("is_generated")).thenReturn("NEVER");
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -271,6 +278,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("check_constraint")).thenReturn("age > 0");
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+      when(resultSet.getString("is_generated")).thenReturn("NEVER");
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -293,6 +301,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("check_constraint")).thenReturn("   ");
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+      when(resultSet.getString("is_generated")).thenReturn("NEVER");
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -315,6 +324,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("check_constraint")).thenReturn(null);
       when(resultSet.getString("column_default")).thenReturn("'active'");
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+      when(resultSet.getString("is_generated")).thenReturn("NEVER");
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -337,6 +347,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("check_constraint")).thenReturn(null);
       when(resultSet.getString("column_default")).thenReturn("  ");
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+      when(resultSet.getString("is_generated")).thenReturn("NEVER");
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -359,6 +370,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("check_constraint")).thenReturn(null);
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(true);
+      when(resultSet.getString("is_generated")).thenReturn("NEVER");
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -381,6 +393,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("check_constraint")).thenReturn("email LIKE '%@%'");
       when(resultSet.getString("column_default")).thenReturn("'user@example.com'");
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+      when(resultSet.getString("is_generated")).thenReturn("NEVER");
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -392,6 +405,52 @@ class PostgresqlResultSetMapperTest {
       assertTrue(col.constraints().contains(db.documenter.internal.models.db.Constraint.NULLABLE));
       assertFalse(
           col.constraints().contains(db.documenter.internal.models.db.Constraint.AUTO_INCREMENT));
+    }
+
+    @Test
+    void addsGeneratedConstraintWhenIsGeneratedIsAlways() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("full_name");
+      when(resultSet.getString("is_nullable")).thenReturn("NO");
+      when(resultSet.getString("data_type")).thenReturn("varchar");
+      when(resultSet.getInt("character_maximum_length")).thenReturn(200);
+      when(resultSet.getBoolean("is_unique")).thenReturn(false);
+      when(resultSet.getString("check_constraint")).thenReturn(null);
+      when(resultSet.getString("column_default")).thenReturn(null);
+      when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+      when(resultSet.getString("is_generated")).thenReturn("ALWAYS");
+
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+      assertEquals(1, result.size());
+      assertTrue(
+          result
+              .getFirst()
+              .constraints()
+              .contains(db.documenter.internal.models.db.Constraint.GENERATED));
+    }
+
+    @Test
+    void doesNotAddGeneratedConstraintWhenIsGeneratedIsNever() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("name");
+      when(resultSet.getString("is_nullable")).thenReturn("NO");
+      when(resultSet.getString("data_type")).thenReturn("varchar");
+      when(resultSet.getInt("character_maximum_length")).thenReturn(100);
+      when(resultSet.getBoolean("is_unique")).thenReturn(false);
+      when(resultSet.getString("check_constraint")).thenReturn(null);
+      when(resultSet.getString("column_default")).thenReturn(null);
+      when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+      when(resultSet.getString("is_generated")).thenReturn("NEVER");
+
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+      assertEquals(1, result.size());
+      assertFalse(
+          result
+              .getFirst()
+              .constraints()
+              .contains(db.documenter.internal.models.db.Constraint.GENERATED));
     }
   }
 
