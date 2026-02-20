@@ -82,7 +82,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itReturnsColumns() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", appUser);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", appUser.name());
         final List<String> names = columns.stream().map(Column::name).toList();
 
         final List<String> expectedColumnNames =
@@ -102,7 +102,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", appUser);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", appUser.name());
 
         final var idColumn = columns.getFirst();
         final var userNameColumn = columns.get(1);
@@ -127,7 +127,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectDataType() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", appUser);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", appUser.name());
 
         final var idColumn = columns.getFirst();
         final var userNameColumn = columns.get(1);
@@ -152,7 +152,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectMaximumLength() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", appUser);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", appUser.name());
 
         final var idColumn = columns.getFirst();
         final var userNameColumn = columns.get(1);
@@ -188,7 +188,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itReturnsColumns() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", roleTable);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", roleTable.name());
         final List<String> names = columns.stream().map(Column::name).toList();
 
         final List<String> expectedColumnNames = List.of("id", "code", "description");
@@ -199,7 +200,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", roleTable);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", roleTable.name());
 
         final var idColumn = columns.getFirst();
         final var codeColumn = columns.get(1);
@@ -214,7 +216,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectDataType() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", roleTable);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", roleTable.name());
 
         final var idColumn = columns.getFirst();
         final var codeColumn = columns.get(1);
@@ -229,7 +232,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectMaximumLength() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", roleTable);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", roleTable.name());
 
         final var idColumn = columns.getFirst();
         final var codeColumn = columns.get(1);
@@ -256,7 +260,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itReturnsColumns() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", userRole);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", userRole.name());
         final List<String> names = columns.stream().map(Column::name).toList();
 
         final List<String> expectedColumnNames =
@@ -268,7 +272,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", userRole);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", userRole.name());
 
         final var userIdColumn = columns.getFirst();
         final var roleIdColumn = columns.get(1);
@@ -285,7 +289,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectDataType() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", userRole);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", userRole.name());
 
         final var userIdColumn = columns.getFirst();
         final var roleIdColumn = columns.get(1);
@@ -302,7 +306,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectMaximumLength() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", userRole);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", userRole.name());
 
         final var userIdColumn = columns.getFirst();
         final var roleIdColumn = columns.get(1);
@@ -330,7 +334,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itReturnsColumns() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", address);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", address.name());
         final List<String> names = columns.stream().map(Column::name).toList();
 
         final List<String> expectedColumnNames =
@@ -351,7 +355,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", address);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", address.name());
 
         final var idColumn = columns.getFirst();
         final var userIdColumn = columns.get(1);
@@ -378,7 +382,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectDataType() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", address);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", address.name());
 
         final var idColumn = columns.getFirst();
         final var userIdColumn = columns.get(1);
@@ -405,7 +409,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectMaximumLength() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", address);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", address.name());
 
         final var idColumn = columns.getFirst();
         final var userIdColumn = columns.get(1);
@@ -443,7 +447,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itReturnsColumns() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", product);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", product.name());
         final List<String> names = columns.stream().map(Column::name).toList();
 
         final List<String> expectedColumnNames =
@@ -456,7 +460,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", product);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", product.name());
 
         final var idColumn = columns.getFirst();
         final var skuColumn = columns.get(1);
@@ -481,7 +485,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectDataType() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", product);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", product.name());
 
         final var idColumn = columns.getFirst();
         final var skuColumn = columns.get(1);
@@ -506,7 +510,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectMaximumLength() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", product);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", product.name());
 
         final var idColumn = columns.getFirst();
         final var skuColumn = columns.get(1);
@@ -543,7 +547,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itReturnsColumns() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", category);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", category.name());
         final List<String> names = columns.stream().map(Column::name).toList();
 
         final List<String> expectedColumnNames = List.of("id", "slug", "title", "metadata");
@@ -554,7 +558,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", category);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", category.name());
 
         final var idColumn = columns.getFirst();
         final var slugColumn = columns.get(1);
@@ -571,7 +575,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectDataType() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", category);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", category.name());
 
         final var idColumn = columns.getFirst();
         final var slugColumn = columns.get(1);
@@ -588,7 +592,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectMaximumLength() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", category);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", category.name());
 
         final var idColumn = columns.getFirst();
         final var slugColumn = columns.get(1);
@@ -621,7 +625,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itReturnsColumns() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", productCategory);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", productCategory.name());
         final List<String> names = columns.stream().map(Column::name).toList();
 
         final List<String> expectedColumnNames =
@@ -633,7 +638,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", productCategory);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", productCategory.name());
 
         final var productIdColumn = columns.getFirst();
         final var categoryIdColumn = columns.get(1);
@@ -648,7 +654,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectDataType() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", productCategory);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", productCategory.name());
 
         final var productIdColumn = columns.getFirst();
         final var categoryIdColumn = columns.get(1);
@@ -663,7 +670,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectMaximumLength() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", productCategory);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", productCategory.name());
 
         final var productIdColumn = columns.getFirst();
         final var categoryIdColumn = columns.get(1);
@@ -694,7 +702,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itReturnsColumns() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", customerOrder);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", customerOrder.name());
         final List<String> names = columns.stream().map(Column::name).toList();
 
         final List<String> expectedColumnNames =
@@ -715,7 +724,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", customerOrder);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", customerOrder.name());
 
         final var idColumn = columns.getFirst();
         final var userIdColumn = columns.get(1);
@@ -742,7 +752,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectDataType() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", customerOrder);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", customerOrder.name());
 
         final var idColumn = columns.getFirst();
         final var userIdColumn = columns.get(1);
@@ -769,7 +780,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectMaximumLength() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", customerOrder);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", customerOrder.name());
 
         final var idColumn = columns.getFirst();
         final var userIdColumn = columns.get(1);
@@ -808,7 +820,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itReturnsColumns() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", orderItem);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", orderItem.name());
         final List<String> names = columns.stream().map(Column::name).toList();
 
         final List<String> expectedColumnNames =
@@ -827,7 +840,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", orderItem);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", orderItem.name());
 
         final var idColumn = columns.getFirst();
         final var orderIdColumn = columns.get(1);
@@ -850,7 +864,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectDataType() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", orderItem);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", orderItem.name());
 
         final var idColumn = columns.getFirst();
         final var orderIdColumn = columns.get(1);
@@ -873,7 +888,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectMaximumLength() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", orderItem);
+        final List<Column> columns =
+            postgresqlQueryRunner.getColumnInfo("public", orderItem.name());
 
         final var idColumn = columns.getFirst();
         final var orderIdColumn = columns.get(1);
@@ -907,7 +923,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itReturnsColumns() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", payment);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", payment.name());
         final List<String> names = columns.stream().map(Column::name).toList();
 
         final List<String> expectedColumnNames =
@@ -926,7 +942,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", payment);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", payment.name());
 
         final var idColumn = columns.getFirst();
         final var orderIdColumn = columns.get(1);
@@ -949,7 +965,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectDataType() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", payment);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", payment.name());
 
         final var idColumn = columns.getFirst();
         final var orderIdColumn = columns.get(1);
@@ -972,7 +988,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectMaximumLength() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", payment);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", payment.name());
 
         final var idColumn = columns.getFirst();
         final var orderIdColumn = columns.get(1);
@@ -1007,7 +1023,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itReturnsColumns() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", auditLog);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", auditLog.name());
         final List<String> names = columns.stream().map(Column::name).toList();
 
         final List<String> expectedColumnNames =
@@ -1026,7 +1042,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", auditLog);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", auditLog.name());
 
         final var idColumn = columns.getFirst();
         final var entityTypeColumn = columns.get(1);
@@ -1049,7 +1065,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectDataType() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", auditLog);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", auditLog.name());
 
         final var idColumn = columns.getFirst();
         final var entityTypeColumn = columns.get(1);
@@ -1072,7 +1088,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectMaximumLength() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", auditLog);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", auditLog.name());
 
         final var idColumn = columns.getFirst();
         final var entityTypeColumn = columns.get(1);
@@ -1106,7 +1122,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itReturnsColumns() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", tagLog);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", tagLog.name());
         final List<String> names = columns.stream().map(Column::name).toList();
 
         final List<String> expectedColumnNames = List.of("tag_id", "logged_at");
@@ -1117,7 +1133,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectIsNullable() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", tagLog);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", tagLog.name());
 
         final var tagIdColumn = columns.getFirst();
         final var loggedAtColumn = columns.getLast();
@@ -1130,7 +1146,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectDataType() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", tagLog);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", tagLog.name());
 
         final var tagIdColumn = columns.getFirst();
         final var loggedAtColumn = columns.getLast();
@@ -1143,7 +1159,7 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void columnsHaveCorrectMaximumLength() throws SQLException {
-        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", tagLog);
+        final List<Column> columns = postgresqlQueryRunner.getColumnInfo("public", tagLog.name());
 
         final var tagIdColumn = columns.getFirst();
         final var loggedAtColumn = columns.getLast();
@@ -1172,14 +1188,16 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", appUser);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", appUser.name());
 
         assertEquals("app_user_pkey", primaryKey.constraintName());
       }
 
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", appUser);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", appUser.name());
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1198,14 +1216,16 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", role);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", role.name());
 
         assertEquals("role_pkey", primaryKey.constraintName());
       }
 
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", role);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", role.name());
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1225,14 +1245,16 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", userRole);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", userRole.name());
 
         assertEquals("user_role_pkey", primaryKey.constraintName());
       }
 
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", userRole);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", userRole.name());
 
         assertEquals(2, primaryKey.columnNames().size());
         assertEquals("user_id", primaryKey.columnNames().getFirst());
@@ -1252,14 +1274,16 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", address);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", address.name());
 
         assertEquals("address_pkey", primaryKey.constraintName());
       }
 
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", address);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", address.name());
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1278,14 +1302,16 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", product);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", product.name());
 
         assertEquals("product_pkey", primaryKey.constraintName());
       }
 
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", product);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", product.name());
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1305,14 +1331,16 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", category);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", category.name());
 
         assertEquals("category_pkey", primaryKey.constraintName());
       }
 
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", category);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", category.name());
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1337,7 +1365,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", productCategory);
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", productCategory.name());
 
         assertEquals("product_category_pkey", primaryKey.constraintName());
       }
@@ -1345,7 +1373,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", productCategory);
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", productCategory.name());
 
         assertEquals(2, primaryKey.columnNames().size());
         assertEquals("product_id", primaryKey.columnNames().getFirst());
@@ -1371,7 +1399,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", customerOrder);
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", customerOrder.name());
 
         assertEquals("customer_order_pkey", primaryKey.constraintName());
       }
@@ -1379,7 +1407,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", customerOrder);
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", customerOrder.name());
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1399,14 +1427,16 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", orderItem);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", orderItem.name());
 
         assertEquals("order_item_pkey", primaryKey.constraintName());
       }
 
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", orderItem);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", orderItem.name());
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1425,14 +1455,16 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", payment);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", payment.name());
 
         assertEquals("payment_pkey", primaryKey.constraintName());
       }
 
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", payment);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", payment.name());
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1452,14 +1484,16 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", auditLog);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", auditLog.name());
 
         assertEquals("audit_log_pkey", primaryKey.constraintName());
       }
 
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", auditLog);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", auditLog.name());
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1478,7 +1512,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itHasNoPrimaryKey() throws SQLException {
-        final PrimaryKey primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", tagLog);
+        final PrimaryKey primaryKey =
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", tagLog.name());
         assertNull(primaryKey);
       }
     }
@@ -1500,7 +1535,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void appUserForeignKeyIsEmpty() throws SQLException {
-        final var appUserForeignKey = postgresqlQueryRunner.getForeignKeyInfo("public", appUser);
+        final var appUserForeignKey =
+            postgresqlQueryRunner.getForeignKeyInfo("public", appUser.name());
         assertNotNull(appUserForeignKey);
         assertTrue(appUserForeignKey.isEmpty());
       }
@@ -1518,7 +1554,8 @@ class PostgresqlQueryRunnerTest {
 
     @Test
     void itHasForeignKeyToAppUser() throws SQLException {
-      final List<ForeignKey> fks = postgresqlQueryRunner.getForeignKeyInfo("public", address);
+      final List<ForeignKey> fks =
+          postgresqlQueryRunner.getForeignKeyInfo("public", address.name());
 
       assertEquals(1, fks.size());
 
@@ -1542,7 +1579,7 @@ class PostgresqlQueryRunnerTest {
     @Test
     void itHasNoForeignKeys() throws SQLException {
       final List<ForeignKey> foreignKeys =
-          postgresqlQueryRunner.getForeignKeyInfo("public", product);
+          postgresqlQueryRunner.getForeignKeyInfo("public", product.name());
       assertTrue(foreignKeys.isEmpty());
     }
   }
@@ -1558,7 +1595,8 @@ class PostgresqlQueryRunnerTest {
 
     @Test
     void itHasNoForeignKeys() throws SQLException {
-      final List<ForeignKey> fks = postgresqlQueryRunner.getForeignKeyInfo("public", category);
+      final List<ForeignKey> fks =
+          postgresqlQueryRunner.getForeignKeyInfo("public", category.name());
       assertTrue(fks.isEmpty());
     }
   }
@@ -1580,7 +1618,7 @@ class PostgresqlQueryRunnerTest {
     @Test
     void itHasForeignKeyToProduct() throws SQLException {
       final List<ForeignKey> fks =
-          postgresqlQueryRunner.getForeignKeyInfo("public", productCategory);
+          postgresqlQueryRunner.getForeignKeyInfo("public", productCategory.name());
 
       final ForeignKey fk =
           fks.stream().filter(f -> f.sourceColumn().equals("product_id")).findFirst().orElseThrow();
@@ -1593,7 +1631,7 @@ class PostgresqlQueryRunnerTest {
     @Test
     void itHasForeignKeyToCategory() throws SQLException {
       final List<ForeignKey> fks =
-          postgresqlQueryRunner.getForeignKeyInfo("public", productCategory);
+          postgresqlQueryRunner.getForeignKeyInfo("public", productCategory.name());
 
       final ForeignKey fk =
           fks.stream()
@@ -1619,7 +1657,8 @@ class PostgresqlQueryRunnerTest {
 
     @Test
     void itHasForeignKeyToAppUser() throws SQLException {
-      final List<ForeignKey> fks = postgresqlQueryRunner.getForeignKeyInfo("public", customerOrder);
+      final List<ForeignKey> fks =
+          postgresqlQueryRunner.getForeignKeyInfo("public", customerOrder.name());
 
       final ForeignKey fk =
           fks.stream().filter(f -> f.sourceColumn().equals("user_id")).findFirst().orElseThrow();
@@ -1631,7 +1670,8 @@ class PostgresqlQueryRunnerTest {
 
     @Test
     void itHasForeignKeyToAddress() throws SQLException {
-      final List<ForeignKey> fks = postgresqlQueryRunner.getForeignKeyInfo("public", customerOrder);
+      final List<ForeignKey> fks =
+          postgresqlQueryRunner.getForeignKeyInfo("public", customerOrder.name());
 
       final ForeignKey fk =
           fks.stream()
@@ -1657,7 +1697,8 @@ class PostgresqlQueryRunnerTest {
 
     @Test
     void itHasForeignKeyToCustomerOrder() throws SQLException {
-      final List<ForeignKey> fks = postgresqlQueryRunner.getForeignKeyInfo("public", orderItem);
+      final List<ForeignKey> fks =
+          postgresqlQueryRunner.getForeignKeyInfo("public", orderItem.name());
 
       final ForeignKey fk =
           fks.stream().filter(f -> f.sourceColumn().equals("order_id")).findFirst().orElseThrow();
@@ -1669,7 +1710,8 @@ class PostgresqlQueryRunnerTest {
 
     @Test
     void itHasForeignKeyToProduct() throws SQLException {
-      final List<ForeignKey> fks = postgresqlQueryRunner.getForeignKeyInfo("public", orderItem);
+      final List<ForeignKey> fks =
+          postgresqlQueryRunner.getForeignKeyInfo("public", orderItem.name());
 
       final ForeignKey fk =
           fks.stream().filter(f -> f.sourceColumn().equals("product_id")).findFirst().orElseThrow();
@@ -1691,7 +1733,8 @@ class PostgresqlQueryRunnerTest {
 
     @Test
     void itHasForeignKeyToCustomerOrder() throws SQLException {
-      final List<ForeignKey> fks = postgresqlQueryRunner.getForeignKeyInfo("public", payment);
+      final List<ForeignKey> fks =
+          postgresqlQueryRunner.getForeignKeyInfo("public", payment.name());
 
       final ForeignKey fk =
           fks.stream().filter(f -> f.sourceColumn().equals("order_id")).findFirst().orElseThrow();
@@ -1714,7 +1757,8 @@ class PostgresqlQueryRunnerTest {
 
     @Test
     void itHasForeignKeyToAppUser() throws SQLException {
-      final List<ForeignKey> fks = postgresqlQueryRunner.getForeignKeyInfo("public", auditLog);
+      final List<ForeignKey> fks =
+          postgresqlQueryRunner.getForeignKeyInfo("public", auditLog.name());
 
       final ForeignKey fk =
           fks.stream()
@@ -1741,7 +1785,7 @@ class PostgresqlQueryRunnerTest {
     @Test
     void itHasNoForeignKeys() throws SQLException {
       final List<ForeignKey> foreignKeys =
-          postgresqlQueryRunner.getForeignKeyInfo("public", tagLog);
+          postgresqlQueryRunner.getForeignKeyInfo("public", tagLog.name());
 
       assertNotNull(foreignKeys);
       assertTrue(foreignKeys.isEmpty(), "tag_log should not have any foreign keys");

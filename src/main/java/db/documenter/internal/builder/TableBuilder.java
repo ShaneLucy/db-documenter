@@ -62,7 +62,7 @@ public final class TableBuilder {
     final List<Table> result = new ArrayList<>();
 
     for (final Table table : tables) {
-      final List<Column> rawColumns = queryRunner.getColumnInfo(schema, table);
+      final List<Column> rawColumns = queryRunner.getColumnInfo(schema, table.name());
 
       // Context objects are intentionally created per-table for proper UDT resolution
       @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
@@ -72,9 +72,9 @@ public final class TableBuilder {
       final List<Column> columnsWithEnumTypes =
           columnMapper.mapUserDefinedTypes(rawColumns, context);
 
-      final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo(schema, table);
+      final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo(schema, table.name());
 
-      final List<ForeignKey> rawForeignKeys = queryRunner.getForeignKeyInfo(schema, table);
+      final List<ForeignKey> rawForeignKeys = queryRunner.getForeignKeyInfo(schema, table.name());
       final List<ForeignKey> foreignKeys =
           foreignKeyMapper.enrichWithNullability(rawForeignKeys, columnsWithEnumTypes);
 

@@ -7,22 +7,35 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Renders a list of database schemas as a complete PlantUML entity-relationship diagram.
+ *
+ * <p>Each schema is wrapped in a PlantUML {@code package} block. Within each package, objects are
+ * rendered in this order: enums, composite types, views, materialized views, tables. Foreign key
+ * relationships are rendered after all packages.
+ */
 public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
   private static final Logger LOGGER = Logger.getLogger(SchemaRenderer.class.getName());
   private final EntityRenderer entityRenderer;
   private final RelationshipRenderer relationshipRenderer;
   private final EnumRenderer enumRenderer;
   private final CompositeTypeRenderer compositeTypeRenderer;
+  private final ViewRenderer viewRenderer;
+  private final MaterializedViewRenderer materializedViewRenderer;
 
   public SchemaRenderer(
       final EntityRenderer entityRenderer,
       final RelationshipRenderer relationshipRenderer,
       final EnumRenderer enumRenderer,
-      final CompositeTypeRenderer compositeTypeRenderer) {
+      final CompositeTypeRenderer compositeTypeRenderer,
+      final ViewRenderer viewRenderer,
+      final MaterializedViewRenderer materializedViewRenderer) {
     this.entityRenderer = entityRenderer;
     this.relationshipRenderer = relationshipRenderer;
     this.enumRenderer = enumRenderer;
     this.compositeTypeRenderer = compositeTypeRenderer;
+    this.viewRenderer = viewRenderer;
+    this.materializedViewRenderer = materializedViewRenderer;
   }
 
   @Override
@@ -51,6 +64,16 @@ public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
                           .append('\n'));
 
           schema
+              .views()
+              .forEach(view -> stringBuilder.append(viewRenderer.render(view)).append('\n'));
+
+          schema
+              .materializedViews()
+              .forEach(
+                  matView ->
+                      stringBuilder.append(materializedViewRenderer.render(matView)).append('\n'));
+
+          schema
               .tables()
               .forEach(table -> stringBuilder.append(entityRenderer.render(table)).append('\n'));
 
@@ -72,10 +95,12 @@ public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
 
       LOGGER.log(
           Level.INFO,
-          "Rendered {0} schema with {1} table(s), {2} enum(s), {3} composite type(s), {4} relationship(s)",
+          "Rendered {0} schema with {1} table(s), {2} view(s), {3} materialized view(s), {4} enum(s), {5} composite type(s), {6} relationship(s)",
           new Object[] {
             LogUtils.sanitizeForLog(schema.name()),
             schema.tables().size(),
+            schema.views().size(),
+            schema.materializedViews().size(),
             schema.dbEnums().size(),
             schema.compositeTypes().size(),
             totalRelationships

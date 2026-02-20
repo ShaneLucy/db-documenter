@@ -36,6 +36,7 @@ class SchemaBuilderTest {
   @Mock private EnumBuilder enumBuilder;
   @Mock private CompositeTypeBuilder compositeTypeBuilder;
   @Mock private TableBuilder tableBuilder;
+  @Mock private ViewBuilder viewBuilder;
   @Mock private Connection connection;
   @Mock private QueryRunner queryRunner;
 
@@ -49,11 +50,17 @@ class SchemaBuilderTest {
         enumBuilder,
         compositeTypeBuilder,
         tableBuilder,
+        viewBuilder,
         connection,
         queryRunner);
     schemaBuilder =
         new SchemaBuilder(
-            connectionManager, queryRunnerFactory, enumBuilder, compositeTypeBuilder, tableBuilder);
+            connectionManager,
+            queryRunnerFactory,
+            enumBuilder,
+            compositeTypeBuilder,
+            tableBuilder,
+            viewBuilder);
   }
 
   @Nested
@@ -89,6 +96,11 @@ class SchemaBuilderTest {
       when(tableBuilder.buildTables(
               eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
           .thenReturn(List.of(table));
+      when(viewBuilder.buildViews(eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+          .thenReturn(List.of());
+      when(viewBuilder.buildMaterializedViews(
+              eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+          .thenReturn(List.of());
 
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("test_schema"));
 
@@ -96,6 +108,8 @@ class SchemaBuilderTest {
       assertEquals("test_schema", result.getFirst().name());
       assertEquals(List.of(dbEnum), result.getFirst().dbEnums());
       assertEquals(List.of(table), result.getFirst().tables());
+      assertTrue(result.getFirst().views().isEmpty());
+      assertTrue(result.getFirst().materializedViews().isEmpty());
 
       verify(connection).close();
       verify(queryRunner).getColumnUdtMappings("test_schema");
@@ -124,12 +138,22 @@ class SchemaBuilderTest {
       when(queryRunner.getColumnUdtMappings("schema1")).thenReturn(columnUdtMappings1);
       when(tableBuilder.buildTables(eq(queryRunner), eq("schema1"), any(), eq(columnUdtMappings1)))
           .thenReturn(List.of(table1));
+      when(viewBuilder.buildViews(eq(queryRunner), eq("schema1"), any(), eq(columnUdtMappings1)))
+          .thenReturn(List.of());
+      when(viewBuilder.buildMaterializedViews(
+              eq(queryRunner), eq("schema1"), any(), eq(columnUdtMappings1)))
+          .thenReturn(List.of());
 
       when(enumBuilder.buildEnums(queryRunner, "schema2")).thenReturn(List.of(dbEnum2));
       when(compositeTypeBuilder.buildCompositeTypes(queryRunner, "schema2")).thenReturn(List.of());
       when(queryRunner.getColumnUdtMappings("schema2")).thenReturn(columnUdtMappings2);
       when(tableBuilder.buildTables(eq(queryRunner), eq("schema2"), any(), eq(columnUdtMappings2)))
           .thenReturn(List.of(table2));
+      when(viewBuilder.buildViews(eq(queryRunner), eq("schema2"), any(), eq(columnUdtMappings2)))
+          .thenReturn(List.of());
+      when(viewBuilder.buildMaterializedViews(
+              eq(queryRunner), eq("schema2"), any(), eq(columnUdtMappings2)))
+          .thenReturn(List.of());
 
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("schema1", "schema2"));
 
@@ -158,6 +182,11 @@ class SchemaBuilderTest {
       when(tableBuilder.buildTables(
               eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
           .thenReturn(List.of(table));
+      when(viewBuilder.buildViews(eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+          .thenReturn(List.of());
+      when(viewBuilder.buildMaterializedViews(
+              eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+          .thenReturn(List.of());
 
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("test_schema"));
 
@@ -184,6 +213,11 @@ class SchemaBuilderTest {
           .thenReturn(List.of());
       when(queryRunner.getColumnUdtMappings("test_schema")).thenReturn(columnUdtMappings);
       when(tableBuilder.buildTables(
+              eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+          .thenReturn(List.of());
+      when(viewBuilder.buildViews(eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+          .thenReturn(List.of());
+      when(viewBuilder.buildMaterializedViews(
               eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
           .thenReturn(List.of());
 

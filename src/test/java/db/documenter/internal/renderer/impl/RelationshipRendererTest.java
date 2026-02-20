@@ -37,6 +37,8 @@ class RelationshipRendererTest {
           Schema.builder()
               .name("public")
               .tables(List.of())
+              .views(List.of())
+              .materializedViews(List.of())
               .dbEnums(List.of())
               .compositeTypes(List.of())
               .build();
@@ -57,6 +59,8 @@ class RelationshipRendererTest {
           Schema.builder()
               .name("public")
               .tables(List.of(table1, table2))
+              .views(List.of())
+              .materializedViews(List.of())
               .dbEnums(List.of())
               .compositeTypes(List.of())
               .build();
@@ -90,6 +94,8 @@ class RelationshipRendererTest {
           Schema.builder()
               .name("public")
               .tables(List.of(table))
+              .views(List.of())
+              .materializedViews(List.of())
               .dbEnums(List.of())
               .compositeTypes(List.of())
               .build();
@@ -137,6 +143,8 @@ class RelationshipRendererTest {
           Schema.builder()
               .name("public")
               .tables(List.of(table))
+              .views(List.of())
+              .materializedViews(List.of())
               .dbEnums(List.of())
               .compositeTypes(List.of())
               .build();
@@ -188,6 +196,8 @@ class RelationshipRendererTest {
           Schema.builder()
               .name("public")
               .tables(List.of(table))
+              .views(List.of())
+              .materializedViews(List.of())
               .dbEnums(List.of())
               .compositeTypes(List.of())
               .build();
@@ -247,6 +257,8 @@ class RelationshipRendererTest {
           Schema.builder()
               .name("public")
               .tables(List.of(table1, table2))
+              .views(List.of())
+              .materializedViews(List.of())
               .dbEnums(List.of())
               .compositeTypes(List.of())
               .build();
@@ -295,6 +307,8 @@ class RelationshipRendererTest {
           Schema.builder()
               .name("public")
               .tables(List.of(table))
+              .views(List.of())
+              .materializedViews(List.of())
               .dbEnums(List.of())
               .compositeTypes(List.of())
               .build();

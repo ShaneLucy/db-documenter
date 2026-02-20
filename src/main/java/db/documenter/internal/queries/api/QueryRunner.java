@@ -5,22 +5,70 @@ import db.documenter.internal.models.db.ColumnKey;
 import db.documenter.internal.models.db.DbCompositeType;
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.ForeignKey;
+import db.documenter.internal.models.db.MaterializedView;
 import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
+import db.documenter.internal.models.db.View;
 import db.documenter.internal.models.db.postgresql.UdtReference;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Contract for querying database metadata required to build schema documentation.
+ *
+ * <p>Implementations retrieve structural information (tables, views, columns, constraints,
+ * user-defined types) from a specific database engine. Callers receive domain model objects; the
+ * raw JDBC mapping is an implementation detail hidden behind this interface.
+ *
+ * <p><b>Design Note:</b> Methods that accept a {@code tableName} string rather than a {@link Table}
+ * object are intentional — the query layer should not depend on partially-constructed domain
+ * objects. Table, view, and materialized view names are plain strings at query time.
+ *
+ * @see db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner
+ */
 public interface QueryRunner {
 
   List<Table> getTableInfo(String schema) throws SQLException;
 
-  List<Column> getColumnInfo(String schema, Table table) throws SQLException;
+  /**
+   * Retrieves all columns for a named table or view within the given schema.
+   *
+   * <p>This method is reused for tables, views, and materialized views because all three object
+   * types expose their column metadata through {@code information_schema.columns}.
+   *
+   * @param schema the schema containing the table or view
+   * @param tableName the name of the table, view, or materialized view to query
+   * @return immutable list of columns; never null, may be empty
+   * @throws SQLException if the database query fails
+   */
+  List<Column> getColumnInfo(String schema, String tableName) throws SQLException;
 
-  PrimaryKey getPrimaryKeyInfo(String schema, Table table) throws SQLException;
+  /**
+   * Retrieves the primary key constraint for a named table.
+   *
+   * <p>This method is only meaningful for tables. Views and materialized views in PostgreSQL cannot
+   * have primary key constraints, so this method should not be called for those object types.
+   *
+   * @param schema the schema containing the table
+   * @param tableName the name of the table to query
+   * @return the {@link PrimaryKey} or null if the table has no primary key
+   * @throws SQLException if the database query fails
+   */
+  PrimaryKey getPrimaryKeyInfo(String schema, String tableName) throws SQLException;
 
-  List<ForeignKey> getForeignKeyInfo(String schema, Table table) throws SQLException;
+  /**
+   * Retrieves all foreign key relationships originating from a named table.
+   *
+   * <p>This method is only meaningful for tables. Views and materialized views in PostgreSQL cannot
+   * have foreign key constraints, so this method should not be called for those object types.
+   *
+   * @param schema the schema containing the table
+   * @param tableName the name of the table to query
+   * @return immutable list of foreign keys; never null, may be empty
+   * @throws SQLException if the database query fails
+   */
+  List<ForeignKey> getForeignKeyInfo(String schema, String tableName) throws SQLException;
 
   List<DbEnum> getEnumInfo(String schema) throws SQLException;
 
@@ -84,4 +132,31 @@ public interface QueryRunner {
    * @throws SQLException if database query fails
    */
   List<DbCompositeType> getCompositeTypeInfo(String schema) throws SQLException;
+
+  /**
+   * Retrieves all views defined in the specified schema.
+   *
+   * <p>Returns stub {@link View} objects with name only and an empty column list. Columns are
+   * populated separately by the builder using {@link #getColumnInfo(String, String)}, following the
+   * same two-phase pattern used for tables.
+   *
+   * @param schema the schema to query for views
+   * @return immutable list of views (name-only, columns empty); never null, may be empty
+   * @throws SQLException if database query fails
+   */
+  List<View> getViewInfo(String schema) throws SQLException;
+
+  /**
+   * Retrieves all materialized views defined in the specified schema.
+   *
+   * <p>Returns stub {@link MaterializedView} objects with name only and an empty column list.
+   * Columns are populated separately by the builder using {@link #getColumnInfo(String, String)},
+   * following the same two-phase pattern used for tables.
+   *
+   * @param schema the schema to query for materialized views
+   * @return immutable list of materialized views (name-only, columns empty); never null, may be
+   *     empty
+   * @throws SQLException if database query fails
+   */
+  List<MaterializedView> getMaterializedViewInfo(String schema) throws SQLException;
 }

@@ -171,6 +171,49 @@ package "core" {
 		end_time : timestamp with time zone
 	}
 
+	entity "active_organization_members_view" <<view>> {
+		organization_id: uuid <<NULLABLE>>
+		user_id: uuid <<NULLABLE>>
+		member_role: character varying(50) <<NULLABLE>>
+		display_name: character varying <<NULLABLE>>
+		email: character varying(255) <<NULLABLE>>
+		avatar_url: jsonb <<NULLABLE>>
+		account_status: auth.account_status <<NULLABLE>>
+		accepted_at: timestamp with time zone <<NULLABLE>>
+		last_login_at: timestamp with time zone <<NULLABLE>>
+	}
+
+	entity "project_summary_view" <<view>> {
+		id: uuid <<NULLABLE>>
+		organization_id: uuid <<NULLABLE>>
+		key: character varying(10) <<NULLABLE>>
+		name: character varying(200) <<NULLABLE>>
+		status: project_status <<NULLABLE>>
+		lead_id: uuid <<NULLABLE>>
+		lead_email: character varying(255) <<NULLABLE>>
+		total_tasks: bigint <<NULLABLE>>
+		completed_tasks: bigint <<NULLABLE>>
+		active_tasks: bigint <<NULLABLE>>
+		overdue_tasks: bigint <<NULLABLE>>
+		start_date: date <<NULLABLE>>
+		target_end_date: date <<NULLABLE>>
+		created_at: timestamp with time zone <<NULLABLE>>
+		updated_at: timestamp with time zone <<NULLABLE>>
+	}
+
+	entity "user_task_workload_view" <<view>> {
+		user_id: uuid <<NULLABLE>>
+		email: character varying(255) <<NULLABLE>>
+		username: character varying(50) <<NULLABLE>>
+		total_assigned_tasks: bigint <<NULLABLE>>
+		active_tasks: bigint <<NULLABLE>>
+		blocked_tasks: bigint <<NULLABLE>>
+		overdue_tasks: bigint <<NULLABLE>>
+		remaining_estimated_minutes: bigint <<NULLABLE>>
+		remaining_story_points: bigint <<NULLABLE>>
+		project_ids: uuid[] <<NULLABLE>>
+	}
+
 	entity "organizations" {
 		**id: uuid** <<DEFAULT>>
 		--
@@ -313,52 +356,15 @@ package "core" {
 		deleted_at: timestamp with time zone <<NULLABLE>>
 	}
 
-	entity "active_organization_members_view" {
-		organization_id: uuid <<NULLABLE>>
-		user_id: uuid <<NULLABLE>>
-		member_role: character varying(50) <<NULLABLE>>
-		display_name: character varying <<NULLABLE>>
-		email: character varying(255) <<NULLABLE>>
-		avatar_url: jsonb <<NULLABLE>>
-		account_status: auth.account_status <<NULLABLE>>
-		accepted_at: timestamp with time zone <<NULLABLE>>
-		last_login_at: timestamp with time zone <<NULLABLE>>
-	}
-
-	entity "project_summary_view" {
-		id: uuid <<NULLABLE>>
-		organization_id: uuid <<NULLABLE>>
-		key: character varying(10) <<NULLABLE>>
-		name: character varying(200) <<NULLABLE>>
-		status: project_status <<NULLABLE>>
-		lead_id: uuid <<NULLABLE>>
-		lead_email: character varying(255) <<NULLABLE>>
-		total_tasks: bigint <<NULLABLE>>
-		completed_tasks: bigint <<NULLABLE>>
-		active_tasks: bigint <<NULLABLE>>
-		overdue_tasks: bigint <<NULLABLE>>
-		start_date: date <<NULLABLE>>
-		target_end_date: date <<NULLABLE>>
-		created_at: timestamp with time zone <<NULLABLE>>
-		updated_at: timestamp with time zone <<NULLABLE>>
-	}
-
-	entity "user_task_workload_view" {
-		user_id: uuid <<NULLABLE>>
-		email: character varying(255) <<NULLABLE>>
-		username: character varying(50) <<NULLABLE>>
-		total_assigned_tasks: bigint <<NULLABLE>>
-		active_tasks: bigint <<NULLABLE>>
-		blocked_tasks: bigint <<NULLABLE>>
-		overdue_tasks: bigint <<NULLABLE>>
-		remaining_estimated_minutes: bigint <<NULLABLE>>
-		remaining_story_points: bigint <<NULLABLE>>
-		project_ids: uuid[] <<NULLABLE>>
-	}
-
 }
 
 package "analytics" {
+	entity "organization_usage_metrics" <<materialized_view>> {
+	}
+
+	entity "project_dashboard_summary" <<materialized_view>> {
+	}
+
 	entity "daily_project_stats" {
 		**stat_date: date**
 		**project_id: uuid**

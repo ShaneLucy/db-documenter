@@ -5,6 +5,7 @@ import db.documenter.internal.builder.EnumBuilder;
 import db.documenter.internal.builder.FormatterConfigurer;
 import db.documenter.internal.builder.SchemaBuilder;
 import db.documenter.internal.builder.TableBuilder;
+import db.documenter.internal.builder.ViewBuilder;
 import db.documenter.internal.connection.ConnectionManagerFactory;
 import db.documenter.internal.connection.api.ConnectionManager;
 import db.documenter.internal.mapper.ColumnMapper;
@@ -15,8 +16,10 @@ import db.documenter.internal.queries.QueryRunnerFactory;
 import db.documenter.internal.renderer.impl.CompositeTypeRenderer;
 import db.documenter.internal.renderer.impl.EntityRenderer;
 import db.documenter.internal.renderer.impl.EnumRenderer;
+import db.documenter.internal.renderer.impl.MaterializedViewRenderer;
 import db.documenter.internal.renderer.impl.RelationshipRenderer;
 import db.documenter.internal.renderer.impl.SchemaRenderer;
+import db.documenter.internal.renderer.impl.ViewRenderer;
 import db.documenter.internal.utils.LogUtils;
 import java.sql.SQLException;
 import java.util.List;
@@ -45,10 +48,16 @@ public final class DbDocumenter {
     final EnumBuilder enumBuilder = new EnumBuilder();
     final CompositeTypeBuilder compositeTypeBuilder = new CompositeTypeBuilder();
     final TableBuilder tableBuilder = new TableBuilder(columnMapper, foreignKeyMapper, tableMapper);
+    final ViewBuilder viewBuilder = new ViewBuilder(columnMapper);
 
     this.schemaBuilder =
         new SchemaBuilder(
-            connectionManager, queryRunnerFactory, enumBuilder, compositeTypeBuilder, tableBuilder);
+            connectionManager,
+            queryRunnerFactory,
+            enumBuilder,
+            compositeTypeBuilder,
+            tableBuilder,
+            viewBuilder);
   }
 
   /**
@@ -72,9 +81,16 @@ public final class DbDocumenter {
     final var relationShipRenderer = new RelationshipRenderer(multiplicityFormatter);
     final var enumRenderer = new EnumRenderer();
     final var compositeTypeRenderer = new CompositeTypeRenderer();
+    final var viewRenderer = new ViewRenderer();
+    final var materializedViewRenderer = new MaterializedViewRenderer();
     final var schemaRenderer =
         new SchemaRenderer(
-            entityRenderer, relationShipRenderer, enumRenderer, compositeTypeRenderer);
+            entityRenderer,
+            relationShipRenderer,
+            enumRenderer,
+            compositeTypeRenderer,
+            viewRenderer,
+            materializedViewRenderer);
 
     final List<Schema> schemas = schemaBuilder.buildSchemas(dbDocumenterConfig.schemas());
 

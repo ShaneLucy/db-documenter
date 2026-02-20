@@ -3,6 +3,42 @@ hide methods
 hide stereotypes
 
 package "ecommerce" {
+	entity "active_users" <<view>> {
+		user_id: bigint <<NULLABLE>>
+		username: character varying(50) <<NULLABLE>>
+		email: character varying(255) <<NULLABLE>>
+		first_name: character varying(100) <<NULLABLE>>
+		last_name: character varying(100) <<NULLABLE>>
+		created_at: timestamp without time zone <<NULLABLE>>
+		last_login_at: timestamp without time zone <<NULLABLE>>
+		loyalty_points: integer <<NULLABLE>>
+	}
+
+	entity "order_summary" <<view>> {
+		order_id: bigint <<NULLABLE>>
+		order_number: character varying(50) <<NULLABLE>>
+		user_id: bigint <<NULLABLE>>
+		username: character varying(50) <<NULLABLE>>
+		customer_email: character varying(255) <<NULLABLE>>
+		order_status: character varying(20) <<NULLABLE>>
+		order_date: timestamp without time zone <<NULLABLE>>
+		total_amount: numeric(19,2) <<NULLABLE>>
+		item_count: bigint <<NULLABLE>>
+		total_quantity: bigint <<NULLABLE>>
+	}
+
+	entity "product_catalog" <<view>> {
+		product_identifier: bigint <<NULLABLE>>
+		stock_keeping_unit: character varying(50) <<NULLABLE>>
+		product_title: character varying(200) <<NULLABLE>>
+		category: character varying(100) <<NULLABLE>>
+		retail_price: numeric(19,4) <<NULLABLE>>
+		wholesale_price: numeric(19,4) <<NULLABLE>>
+		profit_margin_percent: numeric <<NULLABLE>>
+		in_stock: boolean <<NULLABLE>>
+		featured_item: boolean <<NULLABLE>>
+	}
+
 	entity "users" {
 		**user_id: bigint**
 		--
@@ -375,45 +411,24 @@ package "ecommerce" {
 		discount_code: character varying(20) <<CHECK,NULLABLE>>
 	}
 
-	entity "active_users" {
-		user_id: bigint <<NULLABLE>>
-		username: character varying(50) <<NULLABLE>>
-		email: character varying(255) <<NULLABLE>>
-		first_name: character varying(100) <<NULLABLE>>
-		last_name: character varying(100) <<NULLABLE>>
-		created_at: timestamp without time zone <<NULLABLE>>
-		last_login_at: timestamp without time zone <<NULLABLE>>
-		loyalty_points: integer <<NULLABLE>>
-	}
-
-	entity "order_summary" {
-		order_id: bigint <<NULLABLE>>
-		order_number: character varying(50) <<NULLABLE>>
-		user_id: bigint <<NULLABLE>>
-		username: character varying(50) <<NULLABLE>>
-		customer_email: character varying(255) <<NULLABLE>>
-		order_status: character varying(20) <<NULLABLE>>
-		order_date: timestamp without time zone <<NULLABLE>>
-		total_amount: numeric(19,2) <<NULLABLE>>
-		item_count: bigint <<NULLABLE>>
-		total_quantity: bigint <<NULLABLE>>
-	}
-
-	entity "product_catalog" {
-		product_identifier: bigint <<NULLABLE>>
-		stock_keeping_unit: character varying(50) <<NULLABLE>>
-		product_title: character varying(200) <<NULLABLE>>
-		category: character varying(100) <<NULLABLE>>
-		retail_price: numeric(19,4) <<NULLABLE>>
-		wholesale_price: numeric(19,4) <<NULLABLE>>
-		profit_margin_percent: numeric <<NULLABLE>>
-		in_stock: boolean <<NULLABLE>>
-		featured_item: boolean <<NULLABLE>>
-	}
-
 }
 
 package "inventory" {
+	entity "product_inventory_summary" <<view>> {
+		product_id: bigint <<NULLABLE>>
+		sku: character varying(50) <<NULLABLE>>
+		product_name: character varying(200) <<NULLABLE>>
+		unit_price: numeric(19,4) <<NULLABLE>>
+		category_name: character varying(100) <<NULLABLE>>
+		warehouse_code: character varying(20) <<NULLABLE>>
+		warehouse_name: character varying(100) <<NULLABLE>>
+		quantity_on_hand: integer <<NULLABLE>>
+		quantity_reserved: integer <<NULLABLE>>
+		quantity_available: integer <<NULLABLE>>
+		reorder_point: integer <<NULLABLE>>
+		stock_status: text <<NULLABLE>>
+	}
+
 	entity "warehouses" {
 		**warehouse_id: integer**
 		--
@@ -572,24 +587,45 @@ package "inventory" {
 		is_refrigerated: boolean <<DEFAULT,NULLABLE>>
 	}
 
-	entity "product_inventory_summary" {
-		product_id: bigint <<NULLABLE>>
-		sku: character varying(50) <<NULLABLE>>
-		product_name: character varying(200) <<NULLABLE>>
-		unit_price: numeric(19,4) <<NULLABLE>>
-		category_name: character varying(100) <<NULLABLE>>
-		warehouse_code: character varying(20) <<NULLABLE>>
-		warehouse_name: character varying(100) <<NULLABLE>>
-		quantity_on_hand: integer <<NULLABLE>>
-		quantity_reserved: integer <<NULLABLE>>
-		quantity_available: integer <<NULLABLE>>
-		reorder_point: integer <<NULLABLE>>
-		stock_status: text <<NULLABLE>>
-	}
-
 }
 
 package "analytics" {
+	entity "customer_lifetime_value" <<view>> {
+		user_id: bigint <<NULLABLE>>
+		username: character varying(50) <<NULLABLE>>
+		email: character varying(255) <<NULLABLE>>
+		customer_since: timestamp without time zone <<NULLABLE>>
+		total_orders: bigint <<NULLABLE>>
+		lifetime_revenue: numeric <<NULLABLE>>
+		average_order_value: numeric <<NULLABLE>>
+		last_order_date: timestamp without time zone <<NULLABLE>>
+		customer_segment: text <<NULLABLE>>
+	}
+
+	entity "order_fulfillment_details" <<view>> {
+		order_id: bigint <<NULLABLE>>
+		order_number: character varying(50) <<NULLABLE>>
+		order_date: timestamp without time zone <<NULLABLE>>
+		username: character varying(50) <<NULLABLE>>
+		product_name: character varying(200) <<NULLABLE>>
+		ordered_quantity: integer <<NULLABLE>>
+		quantity_available: integer <<NULLABLE>>
+		warehouse_name: character varying(100) <<NULLABLE>>
+		warehouse_city: character varying(100) <<NULLABLE>>
+		availability_status: text <<NULLABLE>>
+	}
+
+	entity "supplier_reliability_metrics" <<view>> {
+		supplier_id: integer <<NULLABLE>>
+		supplier_name: character varying(200) <<NULLABLE>>
+		supplier_code: character varying(20) <<NULLABLE>>
+		total_purchase_orders: bigint <<NULLABLE>>
+		completed_orders: bigint <<NULLABLE>>
+		avg_delivery_delay_days: numeric <<NULLABLE>>
+		total_purchase_value: numeric <<NULLABLE>>
+		supplier_rating: smallint <<NULLABLE>>
+	}
+
 	entity "daily_sales" {
 		**report_date: date**
 		--
@@ -774,42 +810,6 @@ package "analytics" {
 		supplier_lead_time_days: integer <<NULLABLE>>
 		employee_count: integer <<DEFAULT,NULLABLE>>
 		created_at: timestamp without time zone <<DEFAULT,NULLABLE>>
-	}
-
-	entity "customer_lifetime_value" {
-		user_id: bigint <<NULLABLE>>
-		username: character varying(50) <<NULLABLE>>
-		email: character varying(255) <<NULLABLE>>
-		customer_since: timestamp without time zone <<NULLABLE>>
-		total_orders: bigint <<NULLABLE>>
-		lifetime_revenue: numeric <<NULLABLE>>
-		average_order_value: numeric <<NULLABLE>>
-		last_order_date: timestamp without time zone <<NULLABLE>>
-		customer_segment: text <<NULLABLE>>
-	}
-
-	entity "order_fulfillment_details" {
-		order_id: bigint <<NULLABLE>>
-		order_number: character varying(50) <<NULLABLE>>
-		order_date: timestamp without time zone <<NULLABLE>>
-		username: character varying(50) <<NULLABLE>>
-		product_name: character varying(200) <<NULLABLE>>
-		ordered_quantity: integer <<NULLABLE>>
-		quantity_available: integer <<NULLABLE>>
-		warehouse_name: character varying(100) <<NULLABLE>>
-		warehouse_city: character varying(100) <<NULLABLE>>
-		availability_status: text <<NULLABLE>>
-	}
-
-	entity "supplier_reliability_metrics" {
-		supplier_id: integer <<NULLABLE>>
-		supplier_name: character varying(200) <<NULLABLE>>
-		supplier_code: character varying(20) <<NULLABLE>>
-		total_purchase_orders: bigint <<NULLABLE>>
-		completed_orders: bigint <<NULLABLE>>
-		avg_delivery_delay_days: numeric <<NULLABLE>>
-		total_purchase_value: numeric <<NULLABLE>>
-		supplier_rating: smallint <<NULLABLE>>
 	}
 
 }

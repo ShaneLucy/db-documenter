@@ -1,7 +1,16 @@
 package db.documenter.internal.queries.impl.postgresql.resultsets;
 
-import db.documenter.internal.models.db.*;
+import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.ColumnKey;
+import db.documenter.internal.models.db.CompositeField;
+import db.documenter.internal.models.db.Constraint;
+import db.documenter.internal.models.db.DbCompositeType;
+import db.documenter.internal.models.db.DbEnum;
+import db.documenter.internal.models.db.ForeignKey;
+import db.documenter.internal.models.db.MaterializedView;
+import db.documenter.internal.models.db.PrimaryKey;
+import db.documenter.internal.models.db.Table;
+import db.documenter.internal.models.db.View;
 import db.documenter.internal.models.db.postgresql.UdtReference;
 import db.documenter.internal.queries.api.ResultSetMapper;
 import java.sql.ResultSet;
@@ -12,6 +21,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * PostgreSQL-specific implementation of {@link ResultSetMapper}.
+ *
+ * <p>Extracts column values from PostgreSQL metadata result sets and constructs immutable domain
+ * records. Methods that return stub objects (tables, views, materialized views) populate only the
+ * name; columns are enriched by the builder layer in a subsequent query.
+ */
 public final class PostgresqlResultSetMapper implements ResultSetMapper {
 
   @Override
@@ -234,5 +250,28 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
     }
 
     return compositeTypeBuilders.values().stream().map(DbCompositeType.Builder::build).toList();
+  }
+
+  @Override
+  public List<View> mapToViews(final ResultSet resultSet) throws SQLException {
+    final List<View> views = new ArrayList<>();
+    while (resultSet.next()) {
+      views.add(View.builder().name(resultSet.getString("table_name")).columns(List.of()).build());
+    }
+    return views;
+  }
+
+  @Override
+  public List<MaterializedView> mapToMaterializedViews(final ResultSet resultSet)
+      throws SQLException {
+    final List<MaterializedView> materializedViews = new ArrayList<>();
+    while (resultSet.next()) {
+      materializedViews.add(
+          MaterializedView.builder()
+              .name(resultSet.getString("table_name"))
+              .columns(List.of())
+              .build());
+    }
+    return materializedViews;
   }
 }

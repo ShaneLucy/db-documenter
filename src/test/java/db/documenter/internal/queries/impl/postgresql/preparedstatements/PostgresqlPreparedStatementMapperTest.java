@@ -3,10 +3,8 @@ package db.documenter.internal.queries.impl.postgresql.preparedstatements;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import db.documenter.internal.models.db.Table;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -61,12 +59,11 @@ class PostgresqlPreparedStatementMapperTest {
     @Test
     void itSetsSchemaAndTableNameParametersCorrectly() throws SQLException {
       final String schema = "public";
-      final Table table =
-          Table.builder().name("my_table").columns(List.of()).foreignKeys(List.of()).build();
-      mapper.preparePrimaryKeyInfoStatement(preparedStatement, schema, table);
+      final String tableName = "my_table";
+      mapper.preparePrimaryKeyInfoStatement(preparedStatement, schema, tableName);
 
       verify(preparedStatement).setString(1, schema);
-      verify(preparedStatement).setString(2, table.name());
+      verify(preparedStatement).setString(2, tableName);
       verifyNoMoreInteractions(preparedStatement);
     }
   }
@@ -77,12 +74,11 @@ class PostgresqlPreparedStatementMapperTest {
     @Test
     void itSetsSchemaAndTableNameParametersCorrectly() throws SQLException {
       final String schema = "public";
-      final Table table =
-          Table.builder().name("my_table").columns(List.of()).foreignKeys(List.of()).build();
-      mapper.prepareForeignKeyInfoStatement(preparedStatement, schema, table);
+      final String tableName = "my_table";
+      mapper.prepareForeignKeyInfoStatement(preparedStatement, schema, tableName);
 
       verify(preparedStatement).setString(1, schema);
-      verify(preparedStatement).setString(2, table.name());
+      verify(preparedStatement).setString(2, tableName);
       verifyNoMoreInteractions(preparedStatement);
     }
   }

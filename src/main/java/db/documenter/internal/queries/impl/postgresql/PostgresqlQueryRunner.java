@@ -5,8 +5,10 @@ import db.documenter.internal.models.db.ColumnKey;
 import db.documenter.internal.models.db.DbCompositeType;
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.ForeignKey;
+import db.documenter.internal.models.db.MaterializedView;
 import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
+import db.documenter.internal.models.db.View;
 import db.documenter.internal.models.db.postgresql.UdtReference;
 import db.documenter.internal.queries.api.PreparedStatementMapper;
 import db.documenter.internal.queries.api.QueryRunner;
@@ -20,6 +22,19 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * PostgreSQL-specific implementation of {@link QueryRunner}.
+ *
+ * <p>Executes parameterized SQL queries against PostgreSQL {@code information_schema} and {@code
+ * pg_catalog} views to retrieve schema metadata. Each method opens a prepared statement, binds
+ * parameters, executes the query, and delegates result-set mapping to the injected {@link
+ * ResultSetMapper}.
+ *
+ * <p><b>Resource Management:</b> All {@link java.sql.PreparedStatement} and {@link
+ * java.sql.ResultSet} instances are managed with try-with-resources to guarantee closure even on
+ * exceptions. The {@link Connection} lifecycle is owned by the caller (typically {@link
+ * db.documenter.internal.builder.SchemaBuilder}).
+ */
 public final class PostgresqlQueryRunner implements QueryRunner {
 
   private final PreparedStatementMapper postgresqlPreparedStatementMapper;
@@ -41,6 +56,7 @@ public final class PostgresqlQueryRunner implements QueryRunner {
            JOIN pg_catalog.pg_class c ON c.relname = t.table_name
            JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace AND n.nspname = t.table_schema
            WHERE t.table_schema = ?
+             AND t.table_type = 'BASE TABLE'
            ORDER BY c.oid;
            """;
 
@@ -192,6 +208,26 @@ public final class PostgresqlQueryRunner implements QueryRunner {
           ORDER BY t.typname, a.attnum;
           """;
 
+  private static final String GET_VIEWS_QUERY =
+      """
+           SELECT
+             v.table_name
+           FROM information_schema.views v
+           WHERE v.table_schema = ?
+           ORDER BY v.table_name;
+           """;
+
+  private static final String GET_MATERIALIZED_VIEWS_QUERY =
+      """
+           SELECT
+             c.relname AS table_name
+           FROM pg_catalog.pg_class c
+           JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+           WHERE n.nspname = ?
+             AND c.relkind = 'm'
+           ORDER BY c.relname;
+           """;
+
   public PostgresqlQueryRunner(
       final PreparedStatementMapper postgresqlPreparedStatementMapper,
       final ResultSetMapper postgresqlResultSetMapper,
@@ -221,10 +257,11 @@ public final class PostgresqlQueryRunner implements QueryRunner {
   }
 
   @Override
-  public List<Column> getColumnInfo(final String schema, final Table table) throws SQLException {
+  public List<Column> getColumnInfo(final String schema, final String tableName)
+      throws SQLException {
     try (final var preparedStatement = connection.prepareStatement(GET_COLUMN_INFO_QUERY)) {
       postgresqlPreparedStatementMapper.prepareColumnInfoStatement(
-          preparedStatement, schema, table.name());
+          preparedStatement, schema, tableName);
 
       try (final var resultSet = preparedStatement.executeQuery()) {
         final List<Column> columns = postgresqlResultSetMapper.mapToColumns(resultSet);
@@ -234,9 +271,7 @@ public final class PostgresqlQueryRunner implements QueryRunner {
               Level.INFO,
               "Discovered: {0} columns for table: {1} in schema: {2}",
               new Object[] {
-                columns.size(),
-                LogUtils.sanitizeForLog(table.name()),
-                LogUtils.sanitizeForLog(schema)
+                columns.size(), LogUtils.sanitizeForLog(tableName), LogUtils.sanitizeForLog(schema)
               });
         }
         return columns;
@@ -245,10 +280,11 @@ public final class PostgresqlQueryRunner implements QueryRunner {
   }
 
   @Override
-  public PrimaryKey getPrimaryKeyInfo(final String schema, final Table table) throws SQLException {
+  public PrimaryKey getPrimaryKeyInfo(final String schema, final String tableName)
+      throws SQLException {
     try (final var preparedStatement = connection.prepareStatement(GET_PRIMARY_KEY_INFO_QUERY)) {
       postgresqlPreparedStatementMapper.preparePrimaryKeyInfoStatement(
-          preparedStatement, schema, table);
+          preparedStatement, schema, tableName);
 
       try (final var resultSet = preparedStatement.executeQuery()) {
         return postgresqlResultSetMapper.mapToPrimaryKey(resultSet);
@@ -257,11 +293,11 @@ public final class PostgresqlQueryRunner implements QueryRunner {
   }
 
   @Override
-  public List<ForeignKey> getForeignKeyInfo(final String schema, final Table table)
+  public List<ForeignKey> getForeignKeyInfo(final String schema, final String tableName)
       throws SQLException {
     try (final var preparedStatement = connection.prepareStatement(GET_FOREIGN_KEY_INFO)) {
       postgresqlPreparedStatementMapper.prepareForeignKeyInfoStatement(
-          preparedStatement, schema, table);
+          preparedStatement, schema, tableName);
 
       try (final var resultSet = preparedStatement.executeQuery()) {
         final List<ForeignKey> foreignKeys = postgresqlResultSetMapper.mapToForeignKeys(resultSet);
@@ -272,7 +308,7 @@ public final class PostgresqlQueryRunner implements QueryRunner {
               "Discovered: {0} foreign keys for table: {1} in schema: {2}",
               new Object[] {
                 foreignKeys.size(),
-                LogUtils.sanitizeForLog(table.name()),
+                LogUtils.sanitizeForLog(tableName),
                 LogUtils.sanitizeForLog(schema)
               });
         }
@@ -368,6 +404,48 @@ public final class PostgresqlQueryRunner implements QueryRunner {
         }
 
         return compositeTypes;
+      }
+    }
+  }
+
+  @Override
+  public List<View> getViewInfo(final String schema) throws SQLException {
+    try (final var preparedStatement = connection.prepareStatement(GET_VIEWS_QUERY)) {
+      postgresqlPreparedStatementMapper.prepareViewInfoStatement(preparedStatement, schema);
+
+      try (final var resultSet = preparedStatement.executeQuery()) {
+        final List<View> views = postgresqlResultSetMapper.mapToViews(resultSet);
+
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Discovered: {0} views in schema: {1}",
+              new Object[] {views.size(), LogUtils.sanitizeForLog(schema)});
+        }
+
+        return views;
+      }
+    }
+  }
+
+  @Override
+  public List<MaterializedView> getMaterializedViewInfo(final String schema) throws SQLException {
+    try (final var preparedStatement = connection.prepareStatement(GET_MATERIALIZED_VIEWS_QUERY)) {
+      postgresqlPreparedStatementMapper.prepareMaterializedViewInfoStatement(
+          preparedStatement, schema);
+
+      try (final var resultSet = preparedStatement.executeQuery()) {
+        final List<MaterializedView> materializedViews =
+            postgresqlResultSetMapper.mapToMaterializedViews(resultSet);
+
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Discovered: {0} materialized views in schema: {1}",
+              new Object[] {materializedViews.size(), LogUtils.sanitizeForLog(schema)});
+        }
+
+        return materializedViews;
       }
     }
   }

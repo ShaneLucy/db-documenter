@@ -123,12 +123,12 @@ class TableBuilderTest {
 
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of(table1, table2));
 
-      when(queryRunner.getColumnInfo("test_schema", table1)).thenReturn(List.of(rawColumn1));
+      when(queryRunner.getColumnInfo("test_schema", table1.name())).thenReturn(List.of(rawColumn1));
       when(columnMapper.mapUserDefinedTypes(
               eq(List.of(rawColumn1)), any(ColumnMappingContext.class)))
           .thenReturn(List.of(mappedColumn1));
-      when(queryRunner.getPrimaryKeyInfo("test_schema", table1)).thenReturn(primaryKey);
-      when(queryRunner.getForeignKeyInfo("test_schema", table1)).thenReturn(List.of());
+      when(queryRunner.getPrimaryKeyInfo("test_schema", table1.name())).thenReturn(primaryKey);
+      when(queryRunner.getForeignKeyInfo("test_schema", table1.name())).thenReturn(List.of());
       when(foreignKeyMapper.enrichWithNullability(List.of(), List.of(mappedColumn1)))
           .thenReturn(List.of());
       when(columnMapper.enrichWithForeignKeyConstraints(List.of(mappedColumn1), List.of()))
@@ -137,12 +137,13 @@ class TableBuilderTest {
               "users", List.of(mappedColumn1), primaryKey, List.of()))
           .thenReturn(builtTable1);
 
-      when(queryRunner.getColumnInfo("test_schema", table2)).thenReturn(List.of(rawColumn2));
+      when(queryRunner.getColumnInfo("test_schema", table2.name())).thenReturn(List.of(rawColumn2));
       when(columnMapper.mapUserDefinedTypes(
               eq(List.of(rawColumn2)), any(ColumnMappingContext.class)))
           .thenReturn(List.of(mappedColumn2));
-      when(queryRunner.getPrimaryKeyInfo("test_schema", table2)).thenReturn(primaryKey);
-      when(queryRunner.getForeignKeyInfo("test_schema", table2)).thenReturn(List.of(rawForeignKey));
+      when(queryRunner.getPrimaryKeyInfo("test_schema", table2.name())).thenReturn(primaryKey);
+      when(queryRunner.getForeignKeyInfo("test_schema", table2.name()))
+          .thenReturn(List.of(rawForeignKey));
       when(foreignKeyMapper.enrichWithNullability(List.of(rawForeignKey), List.of(mappedColumn2)))
           .thenReturn(List.of(enrichedForeignKey));
       when(columnMapper.enrichWithForeignKeyConstraints(
@@ -194,12 +195,12 @@ class TableBuilderTest {
       final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of(columnKey, udtReference);
 
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of(table));
-      when(queryRunner.getColumnInfo("test_schema", table)).thenReturn(List.of(rawColumn));
+      when(queryRunner.getColumnInfo("test_schema", table.name())).thenReturn(List.of(rawColumn));
       when(columnMapper.mapUserDefinedTypes(
               eq(List.of(rawColumn)), any(ColumnMappingContext.class)))
           .thenReturn(List.of(mappedColumn));
-      when(queryRunner.getPrimaryKeyInfo("test_schema", table)).thenReturn(primaryKey);
-      when(queryRunner.getForeignKeyInfo("test_schema", table)).thenReturn(List.of());
+      when(queryRunner.getPrimaryKeyInfo("test_schema", table.name())).thenReturn(primaryKey);
+      when(queryRunner.getForeignKeyInfo("test_schema", table.name())).thenReturn(List.of());
       when(foreignKeyMapper.enrichWithNullability(List.of(), List.of(mappedColumn)))
           .thenReturn(List.of());
       when(columnMapper.enrichWithForeignKeyConstraints(List.of(mappedColumn), List.of()))
@@ -235,7 +236,7 @@ class TableBuilderTest {
           Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
 
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of(table));
-      when(queryRunner.getColumnInfo("test_schema", table))
+      when(queryRunner.getColumnInfo("test_schema", table.name()))
           .thenThrow(new SQLException("Failed to fetch columns"));
 
       final SQLException exception =

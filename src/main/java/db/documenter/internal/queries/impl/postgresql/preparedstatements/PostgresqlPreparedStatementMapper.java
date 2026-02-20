@@ -1,10 +1,16 @@
 package db.documenter.internal.queries.impl.postgresql.preparedstatements;
 
-import db.documenter.internal.models.db.Table;
 import db.documenter.internal.queries.api.PreparedStatementMapper;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * PostgreSQL-specific implementation of {@link PreparedStatementMapper}.
+ *
+ * <p>Binds schema and object-name parameters for each PostgreSQL metadata query. All methods follow
+ * the same convention: schema is always parameter 1; the object name (table, view, enum name) is
+ * parameter 2 when present.
+ */
 public final class PostgresqlPreparedStatementMapper implements PreparedStatementMapper {
 
   @Override
@@ -23,18 +29,18 @@ public final class PostgresqlPreparedStatementMapper implements PreparedStatemen
 
   @Override
   public void preparePrimaryKeyInfoStatement(
-      final PreparedStatement preparedStatement, final String schema, final Table table)
+      final PreparedStatement preparedStatement, final String schema, final String tableName)
       throws SQLException {
     preparedStatement.setString(1, schema);
-    preparedStatement.setString(2, table.name());
+    preparedStatement.setString(2, tableName);
   }
 
   @Override
   public void prepareForeignKeyInfoStatement(
-      final PreparedStatement preparedStatement, final String schema, final Table table)
+      final PreparedStatement preparedStatement, final String schema, final String tableName)
       throws SQLException {
     preparedStatement.setString(1, schema);
-    preparedStatement.setString(2, table.name());
+    preparedStatement.setString(2, tableName);
   }
 
   @Override
@@ -59,6 +65,18 @@ public final class PostgresqlPreparedStatementMapper implements PreparedStatemen
 
   @Override
   public void prepareCompositeTypeInfoStatement(
+      final PreparedStatement preparedStatement, final String schema) throws SQLException {
+    preparedStatement.setString(1, schema);
+  }
+
+  @Override
+  public void prepareViewInfoStatement(
+      final PreparedStatement preparedStatement, final String schema) throws SQLException {
+    preparedStatement.setString(1, schema);
+  }
+
+  @Override
+  public void prepareMaterializedViewInfoStatement(
       final PreparedStatement preparedStatement, final String schema) throws SQLException {
     preparedStatement.setString(1, schema);
   }
