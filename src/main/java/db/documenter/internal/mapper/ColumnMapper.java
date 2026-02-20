@@ -150,6 +150,7 @@ public final class ColumnMapper {
                   .dataType(dataType)
                   .maximumLength(column.maximumLength())
                   .constraints(column.constraints())
+                  .compositeUniqueConstraintName(column.compositeUniqueConstraintName())
                   .build();
             })
         .toList();
@@ -184,6 +185,7 @@ public final class ColumnMapper {
                   .dataType(column.dataType())
                   .maximumLength(column.maximumLength())
                   .constraints(updatedConstraints)
+                  .compositeUniqueConstraintName(column.compositeUniqueConstraintName())
                   .build();
             })
         .toList();

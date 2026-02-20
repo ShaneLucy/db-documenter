@@ -208,8 +208,8 @@ package "ecommerce" {
 	entity "user_preferences" {
 		**preference_id: integer**
 		--
-		user_id: bigint <<FK,UNIQUE>>
-		preference_key: character varying(100) <<UNIQUE>>
+		user_id: bigint <<FK,UNIQUE:user_preferences_user_id_preference_key_key>>
+		preference_key: character varying(100) <<UNIQUE:user_preferences_user_id_preference_key_key>>
 		preference_value: text <<NULLABLE>>
 		updated_at: timestamp without time zone <<DEFAULT,NULLABLE>>
 	}
@@ -362,11 +362,11 @@ package "ecommerce" {
 	entity "multi_unique_constraints" {
 		**id: integer**
 		--
-		natural_key_1: character varying(50) <<UNIQUE>>
-		natural_key_2: character varying(50) <<UNIQUE>>
+		natural_key_1: character varying(50) <<UNIQUE:uq_natural_key>>
+		natural_key_2: character varying(50) <<UNIQUE:uq_natural_key>>
 		alternate_key: character varying(100) <<UNIQUE>>
-		email: character varying(255) <<UNIQUE>>
-		phone: character varying(20) <<UNIQUE,NULLABLE>>
+		email: character varying(255) <<UNIQUE:uq_email_phone>>
+		phone: character varying(20) <<UNIQUE:uq_email_phone,NULLABLE>>
 		employee_number: character varying(20) <<UNIQUE>>
 	}
 
@@ -578,9 +578,9 @@ package "inventory" {
 	entity "inventory_bins" {
 		**bin_id: bigint**
 		--
-		warehouse_code: character varying(10) <<FK,UNIQUE>>
-		location_code: character varying(10) <<FK,UNIQUE>>
-		bin_number: character varying(20) <<UNIQUE>>
+		warehouse_code: character varying(10) <<FK,UNIQUE:uq_bin_number>>
+		location_code: character varying(10) <<FK,UNIQUE:uq_bin_number>>
+		bin_number: character varying(20) <<UNIQUE:uq_bin_number>>
 		product_id: bigint <<FK,NULLABLE>>
 		max_weight_kg: numeric(10,2) <<CHECK,NULLABLE>>
 		current_weight_kg: numeric(10,2) <<DEFAULT,CHECK,NULLABLE>>
@@ -796,9 +796,9 @@ package "analytics" {
 	entity "comprehensive_business_metrics" {
 		**metric_id: bigint**
 		--
-		metric_date: date <<UNIQUE>>
+		metric_date: date <<UNIQUE:uq_metric_date_product>>
 		user_id: bigint <<FK,NULLABLE>>
-		product_id: bigint <<FK,UNIQUE,NULLABLE>>
+		product_id: bigint <<FK,UNIQUE:uq_metric_date_product,NULLABLE>>
 		warehouse_id: integer <<FK,NULLABLE>>
 		supplier_id: integer <<FK,NULLABLE>>
 		department_id: integer <<FK,NULLABLE>>

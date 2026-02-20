@@ -83,6 +83,23 @@ public final class PostgresqlQueryRunner implements QueryRunner {
                WHEN COUNT(DISTINCT uc.constraint_name) > 0 THEN true
                ELSE false
              END AS is_unique,
+             (
+               SELECT STRING_AGG(DISTINCT uc2.constraint_name, ',')
+               FROM information_schema.table_constraints uc2
+               JOIN information_schema.key_column_usage kcu2
+                 ON uc2.constraint_name = kcu2.constraint_name
+                 AND uc2.table_schema = kcu2.table_schema
+               WHERE uc2.constraint_type = 'UNIQUE'
+                 AND uc2.table_schema = c.table_schema
+                 AND uc2.table_name = c.table_name
+                 AND kcu2.column_name = c.column_name
+                 AND (
+                   SELECT COUNT(*)
+                   FROM information_schema.key_column_usage kcu3
+                   WHERE kcu3.constraint_name = uc2.constraint_name
+                     AND kcu3.table_schema = uc2.table_schema
+                 ) > 1
+             ) AS composite_unique_constraint_name,
              STRING_AGG(DISTINCT cc.check_clause, ' AND ') AS check_constraint,
              CASE
                WHEN c.column_default LIKE 'nextval%' THEN true
@@ -110,7 +127,8 @@ public final class PostgresqlQueryRunner implements QueryRunner {
              )
            WHERE c.table_schema = ?
              AND c.table_name = ?
-           GROUP BY c.column_name, c.ordinal_position, c.is_nullable, c.data_type,
+           GROUP BY c.table_schema, c.table_name, c.column_name, c.ordinal_position,
+                    c.is_nullable, c.data_type,
                     c.udt_name, c.udt_schema, c.character_maximum_length,
                     c.numeric_precision, c.numeric_scale,
                     c.column_default, c.is_generated, c.generation_expression
@@ -265,6 +283,7 @@ public final class PostgresqlQueryRunner implements QueryRunner {
              'NEVER'::text AS is_generated,
              NULL::text AS generation_expression,
              false AS is_unique,
+             NULL::text AS composite_unique_constraint_name,
              NULL::text AS check_constraint,
              false AS is_auto_increment
            FROM pg_catalog.pg_attribute a

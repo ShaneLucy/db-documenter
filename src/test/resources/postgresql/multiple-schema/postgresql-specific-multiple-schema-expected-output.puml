@@ -43,11 +43,11 @@ package "auth" {
 	entity "user_mfa" {
 		**id: uuid** <<DEFAULT>>
 		--
-		user_id: uuid <<FK,UNIQUE>>
+		user_id: uuid <<FK,UNIQUE:user_mfa_one_primary>>
 		method: mfa_method
 		secret_encrypted: bytea <<NULLABLE>>
 		backup_codes: text[] <<NULLABLE>>
-		is_primary: boolean <<UNIQUE,DEFAULT>>
+		is_primary: boolean <<UNIQUE:user_mfa_one_primary,DEFAULT>>
 		is_verified: boolean <<DEFAULT>>
 		verified_at: timestamp with time zone <<NULLABLE>>
 		metadata: jsonb <<DEFAULT>>
@@ -75,8 +75,8 @@ package "auth" {
 		name: character varying(200)
 		description: text <<NULLABLE>>
 		categories: text[] <<DEFAULT>>
-		resource: character varying(50) <<UNIQUE>>
-		action: character varying(50) <<UNIQUE>>
+		resource: character varying(50) <<UNIQUE:permissions_resource_action_unique>>
+		action: character varying(50) <<UNIQUE:permissions_resource_action_unique>>
 		created_at: timestamp with time zone <<DEFAULT>>
 	}
 
@@ -247,8 +247,8 @@ package "core" {
 	entity "projects" {
 		**id: uuid** <<DEFAULT>>
 		--
-		organization_id: uuid <<FK,UNIQUE>>
-		key: character varying(10) <<UNIQUE>>
+		organization_id: uuid <<FK,UNIQUE:projects_org_key_unique>>
+		key: character varying(10) <<UNIQUE:projects_org_key_unique>>
 		name: character varying(200)
 		description: text <<NULLABLE>>
 		status: project_status <<DEFAULT>>
@@ -270,8 +270,8 @@ package "core" {
 	entity "tasks" {
 		**id: uuid** <<DEFAULT>>
 		--
-		project_id: uuid <<FK,UNIQUE>>
-		task_number: integer <<UNIQUE>>
+		project_id: uuid <<FK,UNIQUE:tasks_project_number_unique>>
+		task_number: integer <<UNIQUE:tasks_project_number_unique>>
 		title: character varying(500)
 		description: text <<NULLABLE>>
 		status: task_status <<DEFAULT,CHECK>>

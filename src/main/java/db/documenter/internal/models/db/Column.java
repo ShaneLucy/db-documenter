@@ -31,6 +31,15 @@ import java.util.List;
  *     .name("id")
  *     .dataType("uuid")
  *     .build();
+ *
+ * // Create a column that participates in a composite UNIQUE constraint
+ * Column firstNameColumn = Column.builder()
+ *     .name("first_name")
+ *     .dataType("varchar")
+ *     .maximumLength(100)
+ *     .constraints(List.of(Constraint.UNIQUE, Constraint.NULLABLE))
+ *     .compositeUniqueConstraintName("uq_person_full_name")
+ *     .build();
  * }</pre>
  *
  * @param name identifier used in the database schema
@@ -38,11 +47,17 @@ import java.util.List;
  * @param maximumLength character limit for varchar/char types; 0 for fixed-size types
  * @param constraints the {@link List} of {@link Constraint} values applied to this column - never
  *     null, may be empty
+ * @param compositeUniqueConstraintName the name(s) of any composite UNIQUE constraints covering
+ *     this column; {@code null} if none or if the UNIQUE is single-column
  * @see Constraint
  * @see Table
  */
 public record Column(
-    String name, String dataType, int maximumLength, List<Constraint> constraints) {
+    String name,
+    String dataType,
+    int maximumLength,
+    List<Constraint> constraints,
+    String compositeUniqueConstraintName) {
 
   public Column {
     Validators.isNotBlank(name, "name");
@@ -94,7 +109,12 @@ public record Column(
    * @return a new Column instance with the updated data type
    */
   public Column withDataType(final String newDataType) {
-    return new Column(this.name, newDataType, this.maximumLength, this.constraints);
+    return new Column(
+        this.name,
+        newDataType,
+        this.maximumLength,
+        this.constraints,
+        this.compositeUniqueConstraintName);
   }
 
   /**
@@ -138,6 +158,7 @@ public record Column(
     private String dataType;
     private int maximumLength;
     private List<Constraint> constraints;
+    private String compositeUniqueConstraintName;
 
     /**
      * Sets the column name.
@@ -193,13 +214,28 @@ public record Column(
     }
 
     /**
+     * Sets the composite UNIQUE constraint name for this column.
+     *
+     * <p>Only set when the column participates in a multi-column UNIQUE constraint. A single-column
+     * UNIQUE constraint should leave this as {@code null} so the renderer uses the plain {@code
+     * <<UNIQUE>>} stereotype rather than {@code <<UNIQUE:constraint_name>>}.
+     *
+     * @param name the constraint name, or {@code null} if the column has no composite UNIQUE
+     * @return this builder instance for method chaining
+     */
+    public Builder compositeUniqueConstraintName(final String name) {
+      this.compositeUniqueConstraintName = name;
+      return this;
+    }
+
+    /**
      * Builds and returns a new {@link Column} instance.
      *
      * @return a new immutable {@link Column} instance
      * @throws ValidationException if any required field is null
      */
     public Column build() {
-      return new Column(name, dataType, maximumLength, constraints);
+      return new Column(name, dataType, maximumLength, constraints, compositeUniqueConstraintName);
     }
   }
 }

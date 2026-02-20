@@ -9,6 +9,7 @@ import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.PrimaryKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -126,6 +127,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
       when(resultSet.getString("is_generated")).thenReturn("NEVER");
+      when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -152,6 +154,7 @@ class PostgresqlResultSetMapperTest {
       final List<String> columnDefaults = java.util.Arrays.asList(null, null);
       final List<Boolean> isAutoIncrements = List.of(false, false);
       final List<String> isGenerateds = List.of("NEVER", "NEVER");
+      final List<String> compositeUniqueConstraintNames = Arrays.asList(null, null);
 
       final Iterator<String> nameIt = names.iterator();
       final Iterator<Integer> ordinalIt = ordinals.iterator();
@@ -163,6 +166,7 @@ class PostgresqlResultSetMapperTest {
       final Iterator<String> columnDefaultIt = columnDefaults.iterator();
       final Iterator<Boolean> isAutoIncrementIt = isAutoIncrements.iterator();
       final Iterator<String> isGeneratedIt = isGenerateds.iterator();
+      final Iterator<String> compositeUniqueIt = compositeUniqueConstraintNames.iterator();
 
       when(resultSet.getString("column_name")).thenAnswer(invocation -> nameIt.next());
       when(resultSet.getString("is_nullable")).thenAnswer(invocation -> nullableIt.next());
@@ -175,6 +179,8 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getBoolean("is_auto_increment"))
           .thenAnswer(invocation -> isAutoIncrementIt.next());
       when(resultSet.getString("is_generated")).thenAnswer(invocation -> isGeneratedIt.next());
+      when(resultSet.getString("composite_unique_constraint_name"))
+          .thenAnswer(invocation -> compositeUniqueIt.next());
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -216,6 +222,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
       when(resultSet.getString("is_generated")).thenReturn("NEVER");
+      when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -237,6 +244,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
       when(resultSet.getString("is_generated")).thenReturn("NEVER");
+      when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -258,6 +266,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
       when(resultSet.getString("is_generated")).thenReturn("NEVER");
+      when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -281,6 +290,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
       when(resultSet.getString("is_generated")).thenReturn("NEVER");
+      when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -304,6 +314,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
       when(resultSet.getString("is_generated")).thenReturn("NEVER");
+      when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -327,6 +338,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("column_default")).thenReturn("'active'");
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
       when(resultSet.getString("is_generated")).thenReturn("NEVER");
+      when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -350,6 +362,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("column_default")).thenReturn("  ");
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
       when(resultSet.getString("is_generated")).thenReturn("NEVER");
+      when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -373,6 +386,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(true);
       when(resultSet.getString("is_generated")).thenReturn("NEVER");
+      when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -396,6 +410,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("column_default")).thenReturn("'user@example.com'");
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
       when(resultSet.getString("is_generated")).thenReturn("NEVER");
+      when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -421,6 +436,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
       when(resultSet.getString("is_generated")).thenReturn("ALWAYS");
+      when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -444,6 +460,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("column_default")).thenReturn(null);
       when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
       when(resultSet.getString("is_generated")).thenReturn("NEVER");
+      when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
 
       final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 
@@ -453,6 +470,52 @@ class PostgresqlResultSetMapperTest {
               .getFirst()
               .constraints()
               .contains(db.documenter.internal.models.db.Constraint.GENERATED));
+    }
+
+    @Test
+    void itMapsCompositeUniqueConstraintNameWhenColumnIsPartOfCompositeUnique()
+        throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("project_id");
+      when(resultSet.getString("is_nullable")).thenReturn("NO");
+      when(resultSet.getString("data_type")).thenReturn("integer");
+      when(resultSet.getInt("character_maximum_length")).thenReturn(0);
+      when(resultSet.getBoolean("is_unique")).thenReturn(true);
+      when(resultSet.getString("check_constraint")).thenReturn(null);
+      when(resultSet.getString("column_default")).thenReturn(null);
+      when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+      when(resultSet.getString("is_generated")).thenReturn("NEVER");
+      when(resultSet.getString("composite_unique_constraint_name")).thenReturn("uq_project_number");
+
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+      assertEquals(1, result.size());
+      assertEquals("uq_project_number", result.getFirst().compositeUniqueConstraintName());
+    }
+
+    @Test
+    void itSetsNullCompositeUniqueConstraintNameForSingleColumnUnique() throws SQLException {
+      when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("column_name")).thenReturn("email");
+      when(resultSet.getString("is_nullable")).thenReturn("NO");
+      when(resultSet.getString("data_type")).thenReturn("varchar");
+      when(resultSet.getInt("character_maximum_length")).thenReturn(100);
+      when(resultSet.getBoolean("is_unique")).thenReturn(true);
+      when(resultSet.getString("check_constraint")).thenReturn(null);
+      when(resultSet.getString("column_default")).thenReturn(null);
+      when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
+      when(resultSet.getString("is_generated")).thenReturn("NEVER");
+      when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
+
+      final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
+
+      assertEquals(1, result.size());
+      assertTrue(
+          result
+              .getFirst()
+              .constraints()
+              .contains(db.documenter.internal.models.db.Constraint.UNIQUE));
+      assertNull(result.getFirst().compositeUniqueConstraintName());
     }
 
     @Nested
@@ -470,6 +533,7 @@ class PostgresqlResultSetMapperTest {
         when(resultSet.getString("column_default")).thenReturn(null);
         when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
         when(resultSet.getString("is_generated")).thenReturn("NEVER");
+        when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
         when(resultSet.getObject("numeric_precision", Integer.class)).thenReturn(19);
         when(resultSet.getObject("numeric_scale", Integer.class)).thenReturn(2);
 
@@ -492,6 +556,7 @@ class PostgresqlResultSetMapperTest {
         when(resultSet.getString("column_default")).thenReturn(null);
         when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
         when(resultSet.getString("is_generated")).thenReturn("NEVER");
+        when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
         when(resultSet.getObject("numeric_precision", Integer.class)).thenReturn(null);
         when(resultSet.getObject("numeric_scale", Integer.class)).thenReturn(null);
 
@@ -515,6 +580,7 @@ class PostgresqlResultSetMapperTest {
         when(resultSet.getString("column_default")).thenReturn(null);
         when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
         when(resultSet.getString("is_generated")).thenReturn("NEVER");
+        when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
         when(resultSet.getObject("numeric_precision", Integer.class)).thenReturn(5);
         when(resultSet.getObject("numeric_scale", Integer.class)).thenReturn(2);
 
@@ -537,6 +603,7 @@ class PostgresqlResultSetMapperTest {
         when(resultSet.getString("column_default")).thenReturn(null);
         when(resultSet.getBoolean("is_auto_increment")).thenReturn(false);
         when(resultSet.getString("is_generated")).thenReturn("NEVER");
+        when(resultSet.getString("composite_unique_constraint_name")).thenReturn(null);
 
         final List<Column> result = postgresqlResultSetMapper.mapToColumns(resultSet);
 

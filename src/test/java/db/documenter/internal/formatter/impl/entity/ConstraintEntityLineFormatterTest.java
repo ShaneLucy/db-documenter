@@ -132,5 +132,38 @@ class ConstraintEntityLineFormatterTest {
       final var column = columnBuilder.constraints(List.of(Constraint.UNIQUE)).build();
       assertDoesNotThrow(() -> constraintEntityLineFormatter.format(null, column, "value"));
     }
+
+    @Test
+    void whenUniqueConstraintWithCompositeNameRendersWithConstraintName() {
+      final var column =
+          Column.builder()
+              .name("col")
+              .dataType("varchar")
+              .constraints(List.of(Constraint.UNIQUE))
+              .compositeUniqueConstraintName("uq_composite_key")
+              .build();
+      final var result = constraintEntityLineFormatter.format(table, column, "value");
+      assertEquals("value <<UNIQUE:uq_composite_key>>", result);
+    }
+
+    @Test
+    void whenUniqueConstraintWithNullCompositeNameRendersPlainUnique() {
+      final var column = columnBuilder.constraints(List.of(Constraint.UNIQUE)).build();
+      final var result = constraintEntityLineFormatter.format(table, column, "value");
+      assertEquals("value <<UNIQUE>>", result);
+    }
+
+    @Test
+    void whenCompositeUniqueWithOtherConstraintsRendersCorrectly() {
+      final var column =
+          Column.builder()
+              .name("col")
+              .dataType("varchar")
+              .constraints(List.of(Constraint.FK, Constraint.UNIQUE, Constraint.NULLABLE))
+              .compositeUniqueConstraintName("uq_multi_col")
+              .build();
+      final var result = constraintEntityLineFormatter.format(table, column, "value");
+      assertEquals("value <<FK,UNIQUE:uq_multi_col,NULLABLE>>", result);
+    }
   }
 }

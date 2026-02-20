@@ -94,8 +94,8 @@ package "public" {
 	entity "order_item" {
 		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
 		--
-		order_id: bigint <<FK,UNIQUE>>
-		product_id: bigint <<FK,UNIQUE>>
+		order_id: bigint <<FK,UNIQUE:uq_order_product>>
+		product_id: bigint <<FK,UNIQUE:uq_order_product>>
 		product_snapshot: jsonb
 		unit_price: numeric(19,2) <<CHECK>>
 		quantity: integer <<CHECK>>

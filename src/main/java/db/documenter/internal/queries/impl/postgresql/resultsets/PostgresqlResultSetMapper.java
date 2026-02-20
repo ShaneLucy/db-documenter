@@ -53,12 +53,15 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
       final List<Constraint> constraints = buildConstraints(resultSet);
       final String dataType = resolveDataType(resultSet);
 
+      final var compositeUniqueConstraintName =
+          resultSet.getString("composite_unique_constraint_name");
       columns.add(
           Column.builder()
               .name(resultSet.getString("column_name"))
               .dataType(dataType)
               .maximumLength(resultSet.getInt("character_maximum_length"))
               .constraints(constraints)
+              .compositeUniqueConstraintName(compositeUniqueConstraintName)
               .build());
     }
     return columns;
