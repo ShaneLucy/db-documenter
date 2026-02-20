@@ -365,7 +365,7 @@ package "analytics" {
 	entity "project_dashboard_summary" <<materialized_view>> {
 	}
 
-	entity "daily_project_stats" {
+	entity "daily_project_stats" <<partitioned: RANGE (stat_date)>> {
 		**stat_date: date**
 		**project_id: uuid**
 		--
@@ -388,102 +388,7 @@ package "analytics" {
 		active_member_ids: uuid[] <<DEFAULT>>
 		computed_at: timestamp with time zone <<DEFAULT>>
 	}
-
-	entity "daily_project_stats_2024_q4" {
-		**stat_date: date**
-		**project_id: uuid**
-		--
-		id: bigint <<AUTO_INCREMENT,DEFAULT>>
-		organization_id: uuid
-		tasks_backlog: integer <<DEFAULT>>
-		tasks_todo: integer <<DEFAULT>>
-		tasks_in_progress: integer <<DEFAULT>>
-		tasks_in_review: integer <<DEFAULT>>
-		tasks_blocked: integer <<DEFAULT>>
-		tasks_done: integer <<DEFAULT>>
-		tasks_cancelled: integer <<DEFAULT>>
-		tasks_total: integer <<DEFAULT>>
-		tasks_completed_pct: numeric(5,2) <<NULLABLE>>
-		story_points_total: integer <<NULLABLE>>
-		story_points_completed: integer <<NULLABLE>>
-		estimated_minutes: bigint <<NULLABLE>>
-		logged_minutes: bigint <<NULLABLE>>
-		active_member_count: integer <<DEFAULT>>
-		active_member_ids: uuid[] <<DEFAULT>>
-		computed_at: timestamp with time zone <<DEFAULT>>
-	}
-
-	entity "daily_project_stats_2025_q1" {
-		**stat_date: date**
-		**project_id: uuid**
-		--
-		id: bigint <<AUTO_INCREMENT,DEFAULT>>
-		organization_id: uuid
-		tasks_backlog: integer <<DEFAULT>>
-		tasks_todo: integer <<DEFAULT>>
-		tasks_in_progress: integer <<DEFAULT>>
-		tasks_in_review: integer <<DEFAULT>>
-		tasks_blocked: integer <<DEFAULT>>
-		tasks_done: integer <<DEFAULT>>
-		tasks_cancelled: integer <<DEFAULT>>
-		tasks_total: integer <<DEFAULT>>
-		tasks_completed_pct: numeric(5,2) <<NULLABLE>>
-		story_points_total: integer <<NULLABLE>>
-		story_points_completed: integer <<NULLABLE>>
-		estimated_minutes: bigint <<NULLABLE>>
-		logged_minutes: bigint <<NULLABLE>>
-		active_member_count: integer <<DEFAULT>>
-		active_member_ids: uuid[] <<DEFAULT>>
-		computed_at: timestamp with time zone <<DEFAULT>>
-	}
-
-	entity "daily_project_stats_2025_q2" {
-		**stat_date: date**
-		**project_id: uuid**
-		--
-		id: bigint <<AUTO_INCREMENT,DEFAULT>>
-		organization_id: uuid
-		tasks_backlog: integer <<DEFAULT>>
-		tasks_todo: integer <<DEFAULT>>
-		tasks_in_progress: integer <<DEFAULT>>
-		tasks_in_review: integer <<DEFAULT>>
-		tasks_blocked: integer <<DEFAULT>>
-		tasks_done: integer <<DEFAULT>>
-		tasks_cancelled: integer <<DEFAULT>>
-		tasks_total: integer <<DEFAULT>>
-		tasks_completed_pct: numeric(5,2) <<NULLABLE>>
-		story_points_total: integer <<NULLABLE>>
-		story_points_completed: integer <<NULLABLE>>
-		estimated_minutes: bigint <<NULLABLE>>
-		logged_minutes: bigint <<NULLABLE>>
-		active_member_count: integer <<DEFAULT>>
-		active_member_ids: uuid[] <<DEFAULT>>
-		computed_at: timestamp with time zone <<DEFAULT>>
-	}
-
-	entity "daily_project_stats_default" {
-		**stat_date: date**
-		**project_id: uuid**
-		--
-		id: bigint <<AUTO_INCREMENT,DEFAULT>>
-		organization_id: uuid
-		tasks_backlog: integer <<DEFAULT>>
-		tasks_todo: integer <<DEFAULT>>
-		tasks_in_progress: integer <<DEFAULT>>
-		tasks_in_review: integer <<DEFAULT>>
-		tasks_blocked: integer <<DEFAULT>>
-		tasks_done: integer <<DEFAULT>>
-		tasks_cancelled: integer <<DEFAULT>>
-		tasks_total: integer <<DEFAULT>>
-		tasks_completed_pct: numeric(5,2) <<NULLABLE>>
-		story_points_total: integer <<NULLABLE>>
-		story_points_completed: integer <<NULLABLE>>
-		estimated_minutes: bigint <<NULLABLE>>
-		logged_minutes: bigint <<NULLABLE>>
-		active_member_count: integer <<DEFAULT>>
-		active_member_ids: uuid[] <<DEFAULT>>
-		computed_at: timestamp with time zone <<DEFAULT>>
-	}
+	' Partitions: daily_project_stats_2024_q4, daily_project_stats_2025_q1, daily_project_stats_2025_q2, daily_project_stats_default
 
 	entity "user_activity_summary" {
 		**user_id: uuid** <<FK>>
@@ -515,7 +420,7 @@ package "audit" {
 		bulk_operation
 	}
 
-	entity "audit_log" {
+	entity "audit_log" <<partitioned: RANGE (event_time)>> {
 		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
 		**event_time: timestamp with time zone** <<DEFAULT>>
 		--
@@ -534,86 +439,7 @@ package "audit" {
 		request_id: uuid <<NULLABLE>>
 		correlation_id: uuid <<NULLABLE>>
 	}
-
-	entity "audit_log_2024_11" {
-		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
-		**event_time: timestamp with time zone** <<DEFAULT>>
-		--
-		user_id: uuid <<NULLABLE>>
-		session_id: uuid <<NULLABLE>>
-		ip_address: inet <<NULLABLE>>
-		user_agent: text <<NULLABLE>>
-		organization_id: uuid <<NULLABLE>>
-		action: action_type
-		entity_type: character varying(100)
-		entity_id: text
-		old_values: jsonb <<NULLABLE>>
-		new_values: jsonb <<NULLABLE>>
-		changed_fields: text[] <<DEFAULT>>
-		context: jsonb <<DEFAULT>>
-		request_id: uuid <<NULLABLE>>
-		correlation_id: uuid <<NULLABLE>>
-	}
-
-	entity "audit_log_2024_12" {
-		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
-		**event_time: timestamp with time zone** <<DEFAULT>>
-		--
-		user_id: uuid <<NULLABLE>>
-		session_id: uuid <<NULLABLE>>
-		ip_address: inet <<NULLABLE>>
-		user_agent: text <<NULLABLE>>
-		organization_id: uuid <<NULLABLE>>
-		action: action_type
-		entity_type: character varying(100)
-		entity_id: text
-		old_values: jsonb <<NULLABLE>>
-		new_values: jsonb <<NULLABLE>>
-		changed_fields: text[] <<DEFAULT>>
-		context: jsonb <<DEFAULT>>
-		request_id: uuid <<NULLABLE>>
-		correlation_id: uuid <<NULLABLE>>
-	}
-
-	entity "audit_log_2025_01" {
-		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
-		**event_time: timestamp with time zone** <<DEFAULT>>
-		--
-		user_id: uuid <<NULLABLE>>
-		session_id: uuid <<NULLABLE>>
-		ip_address: inet <<NULLABLE>>
-		user_agent: text <<NULLABLE>>
-		organization_id: uuid <<NULLABLE>>
-		action: action_type
-		entity_type: character varying(100)
-		entity_id: text
-		old_values: jsonb <<NULLABLE>>
-		new_values: jsonb <<NULLABLE>>
-		changed_fields: text[] <<DEFAULT>>
-		context: jsonb <<DEFAULT>>
-		request_id: uuid <<NULLABLE>>
-		correlation_id: uuid <<NULLABLE>>
-	}
-
-	entity "audit_log_default" {
-		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
-		**event_time: timestamp with time zone** <<DEFAULT>>
-		--
-		user_id: uuid <<NULLABLE>>
-		session_id: uuid <<NULLABLE>>
-		ip_address: inet <<NULLABLE>>
-		user_agent: text <<NULLABLE>>
-		organization_id: uuid <<NULLABLE>>
-		action: action_type
-		entity_type: character varying(100)
-		entity_id: text
-		old_values: jsonb <<NULLABLE>>
-		new_values: jsonb <<NULLABLE>>
-		changed_fields: text[] <<DEFAULT>>
-		context: jsonb <<DEFAULT>>
-		request_id: uuid <<NULLABLE>>
-		correlation_id: uuid <<NULLABLE>>
-	}
+	' Partitions: audit_log_2024_11, audit_log_2024_12, audit_log_2025_01, audit_log_default
 
 	entity "entity_changes" {
 		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>

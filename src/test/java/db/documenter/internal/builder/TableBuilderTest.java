@@ -134,7 +134,7 @@ class TableBuilderTest {
       when(columnMapper.enrichWithForeignKeyConstraints(List.of(mappedColumn1), List.of()))
           .thenReturn(List.of(mappedColumn1));
       when(tableMapper.combineTableComponents(
-              "users", List.of(mappedColumn1), primaryKey, List.of()))
+              "users", List.of(mappedColumn1), primaryKey, List.of(), null, List.of()))
           .thenReturn(builtTable1);
 
       when(queryRunner.getColumnInfo("test_schema", table2.name())).thenReturn(List.of(rawColumn2));
@@ -150,7 +150,12 @@ class TableBuilderTest {
               List.of(mappedColumn2), List.of(rawForeignKey)))
           .thenReturn(List.of(mappedColumn2));
       when(tableMapper.combineTableComponents(
-              "orders", List.of(mappedColumn2), primaryKey, List.of(enrichedForeignKey)))
+              "orders",
+              List.of(mappedColumn2),
+              primaryKey,
+              List.of(enrichedForeignKey),
+              null,
+              List.of()))
           .thenReturn(builtTable2);
 
       final List<Table> result =
@@ -206,7 +211,7 @@ class TableBuilderTest {
       when(columnMapper.enrichWithForeignKeyConstraints(List.of(mappedColumn), List.of()))
           .thenReturn(List.of(mappedColumn));
       when(tableMapper.combineTableComponents(
-              "users", List.of(mappedColumn), primaryKey, List.of()))
+              "users", List.of(mappedColumn), primaryKey, List.of(), null, List.of()))
           .thenReturn(builtTable);
 
       final List<Table> result =

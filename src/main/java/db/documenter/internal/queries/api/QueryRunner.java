@@ -159,4 +159,27 @@ public interface QueryRunner {
    * @throws SQLException if database query fails
    */
   List<MaterializedView> getMaterializedViewInfo(String schema) throws SQLException;
+
+  /**
+   * Retrieves the child partition names grouped by parent table name for all partitioned tables in
+   * the specified schema.
+   *
+   * <p>Returns a map from parent table name to an ordered list of child partition names. Only
+   * tables with {@code relkind = 'p'} (partitioned tables) appear as keys; regular tables are
+   * absent from the result.
+   *
+   * <p><b>Example:</b>
+   *
+   * <pre>{@code
+   * // PostgreSQL: CREATE TABLE audit_log (...) PARTITION BY RANGE (event_time);
+   * Map<String, List<String>> children = queryRunner.getPartitionChildren("audit");
+   * // Returns {"audit_log" -> ["audit_log_2024_11", "audit_log_2024_12", "audit_log_default"]}
+   * }</pre>
+   *
+   * @param schema the schema to query for partitioned tables
+   * @return immutable map of parent table name to ordered child partition names; never null, may be
+   *     empty
+   * @throws SQLException if database query fails
+   */
+  Map<String, List<String>> getPartitionChildren(String schema) throws SQLException;
 }

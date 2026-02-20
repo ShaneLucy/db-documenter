@@ -44,6 +44,7 @@ class PostgresqlResultSetMapperTest {
     @Test
     void itMapsItemInResultSetCorrectly() throws SQLException {
       when(resultSet.next()).thenReturn(true, false);
+      when(resultSet.getString("partition_key")).thenReturn(null);
       when(resultSet.getString("table_name")).thenReturn(tableNameValue);
 
       final var result = postgresqlResultSetMapper.mapToTables(resultSet);
@@ -62,6 +63,7 @@ class PostgresqlResultSetMapperTest {
       final Iterator<String> namesIt = tableNames.iterator();
 
       when(resultSet.next()).thenReturn(true, true, false);
+      when(resultSet.getString("partition_key")).thenReturn(null);
       when(resultSet.getString("table_name")).thenAnswer(invocation -> namesIt.next());
 
       final var result = postgresqlResultSetMapper.mapToTables(resultSet);
@@ -807,6 +809,51 @@ class PostgresqlResultSetMapperTest {
 
       assertNull(result.getFirst());
       assertEquals(1, result.size());
+    }
+  }
+
+  @Nested
+  class MapToPartitionChildrenTests {
+
+    @Test
+    void itMapsPartitionChildrenForSingleParent() throws SQLException {
+      when(resultSet.next()).thenReturn(true, true, false);
+      when(resultSet.getString("table_name"))
+          .thenReturn("daily_project_stats", "daily_project_stats");
+      when(resultSet.getString("partition_name"))
+          .thenReturn("daily_project_stats_2024_q3", "daily_project_stats_2024_q4");
+
+      final var result = postgresqlResultSetMapper.mapToPartitionChildren(resultSet);
+
+      assertEquals(1, result.size());
+      assertTrue(result.containsKey("daily_project_stats"));
+      assertEquals(
+          List.of("daily_project_stats_2024_q3", "daily_project_stats_2024_q4"),
+          result.get("daily_project_stats"));
+    }
+
+    @Test
+    void itMapsPartitionChildrenForMultipleParents() throws SQLException {
+      when(resultSet.next()).thenReturn(true, true, true, false);
+      when(resultSet.getString("table_name")).thenReturn("orders", "orders", "shipments");
+      when(resultSet.getString("partition_name"))
+          .thenReturn("orders_2024", "orders_2025", "shipments_2024");
+
+      final var result = postgresqlResultSetMapper.mapToPartitionChildren(resultSet);
+
+      assertEquals(2, result.size());
+      assertEquals(List.of("orders_2024", "orders_2025"), result.get("orders"));
+      assertEquals(List.of("shipments_2024"), result.get("shipments"));
+    }
+
+    @Test
+    void itReturnsEmptyMapWhenResultSetIsEmpty() throws SQLException {
+      when(resultSet.next()).thenReturn(false);
+
+      final var result = postgresqlResultSetMapper.mapToPartitionChildren(resultSet);
+
+      assertTrue(result.isEmpty());
+      verifyNoMoreInteractions(resultSet);
     }
   }
 }

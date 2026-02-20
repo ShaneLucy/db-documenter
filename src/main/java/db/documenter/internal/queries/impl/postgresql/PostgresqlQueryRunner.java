@@ -51,12 +51,14 @@ public final class PostgresqlQueryRunner implements QueryRunner {
   private static final String GET_TABLE_INFO_QUERY =
       """
            SELECT
-             t.table_name
+             t.table_name,
+             CASE WHEN c.relkind = 'p' THEN pg_get_partkeydef(c.oid) ELSE NULL END AS partition_key
            FROM information_schema.tables t
            JOIN pg_catalog.pg_class c ON c.relname = t.table_name
            JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace AND n.nspname = t.table_schema
            WHERE t.table_schema = ?
              AND t.table_type = 'BASE TABLE'
+             AND c.relispartition = false
            ORDER BY c.oid;
            """;
 
@@ -226,6 +228,20 @@ public final class PostgresqlQueryRunner implements QueryRunner {
            WHERE n.nspname = ?
              AND c.relkind = 'm'
            ORDER BY c.relname;
+           """;
+
+  private static final String GET_PARTITION_CHILDREN_QUERY =
+      """
+           SELECT
+               p.relname AS table_name,
+               c.relname AS partition_name
+           FROM pg_class p
+           JOIN pg_namespace n ON n.oid = p.relnamespace
+           JOIN pg_inherits i ON i.inhparent = p.oid
+           JOIN pg_class c ON c.oid = i.inhrelid
+           WHERE n.nspname = ?
+             AND p.relkind = 'p'
+           ORDER BY p.relname, c.relname;
            """;
 
   public PostgresqlQueryRunner(
@@ -446,6 +462,28 @@ public final class PostgresqlQueryRunner implements QueryRunner {
         }
 
         return materializedViews;
+      }
+    }
+  }
+
+  @Override
+  public Map<String, List<String>> getPartitionChildren(final String schema) throws SQLException {
+    try (final var preparedStatement = connection.prepareStatement(GET_PARTITION_CHILDREN_QUERY)) {
+      postgresqlPreparedStatementMapper.preparePartitionChildrenStatement(
+          preparedStatement, schema);
+
+      try (final var resultSet = preparedStatement.executeQuery()) {
+        final Map<String, List<String>> partitionChildren =
+            postgresqlResultSetMapper.mapToPartitionChildren(resultSet);
+
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Discovered: {0} partition entries in schema: {1}",
+              new Object[] {partitionChildren.size(), LogUtils.sanitizeForLog(schema)});
+        }
+
+        return partitionChildren;
       }
     }
   }

@@ -110,4 +110,17 @@ class PostgresqlPreparedStatementMapperTest {
       verifyNoMoreInteractions(preparedStatement);
     }
   }
+
+  @Nested
+  class PreparePartitionChildrenStatementTests {
+
+    @Test
+    void itSetsSchemaAsFirstParameter() throws SQLException {
+      final String schema = "public";
+      mapper.preparePartitionChildrenStatement(preparedStatement, schema);
+
+      verify(preparedStatement).setString(1, schema);
+      verifyNoMoreInteractions(preparedStatement);
+    }
+  }
 }

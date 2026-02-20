@@ -71,4 +71,16 @@ public interface ResultSetMapper {
    * @throws SQLException if a database access error occurs
    */
   List<MaterializedView> mapToMaterializedViews(ResultSet resultSet) throws SQLException;
+
+  /**
+   * Maps result set rows to a map of parent table name to child partition names.
+   *
+   * <p>Each row must contain {@code table_name} (parent) and {@code partition_name} (child)
+   * columns. Rows for the same parent are aggregated into a single list.
+   *
+   * @param resultSet the result set positioned before the first row
+   * @return map of parent table name to ordered list of partition names; never null, may be empty
+   * @throws SQLException if a database access error occurs
+   */
+  Map<String, List<String>> mapToPartitionChildren(ResultSet resultSet) throws SQLException;
 }

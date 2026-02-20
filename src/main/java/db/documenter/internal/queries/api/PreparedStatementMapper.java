@@ -80,4 +80,14 @@ public interface PreparedStatementMapper {
    */
   void prepareMaterializedViewInfoStatement(PreparedStatement preparedStatement, String schema)
       throws SQLException;
+
+  /**
+   * Binds parameters for the partition children query.
+   *
+   * @param preparedStatement the statement to bind parameters on
+   * @param schema the schema name
+   * @throws SQLException if a database access error occurs
+   */
+  void preparePartitionChildrenStatement(PreparedStatement preparedStatement, String schema)
+      throws SQLException;
 }

@@ -34,11 +34,13 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
   public List<Table> mapToTables(final ResultSet resultSet) throws SQLException {
     final List<Table> tables = new ArrayList<>();
     while (resultSet.next()) {
+      final var partitionKey = resultSet.getString("partition_key");
       tables.add(
           Table.builder()
               .name(resultSet.getString("table_name"))
               .columns(List.of())
               .foreignKeys(List.of())
+              .partitionStrategy(partitionKey)
               .build());
     }
     return tables;
@@ -273,5 +275,21 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
               .build());
     }
     return materializedViews;
+  }
+
+  @Override
+  // Partition names are created for each row as the result set is iterated.
+  // LinkedHashMap preserves insertion order (parent table declaration order) and is not
+  // accessed concurrently.
+  @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseConcurrentHashMap"})
+  public Map<String, List<String>> mapToPartitionChildren(final ResultSet resultSet)
+      throws SQLException {
+    final Map<String, List<String>> result = new LinkedHashMap<>();
+    while (resultSet.next()) {
+      final var tableName = resultSet.getString("table_name");
+      final var partitionName = resultSet.getString("partition_name");
+      result.computeIfAbsent(tableName, k -> new ArrayList<>()).add(partitionName);
+    }
+    return result;
   }
 }
