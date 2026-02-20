@@ -210,6 +210,77 @@ public final class PostgresqlQueryRunner implements QueryRunner {
           ORDER BY t.typname, a.attnum;
           """;
 
+  private static final String GET_MATERIALIZED_VIEW_COLUMN_INFO_QUERY =
+      """
+           SELECT
+             a.attname AS column_name,
+             a.attnum AS ordinal_position,
+             CASE WHEN a.attnotnull THEN 'NO' ELSE 'YES' END AS is_nullable,
+             CASE
+               WHEN t.typcategory = 'A' THEN
+                 CASE
+                   WHEN et.typname = 'int2'        THEN 'smallint'
+                   WHEN et.typname = 'int4'        THEN 'integer'
+                   WHEN et.typname = 'int8'        THEN 'bigint'
+                   WHEN et.typname = 'varchar'     THEN 'character varying'
+                   WHEN et.typname = 'bpchar'      THEN 'character'
+                   WHEN et.typname = 'bool'        THEN 'boolean'
+                   WHEN et.typname = 'float4'      THEN 'real'
+                   WHEN et.typname = 'float8'      THEN 'double precision'
+                   WHEN et.typname = 'timestamptz' THEN 'timestamp with time zone'
+                   WHEN et.typname = 'timestamp'   THEN 'timestamp without time zone'
+                   ELSE et.typname
+                 END || '[]'
+               WHEN t.typtype IN ('e', 'c') THEN 'USER-DEFINED'
+               WHEN t.typname = 'int2'        THEN 'smallint'
+               WHEN t.typname = 'int4'        THEN 'integer'
+               WHEN t.typname = 'int8'        THEN 'bigint'
+               WHEN t.typname = 'varchar'     THEN 'character varying'
+               WHEN t.typname = 'bpchar'      THEN 'character'
+               WHEN t.typname = 'bool'        THEN 'boolean'
+               WHEN t.typname = 'float4'      THEN 'real'
+               WHEN t.typname = 'float8'      THEN 'double precision'
+               WHEN t.typname = 'timestamptz' THEN 'timestamp with time zone'
+               WHEN t.typname = 'timestamp'   THEN 'timestamp without time zone'
+               ELSE t.typname
+             END AS data_type,
+             tn.nspname AS udt_schema,
+             CASE
+               WHEN t.typname IN ('varchar', 'bpchar') AND a.atttypmod > 0
+                 THEN (a.atttypmod - 4)::integer
+               WHEN t.typcategory = 'A'
+                 AND et.typname IN ('varchar', 'bpchar') AND a.atttypmod > 0
+                 THEN (a.atttypmod - 4)::integer
+               ELSE 0
+             END AS character_maximum_length,
+             CASE WHEN t.typname = 'numeric' AND a.atttypmod > 0
+               THEN (((a.atttypmod - 4) >> 16) & 65535)::integer
+               ELSE NULL
+             END AS numeric_precision,
+             CASE WHEN t.typname = 'numeric' AND a.atttypmod > 0
+               THEN ((a.atttypmod - 4) & 65535)::integer
+               ELSE NULL
+             END AS numeric_scale,
+             NULL::text AS column_default,
+             'NEVER'::text AS is_generated,
+             NULL::text AS generation_expression,
+             false AS is_unique,
+             NULL::text AS check_constraint,
+             false AS is_auto_increment
+           FROM pg_catalog.pg_attribute a
+           JOIN pg_catalog.pg_class c ON c.oid = a.attrelid
+           JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+           JOIN pg_catalog.pg_type t ON t.oid = a.atttypid
+           JOIN pg_catalog.pg_namespace tn ON tn.oid = t.typnamespace
+           LEFT JOIN pg_catalog.pg_type et ON et.oid = t.typelem
+           WHERE n.nspname = ?
+             AND c.relname = ?
+             AND c.relkind = 'm'
+             AND a.attnum > 0
+             AND NOT a.attisdropped
+           ORDER BY a.attnum;
+           """;
+
   private static final String GET_VIEWS_QUERY =
       """
            SELECT
@@ -288,6 +359,33 @@ public final class PostgresqlQueryRunner implements QueryRunner {
               "Discovered: {0} columns for table: {1} in schema: {2}",
               new Object[] {
                 columns.size(), LogUtils.sanitizeForLog(tableName), LogUtils.sanitizeForLog(schema)
+              });
+        }
+        return columns;
+      }
+    }
+  }
+
+  @Override
+  public List<Column> getMaterializedViewColumnInfo(final String schema, final String matViewName)
+      throws SQLException {
+    try (final var preparedStatement =
+        connection.prepareStatement(GET_MATERIALIZED_VIEW_COLUMN_INFO_QUERY)) {
+      postgresqlPreparedStatementMapper.prepareMaterializedViewColumnInfoStatement(
+          preparedStatement, schema, matViewName);
+
+      try (final var resultSet = preparedStatement.executeQuery()) {
+        final List<Column> columns =
+            postgresqlResultSetMapper.mapToMaterializedViewColumns(resultSet);
+
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.log(
+              Level.INFO,
+              "Discovered: {0} columns for materialized view: {1} in schema: {2}",
+              new Object[] {
+                columns.size(),
+                LogUtils.sanitizeForLog(matViewName),
+                LogUtils.sanitizeForLog(schema)
               });
         }
         return columns;

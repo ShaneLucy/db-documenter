@@ -82,6 +82,14 @@ public final class PostgresqlPreparedStatementMapper implements PreparedStatemen
   }
 
   @Override
+  public void prepareMaterializedViewColumnInfoStatement(
+      final PreparedStatement preparedStatement, final String schema, final String matViewName)
+      throws SQLException {
+    preparedStatement.setString(1, schema);
+    preparedStatement.setString(2, matViewName);
+  }
+
+  @Override
   public void preparePartitionChildrenStatement(
       final PreparedStatement preparedStatement, final String schema) throws SQLException {
     preparedStatement.setString(1, schema);

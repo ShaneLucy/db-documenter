@@ -278,6 +278,11 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
   }
 
   @Override
+  public List<Column> mapToMaterializedViewColumns(final ResultSet resultSet) throws SQLException {
+    return mapToColumns(resultSet);
+  }
+
+  @Override
   // Partition names are created for each row as the result set is iterated.
   // LinkedHashMap preserves insertion order (parent table declaration order) and is not
   // accessed concurrently.

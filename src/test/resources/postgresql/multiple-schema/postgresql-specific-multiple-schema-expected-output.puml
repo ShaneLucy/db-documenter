@@ -360,9 +360,39 @@ package "core" {
 
 package "analytics" {
 	entity "organization_usage_metrics" <<materialized_view>> {
+		organization_id: uuid <<NULLABLE>>
+		organization_name: character varying(200) <<NULLABLE>>
+		subscription_tier: USER-DEFINED <<NULLABLE>>
+		active_members: bigint <<NULLABLE>>
+		total_members: bigint <<NULLABLE>>
+		total_projects: bigint <<NULLABLE>>
+		active_projects: bigint <<NULLABLE>>
+		total_tasks: bigint <<NULLABLE>>
+		storage_bytes_used: bigint <<NULLABLE>>
+		tasks_created_30d: bigint <<NULLABLE>>
+		tasks_completed_30d: bigint <<NULLABLE>>
+		computed_at: timestamp with time zone <<NULLABLE>>
 	}
 
 	entity "project_dashboard_summary" <<materialized_view>> {
+		project_id: uuid <<NULLABLE>>
+		organization_id: uuid <<NULLABLE>>
+		project_name: character varying(200) <<NULLABLE>>
+		project_status: USER-DEFINED <<NULLABLE>>
+		lead_id: uuid <<NULLABLE>>
+		total_tasks: bigint <<NULLABLE>>
+		completed_tasks: bigint <<NULLABLE>>
+		active_tasks: bigint <<NULLABLE>>
+		blocked_tasks: bigint <<NULLABLE>>
+		overdue_tasks: bigint <<NULLABLE>>
+		completion_percentage: numeric <<NULLABLE>>
+		total_story_points: bigint <<NULLABLE>>
+		completed_story_points: bigint <<NULLABLE>>
+		total_estimated_minutes: bigint <<NULLABLE>>
+		total_logged_minutes: bigint <<NULLABLE>>
+		team_member_ids: uuid[] <<NULLABLE>>
+		last_task_update: timestamp with time zone <<NULLABLE>>
+		computed_at: timestamp with time zone <<NULLABLE>>
 	}
 
 	entity "daily_project_stats" <<partitioned: RANGE (stat_date)>> {

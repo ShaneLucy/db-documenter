@@ -73,6 +73,20 @@ public interface ResultSetMapper {
   List<MaterializedView> mapToMaterializedViews(ResultSet resultSet) throws SQLException;
 
   /**
+   * Maps result set rows from a {@code pg_catalog.pg_attribute} query to {@link Column} objects for
+   * a materialized view.
+   *
+   * <p>The result set must expose the same column aliases as {@link #mapToColumns(ResultSet)} (i.e.
+   * {@code column_name}, {@code data_type}, {@code character_maximum_length}, etc.) so that the
+   * existing constraint-building and type-resolution logic can be reused.
+   *
+   * @param resultSet the result set positioned before the first row
+   * @return list of columns; never null, may be empty
+   * @throws SQLException if a database access error occurs
+   */
+  List<Column> mapToMaterializedViewColumns(ResultSet resultSet) throws SQLException;
+
+  /**
    * Maps result set rows to a map of parent table name to child partition names.
    *
    * <p>Each row must contain {@code table_name} (parent) and {@code partition_name} (child)

@@ -32,17 +32,34 @@ public interface QueryRunner {
   List<Table> getTableInfo(String schema) throws SQLException;
 
   /**
-   * Retrieves all columns for a named table or view within the given schema.
+   * Retrieves all columns for a named table or regular view within the given schema.
    *
-   * <p>This method is reused for tables, views, and materialized views because all three object
-   * types expose their column metadata through {@code information_schema.columns}.
+   * <p>Uses {@code information_schema.columns}, which covers tables ({@code relkind = 'r', 'p'})
+   * and regular views ({@code relkind = 'v'}). Materialized views ({@code relkind = 'm'}) are
+   * explicitly excluded by the SQL standard view and must be queried via {@link
+   * #getMaterializedViewColumnInfo(String, String)}.
    *
    * @param schema the schema containing the table or view
-   * @param tableName the name of the table, view, or materialized view to query
+   * @param tableName the name of the table or regular view to query
    * @return immutable list of columns; never null, may be empty
    * @throws SQLException if the database query fails
    */
   List<Column> getColumnInfo(String schema, String tableName) throws SQLException;
+
+  /**
+   * Retrieves all columns for a named materialized view within the given schema.
+   *
+   * <p>Materialized views ({@code relkind = 'm'}) are excluded from {@code
+   * information_schema.columns}, so this method queries {@code pg_catalog.pg_attribute} directly.
+   * The returned {@link Column} objects are structurally identical to those from {@link
+   * #getColumnInfo(String, String)} — only the underlying SQL source differs.
+   *
+   * @param schema the schema containing the materialized view
+   * @param matViewName the name of the materialized view to query
+   * @return immutable list of columns; never null, may be empty
+   * @throws SQLException if the database query fails
+   */
+  List<Column> getMaterializedViewColumnInfo(String schema, String matViewName) throws SQLException;
 
   /**
    * Retrieves the primary key constraint for a named table.
@@ -150,8 +167,9 @@ public interface QueryRunner {
    * Retrieves all materialized views defined in the specified schema.
    *
    * <p>Returns stub {@link MaterializedView} objects with name only and an empty column list.
-   * Columns are populated separately by the builder using {@link #getColumnInfo(String, String)},
-   * following the same two-phase pattern used for tables.
+   * Columns are populated separately by the builder using {@link
+   * #getMaterializedViewColumnInfo(String, String)}, following the same two-phase pattern used for
+   * tables and regular views.
    *
    * @param schema the schema to query for materialized views
    * @return immutable list of materialized views (name-only, columns empty); never null, may be

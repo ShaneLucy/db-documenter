@@ -306,7 +306,7 @@ class ViewBuilderTest {
               .build();
 
       when(queryRunner.getMaterializedViewInfo("analytics")).thenReturn(List.of(stubMatView));
-      when(queryRunner.getColumnInfo("analytics", "monthly_sales_summary"))
+      when(queryRunner.getMaterializedViewColumnInfo("analytics", "monthly_sales_summary"))
           .thenReturn(List.of(monthColumn, revenueColumn));
 
       final List<MaterializedView> result =
@@ -344,9 +344,9 @@ class ViewBuilderTest {
 
       when(queryRunner.getMaterializedViewInfo("reporting"))
           .thenReturn(List.of(stubMatView1, stubMatView2));
-      when(queryRunner.getColumnInfo("reporting", "sales_summary"))
+      when(queryRunner.getMaterializedViewColumnInfo("reporting", "sales_summary"))
           .thenReturn(List.of(salesColumn));
-      when(queryRunner.getColumnInfo("reporting", "inventory_snapshot"))
+      when(queryRunner.getMaterializedViewColumnInfo("reporting", "inventory_snapshot"))
           .thenReturn(List.of(inventoryColumn));
 
       final List<MaterializedView> result =
@@ -367,7 +367,8 @@ class ViewBuilderTest {
           MaterializedView.builder().name("empty_mat_view").columns(List.of()).build();
 
       when(queryRunner.getMaterializedViewInfo("test_schema")).thenReturn(List.of(stubMatView));
-      when(queryRunner.getColumnInfo("test_schema", "empty_mat_view")).thenReturn(List.of());
+      when(queryRunner.getMaterializedViewColumnInfo("test_schema", "empty_mat_view"))
+          .thenReturn(List.of());
 
       final List<MaterializedView> result =
           viewBuilder.buildMaterializedViews(queryRunner, "test_schema", Map.of(), Map.of());
@@ -402,7 +403,8 @@ class ViewBuilderTest {
       final var enumKey = new EnumKey("core", "order_status");
 
       when(queryRunner.getMaterializedViewInfo("core")).thenReturn(List.of(stubMatView));
-      when(queryRunner.getColumnInfo("core", "order_summary")).thenReturn(List.of(statusColumn));
+      when(queryRunner.getMaterializedViewColumnInfo("core", "order_summary"))
+          .thenReturn(List.of(statusColumn));
 
       final List<MaterializedView> result =
           viewBuilder.buildMaterializedViews(
@@ -440,7 +442,7 @@ class ViewBuilderTest {
       final var enumKey = new EnumKey("auth", "account_state");
 
       when(queryRunner.getMaterializedViewInfo("reporting")).thenReturn(List.of(stubMatView));
-      when(queryRunner.getColumnInfo("reporting", "account_report"))
+      when(queryRunner.getMaterializedViewColumnInfo("reporting", "account_report"))
           .thenReturn(List.of(statusColumn));
 
       final List<MaterializedView> result =
@@ -474,7 +476,7 @@ class ViewBuilderTest {
               .build();
 
       when(queryRunner.getMaterializedViewInfo("test_schema")).thenReturn(List.of(stubMatView));
-      when(queryRunner.getColumnInfo("test_schema", "plain_summary"))
+      when(queryRunner.getMaterializedViewColumnInfo("test_schema", "plain_summary"))
           .thenReturn(List.of(timestampColumn, labelColumn));
 
       final List<MaterializedView> result =
@@ -503,12 +505,12 @@ class ViewBuilderTest {
     }
 
     @Test
-    void propagatesSQLExceptionFromGetColumnInfo() throws SQLException {
+    void propagatesSQLExceptionFromGetMaterializedViewColumnInfo() throws SQLException {
       final var stubMatView =
           MaterializedView.builder().name("broken_mat_view").columns(List.of()).build();
 
       when(queryRunner.getMaterializedViewInfo("test_schema")).thenReturn(List.of(stubMatView));
-      when(queryRunner.getColumnInfo("test_schema", "broken_mat_view"))
+      when(queryRunner.getMaterializedViewColumnInfo("test_schema", "broken_mat_view"))
           .thenThrow(new SQLException("Column query timed out"));
 
       final SQLException exception =

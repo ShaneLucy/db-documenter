@@ -82,6 +82,20 @@ public interface PreparedStatementMapper {
       throws SQLException;
 
   /**
+   * Binds parameters for the materialized view column info query.
+   *
+   * <p>This targets {@code pg_catalog.pg_attribute} rather than {@code information_schema.columns}
+   * because materialized views ({@code relkind = 'm'}) are excluded from the SQL standard catalog.
+   *
+   * @param preparedStatement the statement to bind parameters on
+   * @param schema the schema name
+   * @param matViewName the materialized view name
+   * @throws SQLException if a database access error occurs
+   */
+  void prepareMaterializedViewColumnInfoStatement(
+      PreparedStatement preparedStatement, String schema, String matViewName) throws SQLException;
+
+  /**
    * Binds parameters for the partition children query.
    *
    * @param preparedStatement the statement to bind parameters on
