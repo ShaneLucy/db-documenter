@@ -25,8 +25,10 @@
     <maven-javadoc.version>3.12.0</maven-javadoc.version>
 
     <!-- Packaging -->
-    <maven-jar.version>3.5.0</maven-jar.version>
     <maven-compiler.version>3.13.0</maven-compiler.version>
+    <maven-jar.version>3.5.0</maven-jar.version>
+    <maven-shade.version>3.6.1</maven-shade.version>
+    <picocli.version>4.7.5</picocli.version>
 
     <!-- Static analysis -->
     <checkstyle.version>3.6.0</checkstyle.version>
@@ -48,6 +50,12 @@
       <groupId>com.github.spotbugs</groupId>
       <artifactId>spotbugs-annotations</artifactId>
       <version>${spotbugs-annotations.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli</artifactId>
+      <version>${picocli.version}</version>
       <scope>compile</scope>
     </dependency>
     <!-- Annotations -->
@@ -441,6 +449,40 @@
               <goal>cpd-check</goal>
             </goals>
             <phase>verify</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Fat JAR for CLI/Docker distribution -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>${maven-shade.version}</version>
+        <executions>
+          <execution>
+            <id>shade-cli</id>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>jar-with-dependencies</shadedClassifierName>
+              <minimizeJar>false</minimizeJar>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>db.documenter.cli.Main</mainClass>
+                </transformer>
+              </transformers>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>module-info.class</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
           </execution>
         </executions>
       </plugin>
