@@ -137,7 +137,7 @@ public final class Main implements Callable<Integer> {
       if (output != null) {
         Files.writeString(Path.of(output), puml);
       } else {
-        System.out.println(puml);
+        System.out.print(puml);
       }
 
       return EXIT_SUCCESS;

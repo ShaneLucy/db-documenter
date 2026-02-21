@@ -1,5 +1,6 @@
 package db.documenter.cli;
 
+import static db.documenter.testutils.PumlComparison.comparePumlLineByLine;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,26 +17,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import picocli.CommandLine;
 
 class MainTest {
 
   @Nested
   class ArgumentParsingTests {
-
-    @ParameterizedTest(name = "missing required arg: {0}")
-    @CsvSource({
-      "--database,--username,--password,--schemas",
-      "--host,--username,--password,--schemas",
-      "--host,--database,--password,--schemas",
-      "--host,--database,--username,--password"
-    })
-    void whenRequiredArgIsMissing_returnsNonZeroExitCode(final String ignored) {
-      // Intentionally pass minimal args to trigger picocli's missing-parameter exit code (2).
-      // Each row omits one required option; the exact option omitted is for documentation only.
-    }
 
     @Test
     void whenHostIsMissing_returnsNonZeroExitCode() {
@@ -103,7 +90,7 @@ class MainTest {
 
     @Test
     void whenDatabaseIsBlankWhitespace_returnsValidationExitCode() {
-      final var captured = captureStderr(() -> executeWithBlankDatabase());
+      final var captured = captureStderr(this::executeWithBlankDatabase);
 
       assertEquals(1, captured.exitCode());
       assertTrue(captured.stderr().contains("Configuration error"));
@@ -111,7 +98,7 @@ class MainTest {
 
     @Test
     void whenUsernameIsBlankWhitespace_returnsValidationExitCode() {
-      final var captured = captureStderr(() -> executeWithBlankUsername());
+      final var captured = captureStderr(this::executeWithBlankUsername);
 
       assertEquals(1, captured.exitCode());
       assertTrue(captured.stderr().contains("Configuration error"));
@@ -119,7 +106,7 @@ class MainTest {
 
     @Test
     void whenPasswordIsBlankWhitespace_returnsValidationExitCode() {
-      final var captured = captureStderr(() -> executeWithBlankPassword());
+      final var captured = captureStderr(this::executeWithBlankPassword);
 
       assertEquals(1, captured.exitCode());
       assertTrue(captured.stderr().contains("Configuration error"));
@@ -226,10 +213,15 @@ class MainTest {
 
     private static final PostgresTestEnvironment POSTGRES_TEST_ENVIRONMENT =
         new PostgresTestEnvironment();
+    private static final String SCHEMAS = "ecommerce,inventory,analytics";
+    private static final String EXPECTED_PUML_PATH =
+        "src/test/resources/postgresql/sql-agnostic-multiple-schema-postgres-expected-output.puml";
 
     @BeforeAll
-    static void startContainer() throws SQLException {
+    static void startContainer() throws SQLException, IOException {
       POSTGRES_TEST_ENVIRONMENT.startContainer();
+      POSTGRES_TEST_ENVIRONMENT.initialiseDatabase(
+          POSTGRES_TEST_ENVIRONMENT.getConnection(), "/sql-agnostic-multiple-schema.sql");
     }
 
     @AfterAll
@@ -238,7 +230,7 @@ class MainTest {
     }
 
     @Test
-    void itWritesPumlToStdoutWhenNoOutputOptionProvided() {
+    void itWritesPumlToStdoutWhenNoOutputOptionProvided() throws IOException {
       final var container = POSTGRES_TEST_ENVIRONMENT.getContainer();
       final var capturedOut = new ByteArrayOutputStream();
       final var originalOut = System.out;
@@ -260,16 +252,16 @@ class MainTest {
                     "--password",
                     container.getPassword(),
                     "--schemas",
-                    "public",
+                    SCHEMAS,
                     "--ssl=false");
       } finally {
         System.setOut(originalOut);
       }
 
       assertEquals(0, exitCode);
-      final var output = capturedOut.toString();
-      assertTrue(output.contains("@startuml"), "Expected PlantUML output starting with @startuml");
-      assertTrue(output.contains("@enduml"), "Expected PlantUML output ending with @enduml");
+      final var expected = Files.readString(Path.of(EXPECTED_PUML_PATH));
+
+      comparePumlLineByLine(capturedOut.toString(), expected.lines().toList());
     }
 
     @Test
@@ -292,49 +284,15 @@ class MainTest {
                   "--password",
                   container.getPassword(),
                   "--schemas",
-                  "public",
+                  SCHEMAS,
                   "--ssl=false",
                   "--output",
                   outputFile.toString());
 
       assertEquals(0, exitCode);
-      assertTrue(Files.exists(outputFile), "Expected output file to be created");
-      final var content = Files.readString(outputFile);
-      assertTrue(content.contains("@startuml"), "Expected file to contain @startuml");
-      assertTrue(content.contains("@enduml"), "Expected file to contain @enduml");
-    }
+      final var expected = Files.readString(Path.of(EXPECTED_PUML_PATH));
 
-    @Test
-    void itAcceptsMultipleCommaSeparatedSchemas() {
-      // Both 'public' and 'information_schema' exist in every PostgreSQL database.
-      final var container = POSTGRES_TEST_ENVIRONMENT.getContainer();
-      final var capturedOut = new ByteArrayOutputStream();
-      final var originalOut = System.out;
-      System.setOut(new PrintStream(capturedOut));
-
-      final int exitCode;
-      try {
-        exitCode =
-            new CommandLine(new Main())
-                .execute(
-                    "--host",
-                    container.getHost(),
-                    "--port",
-                    String.valueOf(container.getFirstMappedPort()),
-                    "--database",
-                    container.getDatabaseName(),
-                    "--username",
-                    container.getUsername(),
-                    "--password",
-                    container.getPassword(),
-                    "--schemas",
-                    "public,information_schema",
-                    "--ssl=false");
-      } finally {
-        System.setOut(originalOut);
-      }
-
-      assertEquals(0, exitCode);
+      comparePumlLineByLine(Files.readString(outputFile), expected.lines().toList());
     }
   }
 
