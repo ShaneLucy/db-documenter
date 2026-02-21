@@ -1,0 +1,31 @@
+# Git
+.git/
+.gitignore
+
+# Source code (image uses pre-built fat JAR only)
+src/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Documentation
+*.md
+
+# Claude agent configuration
+.claude/
+
+# GitHub workflows
+.github/
+
+# Maven wrapper
+.mvn/
+mvnw
+mvnw.cmd
+
+# Exclude everything in target/ except the fat JAR
+target/*
+!target/*-jar-with-dependencies.jar
