@@ -1,0 +1,202 @@
+# Release workflow: builds once, publishes to Maven Central and GHCR in parallel.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/db-documenter
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: Build all artifacts once. Subsequent jobs consume them.
+  # ---------------------------------------------------------------------------
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # Produce all JARs: main JAR, fat JAR, sources JAR, javadoc JAR.
+      # Tests are skipped here because CI already ran them on push/PR.
+      # The -Prelease profile activates GPG signing and Central Portal plugins,
+      # but signing is deferred to the publish-maven job where secrets are available.
+      - name: Build all artifacts
+        run: mvn -B clean package -DskipTests -Dgpg.skip=true
+
+      - name: Upload fat JAR for Docker
+        uses: actions/upload-artifact@v4
+        with:
+          name: fat-jar
+          path: target/*-jar-with-dependencies.jar
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Upload Maven artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven-target
+          path: |
+            target/*.jar
+            target/*.pom
+            pom.xml
+          retention-days: 1
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Job 2: Publish to Maven Central via the Central Portal.
+  # Uses the pre-built artifacts from Job 1.
+  # ---------------------------------------------------------------------------
+  publish-maven:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+          server-id: central
+          server-username: ${{ secrets.CENTRAL_USERNAME }}
+          server-password: ${{ secrets.CENTRAL_PASSWORD }}
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Download Maven artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: maven-target
+
+
+      - name: Publish to Maven Central
+        env:
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          mvn -B deploy \
+            -Prelease \
+            -DskipTests \
+            -Dmaven.main.skip=true \
+            -Dmaven.resources.skip=true \
+            -Dmaven.shade.skip=true \
+            -Dmaven.javadoc.skip=true \
+            -Dmaven.source.skip=true
+
+  # ---------------------------------------------------------------------------
+  # Job 3: Build and push Docker image to GHCR.
+  # Uses the pre-built fat JAR from Job 1. No Java/Maven needed.
+  # ---------------------------------------------------------------------------
+  publish-docker:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+      # Needed for GHCR attestation (optional, future-proofing)
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download fat JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: fat-jar
+          path: target
+
+      - name: Verify fat JAR exists
+        run: |
+          echo "Contents of target/:"
+          ls -lh target/
+          test -f target/*-jar-with-dependencies.jar || { echo "ERROR: Fat JAR not found"; exit 1; }
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix=
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ---------------------------------------------------------------------------
+  # Job 4: Create a GitHub Release with the fat JAR attached.
+  # ---------------------------------------------------------------------------
+  create-release:
+    needs: [publish-maven, publish-docker]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download fat JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: fat-jar
+          path: artifacts
+
+      - name: Prepare release asset
+        id: prepare
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          mv artifacts/*-jar-with-dependencies.jar "artifacts/db-documenter-${VERSION}-cli.jar"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: artifacts/db-documenter-${{ steps.prepare.outputs.version }}-cli.jar
+          fail_on_unmatched_files: true
