@@ -155,3 +155,29 @@ CREATE TABLE tag_log (
 CREATE INDEX idx_product_price ON product(price);
 CREATE INDEX idx_order_user ON customer_order(user_id);
 CREATE INDEX idx_address_user ON address(user_id);
+
+-- -------------------------
+-- Product status (lookup table for SET DEFAULT referential action testing)
+-- -------------------------
+CREATE TABLE product_status (
+    id smallint PRIMARY KEY,
+    code varchar(50) NOT NULL UNIQUE
+);
+
+-- Row 0 is the default target for ON DELETE SET DEFAULT / ON UPDATE SET DEFAULT constraints below
+INSERT INTO product_status VALUES (0, 'unlisted');
+
+-- -------------------------
+-- Product listing
+-- Demonstrates RESTRICT, SET NULL, and SET DEFAULT referential actions,
+-- and covers ON UPDATE CASCADE, SET NULL, and SET DEFAULT.
+-- -------------------------
+CREATE TABLE product_listing (
+    id             bigserial PRIMARY KEY,
+    listed_by      uuid      REFERENCES app_user(id)      ON DELETE RESTRICT     ON UPDATE RESTRICT,
+    product_id     bigint    REFERENCES product(id)        ON DELETE SET NULL     ON UPDATE SET NULL,
+    status_id      smallint  NOT NULL DEFAULT 0
+                             REFERENCES product_status(id) ON DELETE SET DEFAULT  ON UPDATE SET DEFAULT,
+    title          varchar(200) NOT NULL,
+    listed_at      timestamptz NOT NULL DEFAULT now()
+);

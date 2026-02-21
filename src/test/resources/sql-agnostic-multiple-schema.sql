@@ -980,6 +980,34 @@ CREATE TABLE analytics.comprehensive_business_metrics (
 );
 
 -- =====================================================
+-- TABLES WITH ON UPDATE SET NULL AND SET DEFAULT ACTIONS
+-- =====================================================
+
+-- Document status lookup (for ON DELETE/UPDATE SET DEFAULT demonstrations)
+CREATE TABLE ecommerce.document_statuses (
+    status_id   INTEGER     NOT NULL PRIMARY KEY,
+    status_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Documents table demonstrating ON UPDATE SET NULL and ON DELETE/UPDATE SET DEFAULT.
+-- Together with the existing referential action tables these ensure every
+-- ReferentialAction value (CASCADE, RESTRICT, SET_NULL, SET_DEFAULT, NO_ACTION)
+-- is exercised for both ON DELETE and ON UPDATE across this schema.
+CREATE TABLE ecommerce.documents (
+    document_id  BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    order_id     BIGINT,
+    status_id    INTEGER  NOT NULL DEFAULT 0,
+    title        VARCHAR(200) NOT NULL,
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id)   REFERENCES ecommerce.orders(order_id)
+        ON DELETE SET NULL
+        ON UPDATE SET NULL,
+    FOREIGN KEY (status_id)  REFERENCES ecommerce.document_statuses(status_id)
+        ON DELETE SET DEFAULT
+        ON UPDATE SET DEFAULT
+);
+
+-- =====================================================
 -- SEQUENCES (SQL:2003 STANDARD)
 -- =====================================================
 

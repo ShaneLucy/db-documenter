@@ -9,6 +9,7 @@ import db.documenter.internal.formatter.impl.entity.PrimaryKeyEntityLineFormatte
 import db.documenter.internal.formatter.impl.multiplicity.CardinalityFormatter;
 import db.documenter.internal.formatter.impl.multiplicity.CompositeMultiplicityFormatter;
 import db.documenter.internal.formatter.impl.multiplicity.DefaultMultiplicityFormatter;
+import db.documenter.internal.formatter.impl.multiplicity.ReferentialActionFormatter;
 
 /** Configures and creates formatter instances for PlantUML generation. */
 public final class FormatterConfigurer {
@@ -35,6 +36,7 @@ public final class FormatterConfigurer {
     return CompositeMultiplicityFormatter.builder()
         .addFormatter(new DefaultMultiplicityFormatter())
         .addFormatter(new CardinalityFormatter())
+        .addFormatter(new ReferentialActionFormatter())
         .build();
   }
 }

@@ -129,24 +129,44 @@ package "public" {
 		logged_at: timestamp with time zone <<DEFAULT>>
 	}
 
+	entity "product_status" {
+		**id: smallint**
+		--
+		code: character varying(50) <<UNIQUE>>
+	}
+
+	entity "product_listing" {
+		**id: bigint** <<AUTO_INCREMENT,DEFAULT>>
+		--
+		listed_by: uuid <<FK,NULLABLE>>
+		product_id: bigint <<FK,NULLABLE>>
+		status_id: smallint <<FK,DEFAULT>>
+		title: character varying(200)
+		listed_at: timestamp with time zone <<DEFAULT>>
+	}
+
 }
 
 address ||--o{ customer_order
 
-app_user ||--|{ user_role
+app_user ||--|{ user_role : "ON DELETE CASCADE"
 app_user ||--o{ user_role
-app_user ||--|{ address
+app_user ||--|{ address : "ON DELETE CASCADE"
 app_user ||--o{ customer_order
 app_user ||--o{ audit_log
+app_user ||--o{ product_listing : "ON DELETE RESTRICT / ON UPDATE RESTRICT"
 
-category ||--|{ product_category
+category ||--|{ product_category : "ON DELETE CASCADE"
 
-customer_order ||--|{ order_item
-customer_order ||--|{ payment
+customer_order ||--|{ order_item : "ON DELETE CASCADE"
+customer_order ||--|{ payment : "ON DELETE CASCADE"
 
-product ||--|{ product_category
+product ||--|{ product_category : "ON DELETE CASCADE"
 product ||--|{ order_item
+product ||--o{ product_listing : "ON DELETE SET NULL / ON UPDATE SET NULL"
 
-role ||--|{ user_role
+product_status ||--|{ product_listing : "ON DELETE SET DEFAULT / ON UPDATE SET DEFAULT"
+
+role ||--|{ user_role : "ON DELETE CASCADE"
 
 @enduml

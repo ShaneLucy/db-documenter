@@ -411,6 +411,21 @@ package "ecommerce" {
 		discount_code: character varying(20) <<CHECK,NULLABLE>>
 	}
 
+	entity "document_statuses" {
+		**status_id: integer**
+		--
+		status_name: character varying(50) <<UNIQUE>>
+	}
+
+	entity "documents" {
+		**document_id: bigint**
+		--
+		order_id: bigint <<FK,NULLABLE>>
+		status_id: integer <<FK,DEFAULT>>
+		title: character varying(200)
+		created_at: timestamp without time zone <<DEFAULT,NULLABLE>>
+	}
+
 }
 
 package "inventory" {
@@ -819,27 +834,30 @@ addresses ||--o{ orders
 
 categories ||--o{ categories
 categories ||--o{ products
-categories ||--|{ protected_categories
+categories ||--|{ protected_categories : "ON DELETE RESTRICT / ON UPDATE RESTRICT"
 
 coupons ||--|{ coupon_usage
 
 departments ||--o{ departments
 departments ||--o{ employees
 
-employees ||--o{ departments
-employees ||--o{ employees
+document_statuses ||--|{ documents : "ON DELETE SET DEFAULT / ON UPDATE SET DEFAULT"
+
+employees ||--o{ departments : "ON DELETE SET NULL"
+employees ||--o{ employees : "ON DELETE SET NULL"
 
 orders ||--|{ order_items
 orders ||--|{ payments
 orders ||--|{ coupon_usage
-orders ||--|{ invoices
+orders ||--|{ invoices : "ON DELETE CASCADE"
+orders ||--o{ documents : "ON DELETE SET NULL / ON UPDATE SET NULL"
 
 products ||--|{ product_images
 products ||--|{ product_reviews
 products ||--|{ order_items
-products ||--o{ product_promotions
+products ||--o{ product_promotions : "ON DELETE SET NULL"
 
-subscription_plans ||--|{ user_subscriptions
+subscription_plans ||--|{ user_subscriptions : "ON DELETE RESTRICT"
 
 users ||--|{ user_referrals
 users ||--|{ user_referrals
@@ -847,51 +865,51 @@ users ||--|{ addresses
 users ||--|{ product_reviews
 users ||--|{ orders
 users ||--|{ coupon_usage
-users ||--|{ user_preferences
-users ||--|{ user_subscriptions
+users ||--|{ user_preferences : "ON DELETE CASCADE / ON UPDATE CASCADE"
+users ||--|{ user_subscriptions : "ON DELETE CASCADE"
 
 ecommerce.products ||--|{ inventory.product_suppliers
 ecommerce.products ||--|{ inventory.stock_levels
 ecommerce.products ||--|{ inventory.purchase_order_items
 ecommerce.products ||--|{ inventory.stock_movements
 ecommerce.products ||--|{ inventory.warehouse_transfers
-ecommerce.products ||--|{ inventory.batch_tracking
-ecommerce.products ||--o{ inventory.inventory_bins
+ecommerce.products ||--|{ inventory.batch_tracking : "ON DELETE CASCADE"
+ecommerce.products ||--o{ inventory.inventory_bins : "ON DELETE SET NULL"
 
 purchase_orders ||--|{ purchase_order_items
 
 suppliers ||--|{ product_suppliers
 suppliers ||--|{ purchase_orders
 
-warehouse_locations ||--|{ inventory_bins
-warehouse_locations ||--|{ inventory_bins
-warehouse_locations ||--|{ inventory_bins
-warehouse_locations ||--|{ inventory_bins
+warehouse_locations ||--|{ inventory_bins : "ON DELETE RESTRICT"
+warehouse_locations ||--|{ inventory_bins : "ON DELETE RESTRICT"
+warehouse_locations ||--|{ inventory_bins : "ON DELETE RESTRICT"
+warehouse_locations ||--|{ inventory_bins : "ON DELETE RESTRICT"
 
 warehouses ||--|{ stock_levels
 warehouses ||--|{ purchase_orders
 warehouses ||--|{ stock_movements
 warehouses ||--|{ warehouse_transfers
 warehouses ||--|{ warehouse_transfers
-warehouses ||--|{ batch_tracking
+warehouses ||--|{ batch_tracking : "ON DELETE RESTRICT"
 
 campaigns ||--|{ campaign_performance
 
 customer_segments ||--|{ customer_segment_history
 
-ecommerce.departments ||--o{ analytics.comprehensive_business_metrics
+ecommerce.departments ||--o{ analytics.comprehensive_business_metrics : "ON DELETE SET NULL"
 
 ecommerce.products ||--|{ analytics.product_performance
 ecommerce.products ||--|{ analytics.inventory_turnover
-ecommerce.products ||--o{ analytics.comprehensive_business_metrics
+ecommerce.products ||--o{ analytics.comprehensive_business_metrics : "ON DELETE CASCADE"
 
 inventory.suppliers ||--|{ analytics.supplier_performance
-inventory.suppliers ||--o{ analytics.comprehensive_business_metrics
+inventory.suppliers ||--o{ analytics.comprehensive_business_metrics : "ON DELETE SET NULL"
 
 ecommerce.users ||--|{ analytics.customer_segment_history
-ecommerce.users ||--o{ analytics.comprehensive_business_metrics
+ecommerce.users ||--o{ analytics.comprehensive_business_metrics : "ON DELETE SET NULL"
 
 inventory.warehouses ||--|{ analytics.inventory_turnover
-inventory.warehouses ||--o{ analytics.comprehensive_business_metrics
+inventory.warehouses ||--o{ analytics.comprehensive_business_metrics : "ON DELETE SET NULL"
 
 @enduml

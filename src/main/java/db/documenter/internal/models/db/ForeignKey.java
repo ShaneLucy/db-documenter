@@ -7,16 +7,18 @@ import db.documenter.internal.validation.Validators;
  * Represents a foreign key relationship between database tables.
  *
  * <p>This record captures the metadata of a foreign key constraint, including source and target
- * table/column information, the referenced schema, and nullability information.
+ * table/column information, the referenced schema, nullability, and the referential actions applied
+ * on delete and update.
  *
  * <p><b>Immutability:</b> This record is immutable and thread-safe.
  *
- * <p><b>Validation:</b> All string parameters are validated as non-null in the compact constructor.
+ * <p><b>Validation:</b> All string parameters are validated as non-blank, and both referential
+ * action parameters are validated as non-null, in the compact constructor.
  *
  * <p><b>Usage Example:</b>
  *
  * <pre>{@code
- * // orders.user_id -> users.id (nullable)
+ * // orders.user_id -> users.id (nullable, cascade delete)
  * ForeignKey fk = ForeignKey.builder()
  *     .name("fk_orders_user")
  *     .sourceTable("orders")
@@ -25,6 +27,8 @@ import db.documenter.internal.validation.Validators;
  *     .targetColumn("id")
  *     .referencedSchema("public")
  *     .isNullable(true)
+ *     .onDeleteAction(ReferentialAction.CASCADE)
+ *     .onUpdateAction(ReferentialAction.NO_ACTION)
  *     .build();
  * }</pre>
  *
@@ -36,7 +40,12 @@ import db.documenter.internal.validation.Validators;
  * @param referencedSchema the schema of the referenced table
  * @param isNullable true if the FK column permits NULL (indicating optional relationship); false
  *     for required relationships. Builder defaults to false if not set
+ * @param onDeleteAction the referential action applied to dependent rows when the referenced row is
+ *     deleted; defaults to {@link ReferentialAction#NO_ACTION} if not set via the builder
+ * @param onUpdateAction the referential action applied to dependent rows when the referenced row is
+ *     updated; defaults to {@link ReferentialAction#NO_ACTION} if not set via the builder
  * @see Table
+ * @see ReferentialAction
  */
 public record ForeignKey(
     String name,
@@ -45,7 +54,9 @@ public record ForeignKey(
     String targetTable,
     String targetColumn,
     String referencedSchema,
-    boolean isNullable) {
+    boolean isNullable,
+    ReferentialAction onDeleteAction,
+    ReferentialAction onUpdateAction) {
 
   public ForeignKey {
     Validators.isNotBlank(name, "name");
@@ -54,6 +65,8 @@ public record ForeignKey(
     Validators.isNotBlank(targetTable, "targetTable");
     Validators.isNotBlank(targetColumn, "targetColumn");
     Validators.isNotBlank(referencedSchema, "referencedSchema");
+    Validators.isNotNull(onDeleteAction, "onDeleteAction");
+    Validators.isNotNull(onUpdateAction, "onUpdateAction");
   }
 
   /**
@@ -68,7 +81,9 @@ public record ForeignKey(
   /**
    * Builder for constructing {@link ForeignKey} instances using a fluent API.
    *
-   * <p><b>Design Pattern:</b> Builder pattern for flexible object construction.
+   * <p>Both {@code onDeleteAction} and {@code onUpdateAction} default to {@link
+   * ReferentialAction#NO_ACTION} when not explicitly set, ensuring backwards-compatible
+   * construction from code that predates referential action support.
    *
    * <p><b>Usage Example:</b>
    *
@@ -81,6 +96,7 @@ public record ForeignKey(
    *     .targetColumn("id")
    *     .referencedSchema("public")
    *     .isNullable(false)
+   *     .onDeleteAction(ReferentialAction.CASCADE)
    *     .build();
    * }</pre>
    *
@@ -94,12 +110,11 @@ public record ForeignKey(
     private String targetColumn;
     private String referencedSchema;
     private boolean isNullable;
+    private ReferentialAction onDeleteAction = ReferentialAction.NO_ACTION;
+    private ReferentialAction onUpdateAction = ReferentialAction.NO_ACTION;
 
     /**
-     * Sets the foreign key constraint name.
-     *
-     * @param name the constraint name
-     * @return this builder instance for method chaining
+     * @return this builder for method chaining
      */
     public Builder name(final String name) {
       this.name = name;
@@ -107,10 +122,7 @@ public record ForeignKey(
     }
 
     /**
-     * Sets the source table (the table containing the foreign key).
-     *
-     * @param sourceTable the source table name
-     * @return this builder instance for method chaining
+     * @return this builder for method chaining
      */
     public Builder sourceTable(final String sourceTable) {
       this.sourceTable = sourceTable;
@@ -118,10 +130,7 @@ public record ForeignKey(
     }
 
     /**
-     * Sets the source column (the column in the source table).
-     *
-     * @param sourceColumn the source column name
-     * @return this builder instance for method chaining
+     * @return this builder for method chaining
      */
     public Builder sourceColumn(final String sourceColumn) {
       this.sourceColumn = sourceColumn;
@@ -129,10 +138,7 @@ public record ForeignKey(
     }
 
     /**
-     * Sets the target table (the referenced table).
-     *
-     * @param targetTable the target table name
-     * @return this builder instance for method chaining
+     * @return this builder for method chaining
      */
     public Builder targetTable(final String targetTable) {
       this.targetTable = targetTable;
@@ -140,10 +146,7 @@ public record ForeignKey(
     }
 
     /**
-     * Sets the target column (the referenced column in the target table).
-     *
-     * @param targetColumn the target column name
-     * @return this builder instance for method chaining
+     * @return this builder for method chaining
      */
     public Builder targetColumn(final String targetColumn) {
       this.targetColumn = targetColumn;
@@ -151,10 +154,7 @@ public record ForeignKey(
     }
 
     /**
-     * Sets the schema of the referenced table.
-     *
-     * @param referencedSchema the schema name
-     * @return this builder instance for method chaining
+     * @return this builder for method chaining
      */
     public Builder referencedSchema(final String referencedSchema) {
       this.referencedSchema = referencedSchema;
@@ -165,7 +165,7 @@ public record ForeignKey(
      * Sets whether the foreign key column allows NULL values.
      *
      * @param isNullable true if the column is nullable, false otherwise
-     * @return this builder instance for method chaining
+     * @return this builder for method chaining
      */
     public Builder isNullable(final boolean isNullable) {
       this.isNullable = isNullable;
@@ -173,14 +173,45 @@ public record ForeignKey(
     }
 
     /**
+     * Sets the referential action applied when the referenced row is deleted.
+     *
+     * @param onDeleteAction must not be null; defaults to {@link ReferentialAction#NO_ACTION}
+     * @return this builder for method chaining
+     */
+    public Builder onDeleteAction(final ReferentialAction onDeleteAction) {
+      this.onDeleteAction = onDeleteAction;
+      return this;
+    }
+
+    /**
+     * Sets the referential action applied when the referenced row is updated.
+     *
+     * @param onUpdateAction must not be null; defaults to {@link ReferentialAction#NO_ACTION}
+     * @return this builder for method chaining
+     */
+    public Builder onUpdateAction(final ReferentialAction onUpdateAction) {
+      this.onUpdateAction = onUpdateAction;
+      return this;
+    }
+
+    /**
      * Builds and returns a new {@link ForeignKey} instance.
      *
      * @return a new immutable {@link ForeignKey} instance
-     * @throws ValidationException if any required field is null
+     * @throws ValidationException if any required string field is blank or either referential
+     *     action field is null
      */
     public ForeignKey build() {
       return new ForeignKey(
-          name, sourceTable, sourceColumn, targetTable, targetColumn, referencedSchema, isNullable);
+          name,
+          sourceTable,
+          sourceColumn,
+          targetTable,
+          targetColumn,
+          referencedSchema,
+          isNullable,
+          onDeleteAction,
+          onUpdateAction);
     }
   }
 }

@@ -536,48 +536,48 @@ package "audit" {
 
 }
 
-core.organizations ||--o{ auth.user_roles
+core.organizations ||--o{ auth.user_roles : "ON DELETE CASCADE"
 
-permissions ||--|{ role_permissions
+permissions ||--|{ role_permissions : "ON DELETE CASCADE"
 
-roles ||--o{ roles
-roles ||--|{ role_permissions
-roles ||--|{ user_roles
+roles ||--o{ roles : "ON DELETE SET NULL"
+roles ||--|{ role_permissions : "ON DELETE CASCADE"
+roles ||--|{ user_roles : "ON DELETE CASCADE"
 
-users ||--|{ user_mfa
-users ||--o{ role_permissions
-users ||--|{ user_roles
-users ||--o{ user_roles
-users ||--|{ sessions
+users ||--|{ user_mfa : "ON DELETE CASCADE"
+users ||--o{ role_permissions : "ON DELETE SET NULL"
+users ||--|{ user_roles : "ON DELETE CASCADE"
+users ||--o{ user_roles : "ON DELETE SET NULL"
+users ||--|{ sessions : "ON DELETE CASCADE"
 
-comments ||--o{ comments
+comments ||--o{ comments : "ON DELETE CASCADE"
 
-organizations ||--|{ organization_members
-organizations ||--|{ projects
-organizations ||--|{ resource_bookings
+organizations ||--|{ organization_members : "ON DELETE CASCADE"
+organizations ||--|{ projects : "ON DELETE CASCADE"
+organizations ||--|{ resource_bookings : "ON DELETE CASCADE"
 
-projects ||--|{ tasks
+projects ||--|{ tasks : "ON DELETE CASCADE"
 
-tasks ||--o{ tasks
-tasks ||--|{ task_dependencies
-tasks ||--|{ task_dependencies
-tasks ||--|{ time_entries
+tasks ||--o{ tasks : "ON DELETE CASCADE"
+tasks ||--|{ task_dependencies : "ON DELETE CASCADE"
+tasks ||--|{ task_dependencies : "ON DELETE CASCADE"
+tasks ||--|{ time_entries : "ON DELETE CASCADE"
 
-auth.users ||--o{ core.organizations
-auth.users ||--|{ core.organization_members
-auth.users ||--o{ core.organization_members
-auth.users ||--o{ core.projects
-auth.users ||--o{ core.projects
-auth.users ||--o{ core.tasks
-auth.users ||--o{ core.tasks
-auth.users ||--o{ core.task_dependencies
-auth.users ||--|{ core.time_entries
-auth.users ||--|{ core.resource_bookings
-auth.users ||--|{ core.comments
+auth.users ||--o{ core.organizations : "ON DELETE SET NULL"
+auth.users ||--|{ core.organization_members : "ON DELETE CASCADE"
+auth.users ||--o{ core.organization_members : "ON DELETE SET NULL"
+auth.users ||--o{ core.projects : "ON DELETE SET NULL"
+auth.users ||--o{ core.projects : "ON DELETE SET NULL"
+auth.users ||--o{ core.tasks : "ON DELETE SET NULL"
+auth.users ||--o{ core.tasks : "ON DELETE SET NULL"
+auth.users ||--o{ core.task_dependencies : "ON DELETE SET NULL"
+auth.users ||--|{ core.time_entries : "ON DELETE CASCADE"
+auth.users ||--|{ core.resource_bookings : "ON DELETE CASCADE"
+auth.users ||--|{ core.comments : "ON DELETE CASCADE"
 
-auth.users ||--|{ analytics.user_activity_summary
+auth.users ||--|{ analytics.user_activity_summary : "ON DELETE CASCADE"
 
-auth.users ||--o{ audit.entity_changes
-auth.users ||--o{ audit.access_log
+auth.users ||--o{ audit.entity_changes : "ON DELETE SET NULL"
+auth.users ||--o{ audit.access_log : "ON DELETE SET NULL"
 
 @enduml

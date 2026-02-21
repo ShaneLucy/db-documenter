@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.Constraint;
 import db.documenter.internal.models.db.ForeignKey;
+import db.documenter.internal.models.db.ReferentialAction;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -175,6 +176,8 @@ class ForeignKeyMapperTest {
       assertEquals("users", enriched.targetTable());
       assertEquals("id", enriched.targetColumn());
       assertTrue(enriched.isNullable());
+      assertEquals(ReferentialAction.NO_ACTION, enriched.onDeleteAction());
+      assertEquals(ReferentialAction.NO_ACTION, enriched.onUpdateAction());
     }
 
     @Test
@@ -206,6 +209,83 @@ class ForeignKeyMapperTest {
 
       assertEquals(1, result.size());
       assertTrue(result.getFirst().isNullable());
+    }
+
+    @Test
+    void itPreservesOnDeleteActionWhenEnrichingNullability() {
+      final var foreignKey =
+          ForeignKey.builder()
+              .name("fk_user")
+              .sourceTable("orders")
+              .sourceColumn("user_id")
+              .targetTable("users")
+              .targetColumn("id")
+              .referencedSchema("public")
+              .onDeleteAction(ReferentialAction.CASCADE)
+              .build();
+
+      final var column =
+          Column.builder()
+              .name("user_id")
+              .dataType("varchar")
+              .constraints(List.of(Constraint.NULLABLE))
+              .build();
+
+      final var result =
+          foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
+
+      assertEquals(ReferentialAction.CASCADE, result.getFirst().onDeleteAction());
+    }
+
+    @Test
+    void itPreservesOnUpdateActionWhenEnrichingNullability() {
+      final var foreignKey =
+          ForeignKey.builder()
+              .name("fk_user")
+              .sourceTable("orders")
+              .sourceColumn("user_id")
+              .targetTable("users")
+              .targetColumn("id")
+              .referencedSchema("public")
+              .onUpdateAction(ReferentialAction.RESTRICT)
+              .build();
+
+      final var column =
+          Column.builder()
+              .name("user_id")
+              .dataType("varchar")
+              .constraints(List.of(Constraint.NULLABLE))
+              .build();
+
+      final var result =
+          foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
+
+      assertEquals(ReferentialAction.RESTRICT, result.getFirst().onUpdateAction());
+    }
+
+    @Test
+    void itPreservesReferentialActionsWhenColumnNotFound() {
+      final var foreignKey =
+          ForeignKey.builder()
+              .name("fk_user")
+              .sourceTable("orders")
+              .sourceColumn("user_id")
+              .targetTable("users")
+              .targetColumn("id")
+              .referencedSchema("public")
+              .onDeleteAction(ReferentialAction.CASCADE)
+              .onUpdateAction(ReferentialAction.SET_NULL)
+              .build();
+
+      final var column =
+          Column.builder().name("other_column").dataType("varchar").constraints(List.of()).build();
+
+      final var result =
+          foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
+
+      final var preserved = result.getFirst();
+      assertEquals(ReferentialAction.CASCADE, preserved.onDeleteAction());
+      assertEquals(ReferentialAction.SET_NULL, preserved.onUpdateAction());
     }
   }
 }

@@ -9,6 +9,7 @@ import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.MaterializedView;
 import db.documenter.internal.models.db.PrimaryKey;
+import db.documenter.internal.models.db.ReferentialAction;
 import db.documenter.internal.models.db.Table;
 import db.documenter.internal.models.db.View;
 import db.documenter.internal.models.db.postgresql.UdtReference;
@@ -20,6 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * PostgreSQL-specific implementation of {@link ResultSetMapper}.
@@ -29,6 +32,8 @@ import java.util.Objects;
  * name; columns are enriched by the builder layer in a subsequent query.
  */
 public final class PostgresqlResultSetMapper implements ResultSetMapper {
+
+  private static final Logger LOGGER = Logger.getLogger(PostgresqlResultSetMapper.class.getName());
 
   @Override
   public List<Table> mapToTables(final ResultSet resultSet) throws SQLException {
@@ -149,6 +154,8 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
     final List<ForeignKey> foreignKeys = new ArrayList<>();
 
     while (resultSet.next()) {
+      final var onDeleteAction = decodeReferentialAction(resultSet.getString("on_delete_type"));
+      final var onUpdateAction = decodeReferentialAction(resultSet.getString("on_update_type"));
       foreignKeys.add(
           ForeignKey.builder()
               .name(resultSet.getString("constraint_name"))
@@ -157,10 +164,42 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
               .targetTable(resultSet.getString("referenced_table"))
               .targetColumn(resultSet.getString("referenced_column"))
               .referencedSchema(resultSet.getString("referenced_schema"))
+              .onDeleteAction(onDeleteAction)
+              .onUpdateAction(onUpdateAction)
               .build());
     }
 
     return foreignKeys;
+  }
+
+  /**
+   * Decodes a PostgreSQL {@code pg_constraint.confdeltype} or {@code confupdtype} character code
+   * into the corresponding {@link ReferentialAction}.
+   *
+   * <p>Unknown codes are logged at WARNING level and fall back to {@link
+   * ReferentialAction#NO_ACTION} to avoid failing the entire schema load for an unrecognised future
+   * PostgreSQL value.
+   *
+   * @param code the single-character code from {@code pg_catalog.pg_constraint}, may be null
+   * @return the decoded {@link ReferentialAction}; never null
+   */
+  private ReferentialAction decodeReferentialAction(final String code) {
+    if (code == null) {
+      return ReferentialAction.NO_ACTION;
+    }
+    return switch (code) {
+      case "a" -> ReferentialAction.NO_ACTION;
+      case "r" -> ReferentialAction.RESTRICT;
+      case "c" -> ReferentialAction.CASCADE;
+      case "n" -> ReferentialAction.SET_NULL;
+      case "d" -> ReferentialAction.SET_DEFAULT;
+      default -> {
+        if (LOGGER.isLoggable(Level.WARNING)) {
+          LOGGER.log(Level.WARNING, "Unknown referential action code: {0}", code);
+        }
+        yield ReferentialAction.NO_ACTION;
+      }
+    };
   }
 
   @Override

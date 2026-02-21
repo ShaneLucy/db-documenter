@@ -683,6 +683,8 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("referenced_table")).thenReturn(targetTable1);
       when(resultSet.getString("referenced_column")).thenReturn(targetColumn1);
       when(resultSet.getString("referenced_schema")).thenReturn("public");
+      when(resultSet.getString("on_delete_type")).thenReturn("a");
+      when(resultSet.getString("on_update_type")).thenReturn("a");
 
       final List<ForeignKey> result = postgresqlResultSetMapper.mapToForeignKeys(resultSet);
 
@@ -722,6 +724,8 @@ class PostgresqlResultSetMapperTest {
           .thenAnswer(invocation -> targetColumnIt.next());
       when(resultSet.getString("referenced_schema"))
           .thenAnswer(invocation -> referencedSchemaIt.next());
+      when(resultSet.getString("on_delete_type")).thenReturn("a");
+      when(resultSet.getString("on_update_type")).thenReturn("a");
 
       final List<ForeignKey> result = postgresqlResultSetMapper.mapToForeignKeys(resultSet);
 
