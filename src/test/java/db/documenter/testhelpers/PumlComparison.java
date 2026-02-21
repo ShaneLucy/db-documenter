@@ -1,4 +1,4 @@
-package db.documenter.testutils;
+package db.documenter.testhelpers;
 
 import static org.junit.jupiter.api.Assertions.fail;
 

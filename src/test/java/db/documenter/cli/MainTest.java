@@ -1,11 +1,11 @@
 package db.documenter.cli;
 
-import static db.documenter.testutils.PumlComparison.comparePumlLineByLine;
+import static db.documenter.testhelpers.PumlComparison.comparePumlLineByLine;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import db.documenter.internal.test.helpers.PostgresTestEnvironment;
+import db.documenter.testhelpers.PostgresTestEnvironment;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -219,7 +219,7 @@ class MainTest {
 
     @BeforeAll
     static void startContainer() throws SQLException, IOException {
-      POSTGRES_TEST_ENVIRONMENT.startContainer();
+      POSTGRES_TEST_ENVIRONMENT.startContainer(null);
       POSTGRES_TEST_ENVIRONMENT.initialiseDatabase(
           POSTGRES_TEST_ENVIRONMENT.getConnection(), "/sql-agnostic-multiple-schema.sql");
     }

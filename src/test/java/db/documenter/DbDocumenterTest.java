@@ -1,8 +1,8 @@
 package db.documenter;
 
-import static db.documenter.testutils.PumlComparison.comparePumlLineByLine;
+import static db.documenter.testhelpers.PumlComparison.comparePumlLineByLine;
 
-import db.documenter.internal.test.helpers.PostgresTestEnvironment;
+import db.documenter.testhelpers.PostgresTestEnvironment;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,7 +26,7 @@ class DbDocumenterTest {
 
       @BeforeAll
       static void containerSetUp() throws SQLException, IOException {
-        POSTGRES_TEST_ENVIRONMENT.startContainer();
+        POSTGRES_TEST_ENVIRONMENT.startContainer(null);
         connection = POSTGRES_TEST_ENVIRONMENT.getConnection();
         POSTGRES_TEST_ENVIRONMENT.initialiseDatabase(
             connection, "/postgresql/single-schema/postgresql-specific-single-schema.sql");
@@ -73,7 +73,7 @@ class DbDocumenterTest {
 
       @BeforeAll
       static void containerSetUp() throws SQLException, IOException {
-        POSTGRES_TEST_ENVIRONMENT.startContainer();
+        POSTGRES_TEST_ENVIRONMENT.startContainer(null);
         connection = POSTGRES_TEST_ENVIRONMENT.getConnection();
         POSTGRES_TEST_ENVIRONMENT.initialiseDatabase(
             connection, "/sql-agnostic-multiple-schema.sql");
@@ -120,7 +120,7 @@ class DbDocumenterTest {
 
       @BeforeAll
       static void containerSetUp() throws SQLException, IOException {
-        POSTGRES_TEST_ENVIRONMENT.startContainer();
+        POSTGRES_TEST_ENVIRONMENT.startContainer(null);
         connection = POSTGRES_TEST_ENVIRONMENT.getConnection();
         POSTGRES_TEST_ENVIRONMENT.initialiseDatabase(
             connection, "/postgresql/multiple-schema/postgresql-specific-multiple-schema.sql");

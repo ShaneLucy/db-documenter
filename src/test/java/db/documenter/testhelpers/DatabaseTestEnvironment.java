@@ -1,9 +1,10 @@
-package db.documenter.internal.test.helpers;
+package db.documenter.testhelpers;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.testcontainers.containers.JdbcDatabaseContainer;
+import org.testcontainers.containers.Network;
 
 public abstract class DatabaseTestEnvironment<T extends JdbcDatabaseContainer<T>> {
 
@@ -11,8 +12,8 @@ public abstract class DatabaseTestEnvironment<T extends JdbcDatabaseContainer<T>
   protected Connection connection;
   protected String sqlResourcePath;
 
-  public void startContainer() throws SQLException {
-    container = createContainer();
+  public void startContainer(final Network network) throws SQLException {
+    container = createContainer(network);
     container.start();
     connection = container.createConnection("");
   }
@@ -36,7 +37,7 @@ public abstract class DatabaseTestEnvironment<T extends JdbcDatabaseContainer<T>
     return this.container;
   }
 
-  protected abstract T createContainer();
+  protected abstract T createContainer(final Network network);
 
   protected void initialiseDatabase(final Connection connection, final String sqlResourcePath)
       throws SQLException, IOException {

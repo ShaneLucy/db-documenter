@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import db.documenter.internal.models.db.*;
 import db.documenter.internal.queries.impl.postgresql.preparedstatements.PostgresqlPreparedStatementMapper;
 import db.documenter.internal.queries.impl.postgresql.resultsets.PostgresqlResultSetMapper;
-import db.documenter.internal.test.helpers.PostgresTestEnvironment;
+import db.documenter.testhelpers.PostgresTestEnvironment;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -21,7 +21,7 @@ class PostgresqlQueryRunnerTest {
 
   @BeforeAll
   static void containerSetUp() throws SQLException, IOException {
-    POSTGRES_TEST_ENVIRONMENT.startContainer();
+    POSTGRES_TEST_ENVIRONMENT.startContainer(null);
     connection = POSTGRES_TEST_ENVIRONMENT.getConnection();
     POSTGRES_TEST_ENVIRONMENT.initialiseDatabase(
         connection, "/postgresql/single-schema/postgresql-specific-single-schema.sql");

@@ -1,4 +1,4 @@
-package db.documenter.internal.test.helpers;
+package db.documenter.testhelpers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,16 +7,24 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
+import org.testcontainers.containers.Network;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 public class PostgresTestEnvironment extends DatabaseTestEnvironment<PostgreSQLContainer> {
 
   @Override
-  protected PostgreSQLContainer createContainer() {
-    return new PostgreSQLContainer("postgres:15.3")
-        .withDatabaseName("testdb")
-        .withUsername("test")
-        .withPassword("test");
+  protected PostgreSQLContainer createContainer(final @Nullable Network network) {
+    final var postgresContainer =
+        new PostgreSQLContainer("postgres:15.3")
+            .withDatabaseName("testdb")
+            .withUsername("test")
+            .withPassword("test");
+
+    if (network != null) {
+      postgresContainer.withNetwork(network).withNetworkAliases("db");
+    }
+    return postgresContainer;
   }
 
   @Override
@@ -27,7 +35,6 @@ public class PostgresTestEnvironment extends DatabaseTestEnvironment<PostgreSQLC
         throw new IllegalArgumentException("SQL resource not found: " + sqlResourcePath);
       }
 
-      // Read entire file into a single string
       final String sql =
           new BufferedReader(new InputStreamReader(is)).lines().collect(Collectors.joining("\n"));
 
