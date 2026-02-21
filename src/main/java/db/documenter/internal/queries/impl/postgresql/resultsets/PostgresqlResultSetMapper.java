@@ -1,5 +1,7 @@
 package db.documenter.internal.queries.impl.postgresql.resultsets;
 
+import static db.documenter.internal.utils.LogUtils.sanitizeForLog;
+
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.ColumnKey;
 import db.documenter.internal.models.db.CompositeField;
@@ -195,7 +197,7 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
       case "d" -> ReferentialAction.SET_DEFAULT;
       default -> {
         if (LOGGER.isLoggable(Level.WARNING)) {
-          LOGGER.log(Level.WARNING, "Unknown referential action code: {0}", code);
+          LOGGER.log(Level.WARNING, "Unknown referential action code: {0}", sanitizeForLog(code));
         }
         yield ReferentialAction.NO_ACTION;
       }

@@ -118,6 +118,9 @@ public final class Main implements Callable<Integer> {
    * @return {@code 0} on success; {@code 1} for validation errors; {@code 2} for database errors;
    *     {@code 3} for unexpected errors
    */
+  // Suppressing SystemPrintln & AvoidCatchingGenericExceptio
+  // are acceptable here since this is the CLI entrypoint to the application
+  @SuppressWarnings({"PMD.SystemPrintln", "PMD.AvoidCatchingGenericException"})
   @Override
   public Integer call() {
     try {
