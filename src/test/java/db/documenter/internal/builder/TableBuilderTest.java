@@ -21,7 +21,7 @@ import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
 import db.documenter.internal.models.db.postgresql.EnumKey;
 import db.documenter.internal.models.db.postgresql.UdtReference;
-import db.documenter.internal.queries.api.QueryRunner;
+import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class TableBuilderTest {
 
-  @Mock private QueryRunner queryRunner;
+  @Mock private PostgresqlQueryRunner queryRunner;
   @Mock private ColumnMapper columnMapper;
   @Mock private ForeignKeyMapper foreignKeyMapper;
   @Mock private TableMapper tableMapper;
@@ -54,6 +54,7 @@ class TableBuilderTest {
     @Test
     void returnsEmptyListWhenNoTablesExist() throws SQLException {
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of());
+      when(queryRunner.getPartitionChildren("test_schema")).thenReturn(Map.of());
 
       final List<Table> result =
           tableBuilder.buildTables(queryRunner, "test_schema", Map.of(), Map.of());
@@ -122,6 +123,7 @@ class TableBuilderTest {
       final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of();
 
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of(table1, table2));
+      when(queryRunner.getPartitionChildren("test_schema")).thenReturn(Map.of());
 
       when(queryRunner.getColumnInfo("test_schema", table1.name())).thenReturn(List.of(rawColumn1));
       when(columnMapper.mapUserDefinedTypes(
@@ -200,6 +202,7 @@ class TableBuilderTest {
       final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of(columnKey, udtReference);
 
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of(table));
+      when(queryRunner.getPartitionChildren("test_schema")).thenReturn(Map.of());
       when(queryRunner.getColumnInfo("test_schema", table.name())).thenReturn(List.of(rawColumn));
       when(columnMapper.mapUserDefinedTypes(
               eq(List.of(rawColumn)), any(ColumnMappingContext.class)))
@@ -241,6 +244,7 @@ class TableBuilderTest {
           Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
 
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of(table));
+      when(queryRunner.getPartitionChildren("test_schema")).thenReturn(Map.of());
       when(queryRunner.getColumnInfo("test_schema", table.name()))
           .thenThrow(new SQLException("Failed to fetch columns"));
 

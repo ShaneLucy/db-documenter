@@ -64,7 +64,7 @@ When reviewing a PUML schema diagram, you will:
 
 5. **Best Practices Check**
    - Ensure consistent naming conventions throughout
-   - Verify that indexes are documented for performance-critical queries
+   - Verify that indexes are documented for performance-critical preparedStatements
    - Check for common anti-patterns (missing constraints, overly permissive nullability)
    - Validate that the diagram follows project-specific conventions
 

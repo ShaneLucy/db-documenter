@@ -4,9 +4,9 @@ package db.documenter.internal.models.db;
  * Represents the referential integrity action applied to dependent rows when the referenced row is
  * deleted or updated, as defined by the SQL standard.
  *
- * <p>These values correspond to the {@code confdeltype} and {@code confupdtype} character codes
- * stored in {@code pg_catalog.pg_constraint} for foreign key constraints. The decode logic from
- * PostgreSQL character codes to these enum values is handled by the result set mapper layer.
+ * <p>Values correspond to the ANSI {@code DELETE_RULE} and {@code UPDATE_RULE} strings exposed by
+ * {@code information_schema.referential_constraints}. The decode logic from these strings to enum
+ * values is handled by the result set mapper layer.
  *
  * @see ForeignKey
  */

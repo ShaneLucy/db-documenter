@@ -15,7 +15,7 @@ import db.documenter.internal.models.db.MaterializedView;
 import db.documenter.internal.models.db.View;
 import db.documenter.internal.models.db.postgresql.EnumKey;
 import db.documenter.internal.models.db.postgresql.UdtReference;
-import db.documenter.internal.queries.api.QueryRunner;
+import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ViewBuilderTest {
 
-  @Mock private QueryRunner queryRunner;
+  @Mock private PostgresqlQueryRunner queryRunner;
 
   private ViewBuilder viewBuilder;
 

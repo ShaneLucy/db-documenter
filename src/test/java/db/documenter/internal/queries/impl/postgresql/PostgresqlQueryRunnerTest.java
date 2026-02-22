@@ -31,7 +31,10 @@ class PostgresqlQueryRunnerTest {
   void setUp() {
     postgresqlQueryRunner =
         new PostgresqlQueryRunner(
-            new PostgresqlPreparedStatementMapper(), new PostgresqlResultSetMapper(), connection);
+            new PostgresqlPreparedStatements(),
+            new PostgresqlPreparedStatementMapper(),
+            new PostgresqlResultSetMapper(),
+            connection);
   }
 
   @AfterAll

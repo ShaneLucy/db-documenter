@@ -3,6 +3,7 @@ package db.documenter;
 import db.documenter.internal.builder.CompositeTypeBuilder;
 import db.documenter.internal.builder.EnumBuilder;
 import db.documenter.internal.builder.FormatterConfigurer;
+import db.documenter.internal.builder.PostgresqlSchemaBuilder;
 import db.documenter.internal.builder.SchemaBuilder;
 import db.documenter.internal.builder.TableBuilder;
 import db.documenter.internal.builder.ViewBuilder;
@@ -12,7 +13,6 @@ import db.documenter.internal.mapper.ColumnMapper;
 import db.documenter.internal.mapper.ForeignKeyMapper;
 import db.documenter.internal.mapper.TableMapper;
 import db.documenter.internal.models.db.Schema;
-import db.documenter.internal.queries.QueryRunnerFactory;
 import db.documenter.internal.renderer.impl.CompositeTypeRenderer;
 import db.documenter.internal.renderer.impl.EntityRenderer;
 import db.documenter.internal.renderer.impl.EnumRenderer;
@@ -39,7 +39,6 @@ public final class DbDocumenter {
 
     final ConnectionManager connectionManager =
         new ConnectionManagerFactory(dbDocumenterConfig).createConnectionManager();
-    final QueryRunnerFactory queryRunnerFactory = new QueryRunnerFactory(dbDocumenterConfig);
 
     final ColumnMapper columnMapper = new ColumnMapper();
     final ForeignKeyMapper foreignKeyMapper = new ForeignKeyMapper();
@@ -51,9 +50,9 @@ public final class DbDocumenter {
     final ViewBuilder viewBuilder = new ViewBuilder(columnMapper);
 
     this.schemaBuilder =
-        new SchemaBuilder(
+        new PostgresqlSchemaBuilder(
+            dbDocumenterConfig,
             connectionManager,
-            queryRunnerFactory,
             enumBuilder,
             compositeTypeBuilder,
             tableBuilder,

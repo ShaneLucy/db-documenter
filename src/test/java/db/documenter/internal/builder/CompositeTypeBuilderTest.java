@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import db.documenter.internal.models.db.CompositeField;
 import db.documenter.internal.models.db.DbCompositeType;
-import db.documenter.internal.queries.api.QueryRunner;
+import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
 import java.sql.SQLException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class CompositeTypeBuilderTest {
 
-  @Mock private QueryRunner queryRunner;
+  @Mock private PostgresqlQueryRunner queryRunner;
 
   private CompositeTypeBuilder compositeTypeBuilder;
 

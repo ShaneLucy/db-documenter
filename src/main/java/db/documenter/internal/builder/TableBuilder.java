@@ -12,7 +12,7 @@ import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
 import db.documenter.internal.models.db.postgresql.EnumKey;
 import db.documenter.internal.models.db.postgresql.UdtReference;
-import db.documenter.internal.queries.api.QueryRunner;
+import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
 import db.documenter.internal.utils.LogUtils;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public final class TableBuilder {
    * @throws SQLException if database access fails
    */
   public List<Table> buildTables(
-      final QueryRunner queryRunner,
+      final PostgresqlQueryRunner queryRunner,
       final String schema,
       final Map<EnumKey, DbEnum> enumsByKey,
       final Map<ColumnKey, UdtReference> columnUdtMappings)

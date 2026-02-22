@@ -1,7 +1,7 @@
 package db.documenter.internal.builder;
 
 import db.documenter.internal.models.db.DbCompositeType;
-import db.documenter.internal.queries.api.QueryRunner;
+import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
 import db.documenter.internal.utils.LogUtils;
 import java.sql.SQLException;
 import java.util.List;
@@ -42,7 +42,7 @@ public final class CompositeTypeBuilder {
    * @throws SQLException if database access fails or query execution errors occur
    */
   public List<DbCompositeType> buildCompositeTypes(
-      final QueryRunner queryRunner, final String schema) throws SQLException {
+      final PostgresqlQueryRunner queryRunner, final String schema) throws SQLException {
 
     if (LOGGER.isLoggable(Level.INFO)) {
       LOGGER.log(

@@ -2,7 +2,7 @@ package db.documenter.internal.builder;
 
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.postgresql.EnumKey;
-import db.documenter.internal.queries.api.QueryRunner;
+import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
 import db.documenter.internal.utils.LogUtils;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public final class EnumBuilder {
    * @return list of {@link DbEnum} instances
    * @throws SQLException if database access fails
    */
-  public List<DbEnum> buildEnums(final QueryRunner queryRunner, final String schema)
+  public List<DbEnum> buildEnums(final PostgresqlQueryRunner queryRunner, final String schema)
       throws SQLException {
     final List<DbEnum> dbEnums = queryRunner.getEnumInfo(schema);
 

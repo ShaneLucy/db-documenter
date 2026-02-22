@@ -209,7 +209,7 @@ Skills must be invoked at the start of code writing tasks to ensure standards ar
 -  Proper package organization (`internal.*` for implementation details)
 -  Logger with `isLoggable()` guards
 -  Try-with-resources for all `AutoCloseable` types
--  Parameterized SQL queries (never string concatenation)
+-  Parameterized SQL preparedStatements (never string concatenation)
 -  Modern Java features (text blocks, `var`, `List.of()`, `.getFirst()`)
 
 ### Test Code Must Have:

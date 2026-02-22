@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.postgresql.EnumKey;
-import db.documenter.internal.queries.api.QueryRunner;
+import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class EnumBuilderTest {
 
-  @Mock private QueryRunner queryRunner;
+  @Mock private PostgresqlQueryRunner queryRunner;
 
   private EnumBuilder enumBuilder;
 

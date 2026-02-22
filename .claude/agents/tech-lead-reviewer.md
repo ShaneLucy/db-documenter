@@ -60,7 +60,7 @@ When reviewing a completed plan:
    - Algorithmic complexity (O(n²) where O(n) exists)
    - Memory allocations in loops or hot paths
    - Unnecessary object creation
-   - Database query efficiency (N+1 queries, missing indices)
+   - Database query efficiency (N+1 preparedStatements, missing indices)
 5. **Security**:
    - Input validation at boundaries
    - SQL/command injection vulnerabilities

@@ -4,20 +4,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import db.documenter.DatabaseType;
+import db.documenter.DbDocumenterConfig;
 import db.documenter.internal.connection.api.ConnectionManager;
 import db.documenter.internal.models.db.ColumnKey;
 import db.documenter.internal.models.db.DbEnum;
 import db.documenter.internal.models.db.Schema;
 import db.documenter.internal.models.db.Table;
 import db.documenter.internal.models.db.postgresql.UdtReference;
-import db.documenter.internal.queries.QueryRunnerFactory;
-import db.documenter.internal.queries.api.QueryRunner;
+import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -32,31 +36,43 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SchemaBuilderTest {
 
   @Mock private ConnectionManager connectionManager;
-  @Mock private QueryRunnerFactory queryRunnerFactory;
   @Mock private EnumBuilder enumBuilder;
   @Mock private CompositeTypeBuilder compositeTypeBuilder;
   @Mock private TableBuilder tableBuilder;
   @Mock private ViewBuilder viewBuilder;
   @Mock private Connection connection;
-  @Mock private QueryRunner queryRunner;
+  @Mock private PreparedStatement preparedStatement;
+  @Mock private ResultSet resultSet;
 
   private SchemaBuilder schemaBuilder;
 
+  private static final DbDocumenterConfig CONFIG =
+      DbDocumenterConfig.builder()
+          .schemas(List.of("test_schema"))
+          .databaseHost("localhost")
+          .databasePort(5432)
+          .databaseName("testdb")
+          .useSsl(false)
+          .username("user")
+          .password("pass")
+          .databaseType(DatabaseType.POSTGRESQL)
+          .build();
+
   @BeforeEach
-  void setUp() {
+  void setUp() throws SQLException {
     reset(
         connectionManager,
-        queryRunnerFactory,
         enumBuilder,
         compositeTypeBuilder,
         tableBuilder,
         viewBuilder,
         connection,
-        queryRunner);
+        preparedStatement,
+        resultSet);
     schemaBuilder =
-        new SchemaBuilder(
+        new PostgresqlSchemaBuilder(
+            CONFIG,
             connectionManager,
-            queryRunnerFactory,
             enumBuilder,
             compositeTypeBuilder,
             tableBuilder,
@@ -87,19 +103,26 @@ class SchemaBuilderTest {
 
       final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of();
 
+      // The PostgresqlQueryRunner calls connection.prepareStatement for getColumnUdtMappings.
+      // All other query calls are handled by the mocked builders.
       when(connectionManager.getConnection()).thenReturn(connection);
-      when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
-      when(enumBuilder.buildEnums(queryRunner, "test_schema")).thenReturn(List.of(dbEnum));
-      when(compositeTypeBuilder.buildCompositeTypes(queryRunner, "test_schema"))
+      when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+      when(preparedStatement.executeQuery()).thenReturn(resultSet);
+      when(resultSet.next()).thenReturn(false);
+
+      when(enumBuilder.buildEnums(any(PostgresqlQueryRunner.class), eq("test_schema")))
+          .thenReturn(List.of(dbEnum));
+      when(compositeTypeBuilder.buildCompositeTypes(
+              any(PostgresqlQueryRunner.class), eq("test_schema")))
           .thenReturn(List.of());
-      when(queryRunner.getColumnUdtMappings("test_schema")).thenReturn(columnUdtMappings);
       when(tableBuilder.buildTables(
-              eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+              any(PostgresqlQueryRunner.class), eq("test_schema"), any(), any()))
           .thenReturn(List.of(table));
-      when(viewBuilder.buildViews(eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+      when(viewBuilder.buildViews(
+              any(PostgresqlQueryRunner.class), eq("test_schema"), any(), any()))
           .thenReturn(List.of());
       when(viewBuilder.buildMaterializedViews(
-              eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+              any(PostgresqlQueryRunner.class), eq("test_schema"), any(), any()))
           .thenReturn(List.of());
 
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("test_schema"));
@@ -112,7 +135,6 @@ class SchemaBuilderTest {
       assertTrue(result.getFirst().materializedViews().isEmpty());
 
       verify(connection).close();
-      verify(queryRunner).getColumnUdtMappings("test_schema");
     }
 
     @Test
@@ -127,32 +149,35 @@ class SchemaBuilderTest {
       final Table table2 =
           Table.builder().name("orders").columns(List.of()).foreignKeys(List.of()).build();
 
-      final Map<ColumnKey, UdtReference> columnUdtMappings1 = Map.of();
-      final Map<ColumnKey, UdtReference> columnUdtMappings2 = Map.of();
-
       when(connectionManager.getConnection()).thenReturn(connection);
-      when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
+      when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+      when(preparedStatement.executeQuery()).thenReturn(resultSet);
+      when(resultSet.next()).thenReturn(false);
 
-      when(enumBuilder.buildEnums(queryRunner, "schema1")).thenReturn(List.of(dbEnum1));
-      when(compositeTypeBuilder.buildCompositeTypes(queryRunner, "schema1")).thenReturn(List.of());
-      when(queryRunner.getColumnUdtMappings("schema1")).thenReturn(columnUdtMappings1);
-      when(tableBuilder.buildTables(eq(queryRunner), eq("schema1"), any(), eq(columnUdtMappings1)))
+      when(enumBuilder.buildEnums(any(PostgresqlQueryRunner.class), eq("schema1")))
+          .thenReturn(List.of(dbEnum1));
+      when(compositeTypeBuilder.buildCompositeTypes(
+              any(PostgresqlQueryRunner.class), eq("schema1")))
+          .thenReturn(List.of());
+      when(tableBuilder.buildTables(any(PostgresqlQueryRunner.class), eq("schema1"), any(), any()))
           .thenReturn(List.of(table1));
-      when(viewBuilder.buildViews(eq(queryRunner), eq("schema1"), any(), eq(columnUdtMappings1)))
+      when(viewBuilder.buildViews(any(PostgresqlQueryRunner.class), eq("schema1"), any(), any()))
           .thenReturn(List.of());
       when(viewBuilder.buildMaterializedViews(
-              eq(queryRunner), eq("schema1"), any(), eq(columnUdtMappings1)))
+              any(PostgresqlQueryRunner.class), eq("schema1"), any(), any()))
           .thenReturn(List.of());
 
-      when(enumBuilder.buildEnums(queryRunner, "schema2")).thenReturn(List.of(dbEnum2));
-      when(compositeTypeBuilder.buildCompositeTypes(queryRunner, "schema2")).thenReturn(List.of());
-      when(queryRunner.getColumnUdtMappings("schema2")).thenReturn(columnUdtMappings2);
-      when(tableBuilder.buildTables(eq(queryRunner), eq("schema2"), any(), eq(columnUdtMappings2)))
+      when(enumBuilder.buildEnums(any(PostgresqlQueryRunner.class), eq("schema2")))
+          .thenReturn(List.of(dbEnum2));
+      when(compositeTypeBuilder.buildCompositeTypes(
+              any(PostgresqlQueryRunner.class), eq("schema2")))
+          .thenReturn(List.of());
+      when(tableBuilder.buildTables(any(PostgresqlQueryRunner.class), eq("schema2"), any(), any()))
           .thenReturn(List.of(table2));
-      when(viewBuilder.buildViews(eq(queryRunner), eq("schema2"), any(), eq(columnUdtMappings2)))
+      when(viewBuilder.buildViews(any(PostgresqlQueryRunner.class), eq("schema2"), any(), any()))
           .thenReturn(List.of());
       when(viewBuilder.buildMaterializedViews(
-              eq(queryRunner), eq("schema2"), any(), eq(columnUdtMappings2)))
+              any(PostgresqlQueryRunner.class), eq("schema2"), any(), any()))
           .thenReturn(List.of());
 
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("schema1", "schema2"));
@@ -171,21 +196,24 @@ class SchemaBuilderTest {
       final Table table =
           Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
 
-      final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of();
-
       when(connectionManager.getConnection()).thenReturn(connection);
-      when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
-      when(enumBuilder.buildEnums(queryRunner, "test_schema")).thenReturn(List.of());
-      when(compositeTypeBuilder.buildCompositeTypes(queryRunner, "test_schema"))
+      when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+      when(preparedStatement.executeQuery()).thenReturn(resultSet);
+      when(resultSet.next()).thenReturn(false);
+
+      when(enumBuilder.buildEnums(any(PostgresqlQueryRunner.class), eq("test_schema")))
           .thenReturn(List.of());
-      when(queryRunner.getColumnUdtMappings("test_schema")).thenReturn(columnUdtMappings);
+      when(compositeTypeBuilder.buildCompositeTypes(
+              any(PostgresqlQueryRunner.class), eq("test_schema")))
+          .thenReturn(List.of());
       when(tableBuilder.buildTables(
-              eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+              any(PostgresqlQueryRunner.class), eq("test_schema"), any(), any()))
           .thenReturn(List.of(table));
-      when(viewBuilder.buildViews(eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+      when(viewBuilder.buildViews(
+              any(PostgresqlQueryRunner.class), eq("test_schema"), any(), any()))
           .thenReturn(List.of());
       when(viewBuilder.buildMaterializedViews(
-              eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+              any(PostgresqlQueryRunner.class), eq("test_schema"), any(), any()))
           .thenReturn(List.of());
 
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("test_schema"));
@@ -204,21 +232,24 @@ class SchemaBuilderTest {
               .enumValues(List.of())
               .build();
 
-      final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of();
-
       when(connectionManager.getConnection()).thenReturn(connection);
-      when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
-      when(enumBuilder.buildEnums(queryRunner, "test_schema")).thenReturn(List.of(dbEnum));
-      when(compositeTypeBuilder.buildCompositeTypes(queryRunner, "test_schema"))
+      when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+      when(preparedStatement.executeQuery()).thenReturn(resultSet);
+      when(resultSet.next()).thenReturn(false);
+
+      when(enumBuilder.buildEnums(any(PostgresqlQueryRunner.class), eq("test_schema")))
+          .thenReturn(List.of(dbEnum));
+      when(compositeTypeBuilder.buildCompositeTypes(
+              any(PostgresqlQueryRunner.class), eq("test_schema")))
           .thenReturn(List.of());
-      when(queryRunner.getColumnUdtMappings("test_schema")).thenReturn(columnUdtMappings);
       when(tableBuilder.buildTables(
-              eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+              any(PostgresqlQueryRunner.class), eq("test_schema"), any(), any()))
           .thenReturn(List.of());
-      when(viewBuilder.buildViews(eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+      when(viewBuilder.buildViews(
+              any(PostgresqlQueryRunner.class), eq("test_schema"), any(), any()))
           .thenReturn(List.of());
       when(viewBuilder.buildMaterializedViews(
-              eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+              any(PostgresqlQueryRunner.class), eq("test_schema"), any(), any()))
           .thenReturn(List.of());
 
       final List<Schema> result = schemaBuilder.buildSchemas(List.of("test_schema"));
@@ -231,8 +262,7 @@ class SchemaBuilderTest {
     @Test
     void closesConnectionEvenWhenExceptionOccurs() throws SQLException {
       when(connectionManager.getConnection()).thenReturn(connection);
-      when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
-      when(enumBuilder.buildEnums(queryRunner, "test_schema"))
+      when(enumBuilder.buildEnums(any(PostgresqlQueryRunner.class), eq("test_schema")))
           .thenThrow(new SQLException("Database error"));
 
       assertThrows(SQLException.class, () -> schemaBuilder.buildSchemas(List.of("test_schema")));
@@ -243,8 +273,7 @@ class SchemaBuilderTest {
     @Test
     void propagatesSQLExceptionFromEnumBuilder() throws SQLException {
       when(connectionManager.getConnection()).thenReturn(connection);
-      when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
-      when(enumBuilder.buildEnums(queryRunner, "test_schema"))
+      when(enumBuilder.buildEnums(any(PostgresqlQueryRunner.class), eq("test_schema")))
           .thenThrow(new SQLException("Failed to build enums"));
 
       final SQLException exception =
@@ -256,16 +285,18 @@ class SchemaBuilderTest {
 
     @Test
     void propagatesSQLExceptionFromTableBuilder() throws SQLException {
-      final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of();
-
       when(connectionManager.getConnection()).thenReturn(connection);
-      when(queryRunnerFactory.createQueryRunner(connection)).thenReturn(queryRunner);
-      when(enumBuilder.buildEnums(queryRunner, "test_schema")).thenReturn(List.of());
-      when(compositeTypeBuilder.buildCompositeTypes(queryRunner, "test_schema"))
+      when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+      when(preparedStatement.executeQuery()).thenReturn(resultSet);
+      when(resultSet.next()).thenReturn(false);
+
+      when(enumBuilder.buildEnums(any(PostgresqlQueryRunner.class), eq("test_schema")))
           .thenReturn(List.of());
-      when(queryRunner.getColumnUdtMappings("test_schema")).thenReturn(columnUdtMappings);
+      when(compositeTypeBuilder.buildCompositeTypes(
+              any(PostgresqlQueryRunner.class), eq("test_schema")))
+          .thenReturn(List.of());
       when(tableBuilder.buildTables(
-              eq(queryRunner), eq("test_schema"), any(), eq(columnUdtMappings)))
+              any(PostgresqlQueryRunner.class), eq("test_schema"), any(), any()))
           .thenThrow(new SQLException("Failed to build tables"));
 
       final SQLException exception =

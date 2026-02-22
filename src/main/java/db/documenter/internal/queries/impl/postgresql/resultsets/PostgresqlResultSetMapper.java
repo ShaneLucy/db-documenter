@@ -1,210 +1,41 @@
 package db.documenter.internal.queries.impl.postgresql.resultsets;
 
-import static db.documenter.internal.utils.LogUtils.sanitizeForLog;
-
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.ColumnKey;
 import db.documenter.internal.models.db.CompositeField;
-import db.documenter.internal.models.db.Constraint;
 import db.documenter.internal.models.db.DbCompositeType;
 import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.MaterializedView;
-import db.documenter.internal.models.db.PrimaryKey;
-import db.documenter.internal.models.db.ReferentialAction;
-import db.documenter.internal.models.db.Table;
-import db.documenter.internal.models.db.View;
 import db.documenter.internal.models.db.postgresql.UdtReference;
-import db.documenter.internal.queries.api.ResultSetMapper;
+import db.documenter.internal.queries.AbstractResultSetMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- * PostgreSQL-specific implementation of {@link ResultSetMapper}.
+ * PostgreSQL-specific implementation of {@link db.documenter.internal.queries.api.ResultSetMapper}.
  *
  * <p>Extracts column values from PostgreSQL metadata result sets and constructs immutable domain
  * records. Methods that return stub objects (tables, views, materialized views) populate only the
  * name; columns are enriched by the builder layer in a subsequent query.
+ *
+ * <p>All five generic mapping methods ({@code mapToTables}, {@code mapToPrimaryKey}, {@code
+ * mapToViews}, {@code mapToForeignKeys}, {@code mapToColumns}) are inherited from {@link
+ * AbstractResultSetMapper}. This class provides the seven PostgreSQL-specific mapping methods for
+ * enums, UDT mappings, composite types, materialized views, and partition children.
  */
-public final class PostgresqlResultSetMapper implements ResultSetMapper {
-
-  private static final Logger LOGGER = Logger.getLogger(PostgresqlResultSetMapper.class.getName());
-
-  @Override
-  public List<Table> mapToTables(final ResultSet resultSet) throws SQLException {
-    final List<Table> tables = new ArrayList<>();
-    while (resultSet.next()) {
-      final var partitionKey = resultSet.getString("partition_key");
-      tables.add(
-          Table.builder()
-              .name(resultSet.getString("table_name"))
-              .columns(List.of())
-              .foreignKeys(List.of())
-              .partitionStrategy(partitionKey)
-              .build());
-    }
-    return tables;
-  }
-
-  @Override
-  public List<Column> mapToColumns(final ResultSet resultSet) throws SQLException {
-    final List<Column> columns = new ArrayList<>();
-    while (resultSet.next()) {
-      final List<Constraint> constraints = buildConstraints(resultSet);
-      final String dataType = resolveDataType(resultSet);
-
-      final var compositeUniqueConstraintName =
-          resultSet.getString("composite_unique_constraint_name");
-      columns.add(
-          Column.builder()
-              .name(resultSet.getString("column_name"))
-              .dataType(dataType)
-              .maximumLength(resultSet.getInt("character_maximum_length"))
-              .constraints(constraints)
-              .compositeUniqueConstraintName(compositeUniqueConstraintName)
-              .build());
-    }
-    return columns;
-  }
+public final class PostgresqlResultSetMapper extends AbstractResultSetMapper {
 
   /**
-   * Resolves the display data type for a column, applying NUMERIC precision/scale formatting.
+   * Maps result set rows to {@link DbEnum} stub objects containing the schema and name.
    *
-   * <p>Array types are already converted to the {@code element_type[]} form by the SQL query.
-   * NUMERIC columns with explicit precision and scale are formatted as {@code numeric(p,s)} to
-   * preserve schema-defined constraints in the generated diagram.
-   *
-   * @param resultSet the current result set row
-   * @return the resolved data type string for display
+   * @param resultSet the result set positioned before the first row
+   * @return list of enum stubs (values empty); never null, may be empty
    * @throws SQLException if a database access error occurs
    */
-  private String resolveDataType(final ResultSet resultSet) throws SQLException {
-    final var dataType = resultSet.getString("data_type");
-    final var isNumericDataType = "numeric".equals(dataType);
-
-    if (isNumericDataType) {
-      final var precision = resultSet.getObject("numeric_precision", Integer.class);
-      final var scale = resultSet.getObject("numeric_scale", Integer.class);
-      if (precision != null && scale != null) {
-        return "numeric(" + precision + "," + scale + ")";
-      }
-    }
-
-    return dataType;
-  }
-
-  private List<Constraint> buildConstraints(final ResultSet resultSet) throws SQLException {
-    final List<Constraint> constraints = new ArrayList<>();
-
-    if (resultSet.getBoolean("is_unique")) {
-      constraints.add(Constraint.UNIQUE);
-    }
-
-    final var checkConstraint = resultSet.getString("check_constraint");
-    if (checkConstraint != null && !checkConstraint.isBlank()) {
-      constraints.add(Constraint.CHECK);
-    }
-
-    final var defaultValue = resultSet.getString("column_default");
-    if (defaultValue != null && !defaultValue.isBlank()) {
-      constraints.add(Constraint.DEFAULT);
-    }
-
-    if (resultSet.getBoolean("is_auto_increment")) {
-      constraints.add(Constraint.AUTO_INCREMENT);
-    }
-
-    if (Objects.equals(resultSet.getString("is_nullable"), "YES")) {
-      constraints.add(Constraint.NULLABLE);
-    }
-
-    if (Objects.equals(resultSet.getString("is_generated"), "ALWAYS")) {
-      constraints.add(Constraint.GENERATED);
-    }
-
-    return constraints;
-  }
-
-  @Override
-  public PrimaryKey mapToPrimaryKey(final ResultSet resultSet) throws SQLException {
-    if (!resultSet.next()) {
-      return null;
-    }
-
-    final var primaryKeyBuilder =
-        PrimaryKey.builder().constraintName(resultSet.getString("constraint_name"));
-
-    final List<String> columnNames = new ArrayList<>();
-    columnNames.add(resultSet.getString("column_name"));
-
-    while (resultSet.next()) {
-      columnNames.add(resultSet.getString("column_name"));
-    }
-
-    return primaryKeyBuilder.columnNames(columnNames).build();
-  }
-
-  @Override
-  public List<ForeignKey> mapToForeignKeys(final ResultSet resultSet) throws SQLException {
-    final List<ForeignKey> foreignKeys = new ArrayList<>();
-
-    while (resultSet.next()) {
-      final var onDeleteAction = decodeReferentialAction(resultSet.getString("on_delete_type"));
-      final var onUpdateAction = decodeReferentialAction(resultSet.getString("on_update_type"));
-      foreignKeys.add(
-          ForeignKey.builder()
-              .name(resultSet.getString("constraint_name"))
-              .sourceTable(resultSet.getString("source_table_name"))
-              .sourceColumn(resultSet.getString("source_column"))
-              .targetTable(resultSet.getString("referenced_table"))
-              .targetColumn(resultSet.getString("referenced_column"))
-              .referencedSchema(resultSet.getString("referenced_schema"))
-              .onDeleteAction(onDeleteAction)
-              .onUpdateAction(onUpdateAction)
-              .build());
-    }
-
-    return foreignKeys;
-  }
-
-  /**
-   * Decodes a PostgreSQL {@code pg_constraint.confdeltype} or {@code confupdtype} character code
-   * into the corresponding {@link ReferentialAction}.
-   *
-   * <p>Unknown codes are logged at WARNING level and fall back to {@link
-   * ReferentialAction#NO_ACTION} to avoid failing the entire schema load for an unrecognised future
-   * PostgreSQL value.
-   *
-   * @param code the single-character code from {@code pg_catalog.pg_constraint}, may be null
-   * @return the decoded {@link ReferentialAction}; never null
-   */
-  private ReferentialAction decodeReferentialAction(final String code) {
-    if (code == null) {
-      return ReferentialAction.NO_ACTION;
-    }
-    return switch (code) {
-      case "a" -> ReferentialAction.NO_ACTION;
-      case "r" -> ReferentialAction.RESTRICT;
-      case "c" -> ReferentialAction.CASCADE;
-      case "n" -> ReferentialAction.SET_NULL;
-      case "d" -> ReferentialAction.SET_DEFAULT;
-      default -> {
-        if (LOGGER.isLoggable(Level.WARNING)) {
-          LOGGER.log(Level.WARNING, "Unknown referential action code: {0}", sanitizeForLog(code));
-        }
-        yield ReferentialAction.NO_ACTION;
-      }
-    };
-  }
-
-  @Override
   public List<DbEnum> mapToDbEnumInfo(final ResultSet resultSet) throws SQLException {
     final List<DbEnum> dbEnums = new ArrayList<>();
 
@@ -219,7 +50,13 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
     return dbEnums;
   }
 
-  @Override
+  /**
+   * Maps result set rows to ordered enum label strings.
+   *
+   * @param resultSet the result set positioned before the first row
+   * @return ordered list of enum value labels; never null, may be empty
+   * @throws SQLException if a database access error occurs
+   */
   public List<String> mapToDbEnumValues(final ResultSet resultSet) throws SQLException {
     final List<String> dbEnumValues = new ArrayList<>();
 
@@ -230,7 +67,6 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
     return dbEnumValues;
   }
 
-  @Override
   // ColumnKey and UdtReference are only created when a new mapping is encountered.
   // This is standard Java pattern for mapping database rows to domain objects.
   // PMD wants ConcurrentHashMap, but this is a local variable with no concurrent access.
@@ -255,7 +91,6 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
     return mappings;
   }
 
-  @Override
   // CompositeField objects are created for each attribute row.
   // LinkedHashMap preserves insertion order and is not accessed concurrently.
   @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseConcurrentHashMap"})
@@ -298,16 +133,14 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
     return compositeTypeBuilders.values().stream().map(DbCompositeType.Builder::build).toList();
   }
 
-  @Override
-  public List<View> mapToViews(final ResultSet resultSet) throws SQLException {
-    final List<View> views = new ArrayList<>();
-    while (resultSet.next()) {
-      views.add(View.builder().name(resultSet.getString("table_name")).columns(List.of()).build());
-    }
-    return views;
-  }
-
-  @Override
+  /**
+   * Maps result set rows to stub {@link db.documenter.internal.models.db.MaterializedView} objects
+   * containing only the view name.
+   *
+   * @param resultSet the result set positioned before the first row
+   * @return list of materialized view stubs (columns empty); never null, may be empty
+   * @throws SQLException if a database access error occurs
+   */
   public List<MaterializedView> mapToMaterializedViews(final ResultSet resultSet)
       throws SQLException {
     final List<MaterializedView> materializedViews = new ArrayList<>();
@@ -321,12 +154,20 @@ public final class PostgresqlResultSetMapper implements ResultSetMapper {
     return materializedViews;
   }
 
-  @Override
+  /**
+   * Maps result set rows for a materialized view to {@link Column} objects.
+   *
+   * <p>Delegates to {@link #mapToColumns(ResultSet)} since materialized view columns share the same
+   * result set shape as regular table columns when queried via the pg_catalog path.
+   *
+   * @param resultSet the result set positioned before the first row
+   * @return list of columns; never null, may be empty
+   * @throws SQLException if a database access error occurs
+   */
   public List<Column> mapToMaterializedViewColumns(final ResultSet resultSet) throws SQLException {
     return mapToColumns(resultSet);
   }
 
-  @Override
   // Partition names are created for each row as the result set is iterated.
   // LinkedHashMap preserves insertion order (parent table declaration order) and is not
   // accessed concurrently.

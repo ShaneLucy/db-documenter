@@ -60,7 +60,7 @@ Use `final` extensively:
 Use modern Java syntax and features targeting Java 25:
 
 **Modern Java Rules:**
-- Use text blocks (`"""`) for multi-line strings (SQL queries, JSON, etc.)
+- Use text blocks (`"""`) for multi-line strings (SQL preparedStatements, JSON, etc.)
 - Use `var` for local variables when type is obvious from right side
 - Use `List.of()`, `Set.of()`, `Map.of()` for immutable collections
 - Use `List.copyOf()` for defensive copying
@@ -207,13 +207,13 @@ Keep interfaces focused and clean:
 Use text blocks for SQL with consistent formatting:
 
 **SQL Query Rules:**
-- Use text blocks (`"""`) for all SQL queries
+- Use text blocks (`"""`) for all SQL preparedStatements
 - Declare as `private static final String`
 - Use UPPERCASE for SQL keywords
 - Use lowercase for column/table names
 - Indent properly (2 spaces)
 - Align JOIN conditions
-- Use parameterized queries (?) for safety
+- Use parameterized preparedStatements (?) for safety
 - One query per constant
 - Name constants descriptively: `GET_COLUMN_INFO_QUERY`
 
@@ -250,7 +250,7 @@ ALL resources implementing AutoCloseable MUST be properly closed:
 
 **PreparedStatement Rules:**
 - ALWAYS use PreparedStatements (never Statement)
-- Use parameterized queries with ? placeholders (prevents SQL injection)
+- Use parameterized preparedStatements with ? placeholders (prevents SQL injection)
 - NEVER concatenate user input into SQL strings
 - Close PreparedStatements in try-with-resources
 - Reuse PreparedStatement instances when executing same query multiple times
@@ -331,7 +331,7 @@ When writing non-test Java code, ensure:
 - ✅ Logger with `isLoggable()` guards
 - ✅ Checked exceptions declared in signatures
 - ✅ Utility classes are final with private constructor
-- ✅ SQL queries in text blocks with parameterization
+- ✅ SQL preparedStatements in text blocks with parameterization
 - ✅ Clean interfaces with thorough documentation
 - ✅ Descriptive naming (no abbreviations)
 
@@ -347,7 +347,7 @@ When writing non-test Java code, ensure:
 ❌ **No usage examples** - Include `<pre>{@code ... }</pre>` examples
 ❌ **Logging without guards** - Always check `isLoggable()` first
 ❌ **Non-final parameters** - Use `final` on all method parameters
-❌ **String concatenation in SQL** - Use parameterized queries with `?`
+❌ **String concatenation in SQL** - Use parameterized preparedStatements with `?`
 ❌ **Generic Exception catching** - Catch specific exception types
 ❌ **Missing package-info.java** - Document each package
 ❌ **Abbreviations in names** - Use full descriptive words
