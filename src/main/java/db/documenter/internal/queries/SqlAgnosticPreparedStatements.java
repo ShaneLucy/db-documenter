@@ -49,8 +49,7 @@ public abstract sealed class SqlAgnosticPreparedStatements implements PreparedSt
   private static final String TABLE_INFO_QUERY =
       """
            SELECT
-             table_name,
-             NULL AS partition_key
+             table_name
            FROM information_schema.tables
            WHERE table_schema = ?
              AND table_type = 'BASE TABLE'

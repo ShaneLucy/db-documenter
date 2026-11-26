@@ -9,10 +9,10 @@ import java.sql.SQLException;
  * db.documenter.internal.queries.api.PreparedStatementMapper}.
  *
  * <p>Provides parameter binding for the PostgreSQL-specific metadata queries (enums, enum values,
- * column UDT mappings, and partition children). The four generic bindings (table info, column info,
- * primary key info, foreign key info) are inherited from {@link AbstractPreparedStatementMapper}
- * and follow the convention: schema is always parameter 1; the object name (table, enum name) is
- * parameter 2 when present.
+ * and column UDT mappings). The four generic bindings (table info, column info, primary key info,
+ * foreign key info) are inherited from {@link AbstractPreparedStatementMapper} and follow the
+ * convention: schema is always parameter 1; the object name (table, enum name) is parameter 2 when
+ * present.
  */
 public final class PostgresqlPreparedStatementMapper extends AbstractPreparedStatementMapper {
 
@@ -51,18 +51,6 @@ public final class PostgresqlPreparedStatementMapper extends AbstractPreparedSta
    * @throws SQLException if a database access error occurs
    */
   public void prepareColumnUdtMappingsStatement(
-      final PreparedStatement preparedStatement, final String schema) throws SQLException {
-    preparedStatement.setString(1, schema);
-  }
-
-  /**
-   * Binds parameters for the partition children query.
-   *
-   * @param preparedStatement the statement to bind parameters on
-   * @param schema the schema name
-   * @throws SQLException if a database access error occurs
-   */
-  public void preparePartitionChildrenStatement(
       final PreparedStatement preparedStatement, final String schema) throws SQLException {
     preparedStatement.setString(1, schema);
   }

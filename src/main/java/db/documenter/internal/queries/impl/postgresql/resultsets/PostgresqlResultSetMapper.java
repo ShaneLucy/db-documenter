@@ -20,8 +20,7 @@ import java.util.Map;
  *
  * <p>All four generic mapping methods ({@code mapToTables}, {@code mapToPrimaryKey}, {@code
  * mapToForeignKeys}, {@code mapToColumns}) are inherited from {@link AbstractResultSetMapper}. This
- * class provides PostgreSQL-specific mapping methods for enums, UDT mappings, and partition
- * children.
+ * class provides PostgreSQL-specific mapping methods for enums and UDT mappings.
  */
 public final class PostgresqlResultSetMapper extends AbstractResultSetMapper {
 
@@ -85,20 +84,5 @@ public final class PostgresqlResultSetMapper extends AbstractResultSetMapper {
     }
 
     return mappings;
-  }
-
-  // Partition names are created for each row as the result set is iterated.
-  // LinkedHashMap preserves insertion order (parent table declaration order) and is not
-  // accessed concurrently.
-  @SuppressWarnings({"PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseConcurrentHashMap"})
-  public Map<String, List<String>> mapToPartitionChildren(final ResultSet resultSet)
-      throws SQLException {
-    final Map<String, List<String>> result = new LinkedHashMap<>();
-    while (resultSet.next()) {
-      final var tableName = resultSet.getString("table_name");
-      final var partitionName = resultSet.getString("partition_name");
-      result.computeIfAbsent(tableName, k -> new ArrayList<>()).add(partitionName);
-    }
-    return result;
   }
 }

@@ -14,8 +14,8 @@ import java.sql.SQLException;
  * PostgreSQL extensions to {@code information_schema}. Queries portable across ANSI SQL-compatible
  * engines ({@code primaryKeyInfoQuery}, {@code foreignKeyInfoQuery}) are inherited from {@link
  * SqlAgnosticPreparedStatements}. The {@code tableInfoQuery} override retained here augments the
- * ANSI base with partition filtering ({@code relispartition = false}) and partition key derivation
- * ({@code pg_get_partkeydef}) that have no ANSI equivalent.
+ * ANSI base with partition-child filtering ({@code relispartition = false}), which has no ANSI
+ * equivalent.
  *
  * @see SqlAgnosticPreparedStatements
  */
@@ -24,8 +24,7 @@ public final class PostgresqlPreparedStatements extends SqlAgnosticPreparedState
   private static final String GET_TABLE_INFO_QUERY =
       """
                  SELECT
-                   t.table_name,
-                   CASE WHEN c.relkind = 'p' THEN pg_get_partkeydef(c.oid) ELSE NULL END AS partition_key
+                   t.table_name
                  FROM information_schema.tables t
                  JOIN pg_catalog.pg_class c ON c.relname = t.table_name
                  JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace AND n.nspname = t.table_schema
@@ -107,20 +106,6 @@ public final class PostgresqlPreparedStatements extends SqlAgnosticPreparedState
           ORDER BY c.table_name, c.ordinal_position;
           """;
 
-  private static final String GET_PARTITION_CHILDREN_QUERY =
-      """
-           SELECT
-               p.relname AS table_name,
-               c.relname AS partition_name
-           FROM pg_class p
-           JOIN pg_namespace n ON n.oid = p.relnamespace
-           JOIN pg_inherits i ON i.inhparent = p.oid
-           JOIN pg_class c ON c.oid = i.inhrelid
-           WHERE n.nspname = ?
-             AND p.relkind = 'p'
-           ORDER BY p.relname, c.relname;
-           """;
-
   @Override
   public PreparedStatement tableInfoPreparedStatement(final Connection connection)
       throws SQLException {
@@ -146,10 +131,5 @@ public final class PostgresqlPreparedStatements extends SqlAgnosticPreparedState
   public PreparedStatement columnUdtMappingsPreparedStatement(final Connection connection)
       throws SQLException {
     return connection.prepareStatement(GET_COLUMN_ENUM_MAPPINGS_QUERY);
-  }
-
-  public PreparedStatement partitionChildrenPreparedStatement(final Connection connection)
-      throws SQLException {
-    return connection.prepareStatement(GET_PARTITION_CHILDREN_QUERY);
   }
 }

@@ -41,9 +41,9 @@ Done when:
 | A | Reconcile coding-standards skills (docs only) | DONE |
 | B | ERD Phase 1 (views/composites/mat-views removed) — verify | DONE |
 | C | ERD Phase 2: constraint stereotypes, referential actions, `Column.isNullable` → compiles, green, **commit B+C** | DONE |
-| D | ERD Phase 3: remove partition info | NEXT |
-| E | ERD Phase 4: Schema model cleanup verification | NOT STARTED |
-| G | Null safety: Error Prone + NullAway in build (before new API is written) | NOT STARTED |
+| D | ERD Phase 3: remove partition info | DONE |
+| E | ERD Phase 4: Schema model cleanup verification | DONE |
+| G | Null safety: Error Prone + NullAway in build (before new API is written) | NEXT |
 | F | ERD Phase 5: `DiagramResult`, enum diagram, CLI two-file output | NOT STARTED |
 | H | Release readiness (workflow, version, manifest, README, LICENSE, git hygiene) | NOT STARTED |
 | I | Final `tech-lead-reviewer` review; fix findings; final `mvn clean verify` | NOT STARTED |

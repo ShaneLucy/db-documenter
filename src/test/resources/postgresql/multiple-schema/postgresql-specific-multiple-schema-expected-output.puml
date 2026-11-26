@@ -297,7 +297,7 @@ package "core" {
 }
 
 package "analytics" {
-	entity "daily_project_stats" <<partitioned: RANGE (stat_date)>> {
+	entity "daily_project_stats" {
 		**stat_date: date**
 		**project_id: uuid**
 		--
@@ -320,7 +320,6 @@ package "analytics" {
 		active_member_ids: uuid[]
 		computed_at: timestamp with time zone
 	}
-	' Partitions: daily_project_stats_2024_q4, daily_project_stats_2025_q1, daily_project_stats_2025_q2, daily_project_stats_default
 
 	entity "user_activity_summary" {
 		**user_id: uuid** <<FK>>
@@ -352,7 +351,7 @@ package "audit" {
 		bulk_operation
 	}
 
-	entity "audit_log" <<partitioned: RANGE (event_time)>> {
+	entity "audit_log" {
 		**id: bigint**
 		**event_time: timestamp with time zone**
 		--
@@ -371,7 +370,6 @@ package "audit" {
 		request_id: uuid
 		correlation_id: uuid
 	}
-	' Partitions: audit_log_2024_11, audit_log_2024_12, audit_log_2025_01, audit_log_default
 
 	entity "entity_changes" {
 		**id: bigint**

@@ -11,9 +11,8 @@ import java.util.List;
  * Contract for querying the common database metadata required to build schema documentation.
  *
  * <p>Defines the four operations shared across all supported database engines: tables, columns,
- * primary keys, and foreign keys. Engine-specific operations (e.g., enums, composite types,
- * materialized views, partitions) are declared on concrete subclasses and are not part of this
- * interface.
+ * primary keys, and foreign keys. Engine-specific operations (e.g., enums) are declared on concrete
+ * subclasses and are not part of this interface.
  *
  * <p><b>Design Note:</b> Methods that accept a {@code tableName} string rather than a {@link Table}
  * object are intentional — the query layer should not depend on partially-constructed domain

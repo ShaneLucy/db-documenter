@@ -20,7 +20,7 @@ import java.util.Objects;
  * mapping logic is portable across ANSI SQL-compatible engines:
  *
  * <ul>
- *   <li>{@link #mapToTables(ResultSet)} — reads {@code table_name} and {@code partition_key}
+ *   <li>{@link #mapToTables(ResultSet)} — reads {@code table_name}
  *   <li>{@link #mapToPrimaryKey(ResultSet)} — reads {@code constraint_name} and {@code column_name}
  *   <li>{@link #mapToForeignKeys(ResultSet)} — reads ANSI {@code information_schema} FK columns
  *   <li>{@link #mapToColumns(ResultSet)} — reads ANSI {@code information_schema.columns} fields
@@ -41,13 +41,11 @@ public abstract sealed class AbstractResultSetMapper implements ResultSetMapper
   public List<Table> mapToTables(final ResultSet resultSet) throws SQLException {
     final List<Table> tables = new ArrayList<>();
     while (resultSet.next()) {
-      final var partitionKey = resultSet.getString("partition_key");
       tables.add(
           Table.builder()
               .name(resultSet.getString("table_name"))
               .columns(List.of())
               .foreignKeys(List.of())
-              .partitionStrategy(partitionKey)
               .build());
     }
     return tables;

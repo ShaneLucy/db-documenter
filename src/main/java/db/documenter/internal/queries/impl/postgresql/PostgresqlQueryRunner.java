@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  *
  * <p>The four generic methods ({@code getTableInfo}, {@code getColumnInfo}, {@code
  * getPrimaryKeyInfo}, {@code getForeignKeyInfo}) are inherited from {@link AbstractQueryRunner}.
- * This class contributes PostgreSQL-specific operations for enums, UDT mappings, and partitions.
+ * This class contributes PostgreSQL-specific operations for enums and UDT mappings.
  *
  * <p><b>Resource Management:</b> All {@link java.sql.PreparedStatement} and {@link
  * java.sql.ResultSet} instances are managed with try-with-resources to guarantee closure even on
@@ -157,36 +157,6 @@ public final class PostgresqlQueryRunner extends AbstractQueryRunner {
         }
 
         return columnUdtMappings;
-      }
-    }
-  }
-
-  /**
-   * Retrieves the child partition names for all partitioned tables in the specified schema.
-   *
-   * @param schema the schema to query for partition children
-   * @return map from parent table name to ordered list of partition child names; never null, may be
-   *     empty
-   * @throws SQLException if the database query fails
-   */
-  public Map<String, List<String>> getPartitionChildren(final String schema) throws SQLException {
-    try (final var preparedStatement =
-        postgresqlQueries.partitionChildrenPreparedStatement(postgresqlConnection)) {
-      postgresqlPreparedStatementMapper.preparePartitionChildrenStatement(
-          preparedStatement, schema);
-
-      try (final var resultSet = preparedStatement.executeQuery()) {
-        final Map<String, List<String>> partitionChildren =
-            postgresqlResultSetMapper.mapToPartitionChildren(resultSet);
-
-        if (LOGGER.isLoggable(Level.INFO)) {
-          LOGGER.log(
-              Level.INFO,
-              "Discovered: {0} partition entries in schema: {1}",
-              new Object[] {partitionChildren.size(), LogUtils.sanitizeForLog(schema)});
-        }
-
-        return partitionChildren;
       }
     }
   }

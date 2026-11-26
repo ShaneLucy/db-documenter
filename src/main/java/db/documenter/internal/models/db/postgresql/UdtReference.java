@@ -5,10 +5,9 @@ import db.documenter.internal.validation.Validators;
 /**
  * Reference to a PostgreSQL user-defined type (UDT) identified by schema and type name.
  *
- * <p>Represents the location where a UDT (such as an enum or composite type) is defined in the
- * database. This is used to resolve cross-schema type references, ensuring that columns correctly
- * reference their defining types even when the type is defined in a different schema than the table
- * using it.
+ * <p>Represents the location where a UDT (such as an enum) is defined in the database. This is used
+ * to resolve cross-schema type references, ensuring that columns correctly reference their defining
+ * types even when the type is defined in a different schema than the table using it.
  *
  * <p><b>Immutability:</b> This record is immutable and thread-safe.
  *

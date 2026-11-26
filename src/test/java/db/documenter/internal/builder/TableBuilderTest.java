@@ -54,7 +54,6 @@ class TableBuilderTest {
     @Test
     void returnsEmptyListWhenNoTablesExist() throws SQLException {
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of());
-      when(queryRunner.getPartitionChildren("test_schema")).thenReturn(Map.of());
 
       final List<Table> result =
           tableBuilder.buildTables(queryRunner, "test_schema", Map.of(), Map.of());
@@ -143,7 +142,6 @@ class TableBuilderTest {
       final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of();
 
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of(table1, table2));
-      when(queryRunner.getPartitionChildren("test_schema")).thenReturn(Map.of());
 
       when(queryRunner.getColumnInfo("test_schema", table1.name())).thenReturn(List.of(rawColumn1));
       when(columnMapper.mapUserDefinedTypes(
@@ -156,7 +154,7 @@ class TableBuilderTest {
       when(columnMapper.enrichWithForeignKeyConstraints(List.of(mappedColumn1), List.of()))
           .thenReturn(List.of(mappedColumn1));
       when(tableMapper.combineTableComponents(
-              "users", List.of(mappedColumn1), primaryKey, List.of(), null, List.of()))
+              "users", List.of(mappedColumn1), primaryKey, List.of()))
           .thenReturn(builtTable1);
 
       when(queryRunner.getColumnInfo("test_schema", table2.name())).thenReturn(List.of(rawColumn2));
@@ -172,12 +170,7 @@ class TableBuilderTest {
               List.of(mappedColumn2), List.of(rawForeignKey)))
           .thenReturn(List.of(mappedColumn2));
       when(tableMapper.combineTableComponents(
-              "orders",
-              List.of(mappedColumn2),
-              primaryKey,
-              List.of(enrichedForeignKey),
-              null,
-              List.of()))
+              "orders", List.of(mappedColumn2), primaryKey, List.of(enrichedForeignKey)))
           .thenReturn(builtTable2);
 
       final List<Table> result =
@@ -232,7 +225,6 @@ class TableBuilderTest {
       final Map<ColumnKey, UdtReference> columnUdtMappings = Map.of(columnKey, udtReference);
 
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of(table));
-      when(queryRunner.getPartitionChildren("test_schema")).thenReturn(Map.of());
       when(queryRunner.getColumnInfo("test_schema", table.name())).thenReturn(List.of(rawColumn));
       when(columnMapper.mapUserDefinedTypes(
               eq(List.of(rawColumn)), any(ColumnMappingContext.class)))
@@ -244,7 +236,7 @@ class TableBuilderTest {
       when(columnMapper.enrichWithForeignKeyConstraints(List.of(mappedColumn), List.of()))
           .thenReturn(List.of(mappedColumn));
       when(tableMapper.combineTableComponents(
-              "users", List.of(mappedColumn), primaryKey, List.of(), null, List.of()))
+              "users", List.of(mappedColumn), primaryKey, List.of()))
           .thenReturn(builtTable);
 
       final List<Table> result =
@@ -274,7 +266,6 @@ class TableBuilderTest {
           Table.builder().name("users").columns(List.of()).foreignKeys(List.of()).build();
 
       when(queryRunner.getTableInfo("test_schema")).thenReturn(List.of(table));
-      when(queryRunner.getPartitionChildren("test_schema")).thenReturn(Map.of());
       when(queryRunner.getColumnInfo("test_schema", table.name()))
           .thenThrow(new SQLException("Failed to fetch columns"));
 

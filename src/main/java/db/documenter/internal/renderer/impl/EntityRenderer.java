@@ -19,13 +19,7 @@ public final class EntityRenderer implements PumlRenderer<Table> {
   public String render(final Table table) {
     final var stringBuilder = new StringBuilder();
 
-    if (table.partitionStrategy() != null) {
-      stringBuilder.append(
-          String.format(
-              "\tentity \"%s\" <<partitioned: %s>> {%n", table.name(), table.partitionStrategy()));
-    } else {
-      stringBuilder.append(String.format("\tentity \"%s\" {%n", table.name()));
-    }
+    stringBuilder.append(String.format("\tentity \"%s\" {%n", table.name()));
 
     final List<String> primaryKeyNames =
         table.primaryKey().map(PrimaryKey::columnNames).orElse(List.of());
@@ -55,11 +49,6 @@ public final class EntityRenderer implements PumlRenderer<Table> {
         });
 
     stringBuilder.append("\t}\n");
-
-    if (!table.partitionNames().isEmpty()) {
-      stringBuilder.append(
-          String.format("\t' Partitions: %s%n", String.join(", ", table.partitionNames())));
-    }
 
     return stringBuilder.toString();
   }

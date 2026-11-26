@@ -54,7 +54,6 @@ public final class TableBuilder {
       final Map<ColumnKey, UdtReference> columnUdtMappings)
       throws SQLException {
     final List<Table> tables = queryRunner.getTableInfo(schema);
-    final Map<String, List<String>> partitionChildren = queryRunner.getPartitionChildren(schema);
 
     if (LOGGER.isLoggable(Level.INFO)) {
       LOGGER.log(Level.INFO, "Building tables for schema: {0}", LogUtils.sanitizeForLog(schema));
@@ -83,13 +82,7 @@ public final class TableBuilder {
           columnMapper.enrichWithForeignKeyConstraints(columnsWithEnumTypes, rawForeignKeys);
 
       result.add(
-          tableMapper.combineTableComponents(
-              table.name(),
-              columns,
-              primaryKey,
-              foreignKeys,
-              table.partitionStrategy(),
-              partitionChildren.getOrDefault(table.name(), List.of())));
+          tableMapper.combineTableComponents(table.name(), columns, primaryKey, foreignKeys));
     }
 
     return result;
