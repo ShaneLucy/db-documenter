@@ -110,6 +110,7 @@ class TableBuilderTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final ForeignKey enrichedForeignKey =

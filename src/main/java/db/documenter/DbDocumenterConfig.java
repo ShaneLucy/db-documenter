@@ -4,7 +4,29 @@ import db.documenter.internal.validation.Validators;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
 
-/** Configuration object for {@link DbDocumenter} application. */
+/**
+ * Connection and scope settings for a {@link DbDocumenter} run.
+ *
+ * <p><b>Immutability:</b> This record is immutable and thread-safe; the schema list is defensively
+ * copied.
+ *
+ * <p><b>Validation:</b> Performed in the compact constructor. Any violation throws an {@link
+ * IllegalArgumentException} (a {@code ValidationException} internally) naming the offending
+ * property. Defaults for port, SSL and database type are applied by {@link Builder} only; the
+ * canonical constructor requires every value explicitly.
+ *
+ * <p><b>Secrets:</b> {@link #toString()} masks the password, but {@link #equals(Object)} and {@link
+ * #hashCode()} are the record defaults and therefore include it.
+ *
+ * @param schemas names of the schemas to document; at least 1, no null elements
+ * @param databaseHost database host name; not blank
+ * @param databasePort database port; between 1 and 65535
+ * @param databaseName database name; not blank
+ * @param useSsl whether the connection uses SSL
+ * @param username user used to connect; not blank
+ * @param password password of that user; not blank
+ * @param databaseType the kind of database being documented; not null
+ */
 public record DbDocumenterConfig(
     List<String> schemas,
     String databaseHost,
@@ -16,20 +38,15 @@ public record DbDocumenterConfig(
     DatabaseType databaseType) {
 
   /**
-   * Validates the required configuration fields.
+   * Validates every component and defensively copies the schema list.
    *
-   * @param schemas A {@link List} of schema names. at least 1 schema must be provided.
-   * @param databaseHost The database host name, must not be blank.
-   * @param databasePort The database port, defaults to 5432.
-   * @param databaseName The database name, must not be blank.
-   * @param useSsl If the database connection should use ssl, defaults to TRUE.
-   * @param username The username of the user used to connect to the database, must not be blank.
-   * @param password The password of the user used to connect to the database, must not be blank.
-   * @param databaseType The type of database being used, defaults to Postgresql
+   * @throws IllegalArgumentException if any component is missing, blank or out of range
    */
   public DbDocumenterConfig {
     Validators.containsAtLeast1Item(schemas, "schemas");
+    Validators.containsNoNullElements(schemas, "schemas");
     Validators.isNotBlank(databaseHost, "databaseHost");
+    Validators.isValidPort(databasePort, "databasePort");
     Validators.isNotBlank(databaseName, "databaseName");
     Validators.isNotBlank(username, "username");
     Validators.isNotBlank(password, "password");
@@ -37,12 +54,34 @@ public record DbDocumenterConfig(
     schemas = List.copyOf(schemas);
   }
 
-  /** Convenience utility for creating {@link DbDocumenterConfig} object. */
+  /**
+   * Returns a representation that masks the password so the configuration is safe to log.
+   *
+   * @return a string describing this configuration with {@code password=****}
+   */
+  @Override
+  public String toString() {
+    return ("DbDocumenterConfig[schemas=%s, databaseHost=%s, databasePort=%d, databaseName=%s,"
+            + " useSsl=%s, username=%s, password=****, databaseType=%s]")
+        .formatted(
+            schemas, databaseHost, databasePort, databaseName, useSsl, username, databaseType);
+  }
+
+  /**
+   * Creates a new builder for {@link DbDocumenterConfig}.
+   *
+   * @return a builder with defaults of port 5432, SSL enabled and PostgreSQL
+   */
   public static Builder builder() {
     return new Builder();
   }
 
-  /** Convenience utility for creating {@link DbDocumenterConfig} object. */
+  /**
+   * Builder for constructing {@link DbDocumenterConfig} instances using a fluent API.
+   *
+   * <p>Defaults: port 5432, SSL enabled, {@link DatabaseType#POSTGRESQL}. Host, database name,
+   * username, password and schemas are required.
+   */
   public static final class Builder {
     private @Nullable List<String> schemas;
     private @Nullable String databaseHost;
@@ -53,102 +92,59 @@ public record DbDocumenterConfig(
     private @Nullable String password;
     private DatabaseType databaseType = DatabaseType.POSTGRESQL;
 
-    /**
-     * Convenience method for supplying a {@link DbDocumenterConfig} object with a list of schema
-     * names.
-     *
-     * @param schemas A {@link List} of schema names. at least 1 schema must be provided.
-     * @return {@link DbDocumenterConfig}
-     */
+    /** Returns this builder for method chaining. */
     public Builder schemas(final List<String> schemas) {
-      this.schemas = List.copyOf(schemas);
+      this.schemas = schemas;
       return this;
     }
 
-    /**
-     * Convenience method for supplying a {@link DbDocumenterConfig} object with a database host
-     * name.
-     *
-     * @param databaseHost The database host name, must not be blank.
-     * @return {@link DbDocumenterConfig}
-     */
+    /** Returns this builder for method chaining. */
     public Builder databaseHost(final String databaseHost) {
       this.databaseHost = databaseHost;
       return this;
     }
 
-    /**
-     * Convenience method for supplying a {@link DbDocumenterConfig} object with a database port.
-     *
-     * @param databasePort The database port, defaults to 5432.
-     * @return {@link DbDocumenterConfig}
-     */
+    /** Returns this builder for method chaining; the port defaults to 5432. */
     public Builder databasePort(final int databasePort) {
       this.databasePort = databasePort;
       return this;
     }
 
-    /**
-     * Convenience method for supplying a {@link DbDocumenterConfig} object with a database name.
-     *
-     * @param databaseName The database name, must not be blank.
-     * @return {@link DbDocumenterConfig}
-     */
+    /** Returns this builder for method chaining. */
     public Builder databaseName(final String databaseName) {
       this.databaseName = databaseName;
       return this;
     }
 
-    /**
-     * Convenience method for configuring a {@link DbDocumenterConfig} object to use ssl.
-     *
-     * @param useSsl If the database connection should use ssl, defaults to TRUE.
-     * @return {@link DbDocumenterConfig}
-     */
+    /** Returns this builder for method chaining; SSL defaults to enabled. */
     public Builder useSsl(final boolean useSsl) {
       this.useSsl = useSsl;
       return this;
     }
 
-    /**
-     * Convenience method for supplying a {@link DbDocumenterConfig} object with a username.
-     *
-     * @param username The username of the user used to connect to the database, must not be blank.
-     * @return {@link DbDocumenterConfig}
-     */
+    /** Returns this builder for method chaining. */
     public Builder username(final String username) {
       this.username = username;
       return this;
     }
 
-    /**
-     * Convenience method for supplying a {@link DbDocumenterConfig} object with a password.
-     *
-     * @param password The password of the user used to connect to the database, must not be blank.
-     * @return {@link Builder}
-     */
+    /** Returns this builder for method chaining. */
     public Builder password(final String password) {
       this.password = password;
       return this;
     }
 
-    /**
-     * Convenience method for supplying a {@link DbDocumenterConfig} object with a {@link
-     * DatabaseType}.
-     *
-     * @param databaseType The type of database to connect to.
-     * @return {@link Builder}
-     */
+    /** Returns this builder for method chaining; the type defaults to PostgreSQL. */
     public Builder databaseType(final DatabaseType databaseType) {
       this.databaseType = databaseType;
       return this;
     }
 
     /**
-     * Creates a {@link DbDocumenterConfig} from the parameters provided to the {@link Builder}.
-     * Also validates the provided properties
+     * Builds the configuration.
      *
-     * @return {@link DbDocumenterConfig}
+     * @return a new validated {@link DbDocumenterConfig}
+     * @throws IllegalArgumentException if a required value is missing or any value is invalid
      */
     public DbDocumenterConfig build() {
       return new DbDocumenterConfig(

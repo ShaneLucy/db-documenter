@@ -96,10 +96,11 @@ class CompositeEntityLineFormatterTest {
     }
 
     @Test
-    void handlesNullFormatterListAsEmpty() {
-      final var composite = new CompositeEntityLineFormatter(null);
-      final var result = composite.format(table, column, "val");
-      assertEquals("val", result);
+    void itThrowsExceptionWhenFormatterListIsNull() {
+      final var exception =
+          assertThrows(ValidationException.class, () -> new CompositeEntityLineFormatter(null));
+
+      assertEquals("lineFormatters must not be null", exception.getMessage());
     }
 
     @Test

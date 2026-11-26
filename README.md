@@ -23,7 +23,8 @@ views, defaults, check constraints and similar details are left out (see [What's
 docker pull ghcr.io/shanelucy/db-documenter:latest
 ```
 
-Images are tagged `latest`, the full version (e.g. `0.2.0`) and `major.minor` (e.g. `0.2`).
+Images are tagged `latest`, the full version (e.g. `0.2.0`), `major.minor` (e.g. `0.2`) and the
+short commit SHA. Pin a full version in CI so you get reproducible output.
 
 ### Standalone jar
 
@@ -87,8 +88,10 @@ extension:
 | `docs/erd`                | `docs/erd_enums`                |
 | `out/v1.2/model.puml`     | `out/v1.2/model_enums.puml`     |
 
-If no documented schema has enums, no enum file is written, and any `*_enums` file left over from a
-previous run is deleted so the two files never come from different runs.
+If no documented schema has enums, no enum file is written. An enum diagram left over from a
+previous run is deleted, so the two files never come from different runs. A file is treated as
+db-documenter output only if it starts with `@startuml`. Any other file at that path, including a
+directory, is left alone and you get a warning on stderr.
 
 ### Options
 
@@ -110,7 +113,7 @@ previous run is deleted so the two files never come from different runs.
 | Code | Meaning |
 |:----:|---------|
 | `0`  | Success |
-| `1`  | Configuration or validation error, such as a missing or blank option |
+| `1`  | Invalid command line: a missing, blank or malformed option (e.g. `--port=abc`) |
 | `2`  | Database error, such as a refused connection or failed authentication |
 | `3`  | Unexpected error, including failure to write or delete an output file. If the ERD was written and the enum file then failed, the ERD file is left in place. |
 
@@ -335,6 +338,11 @@ rejected, so databases that use them are still documented.
 - Column defaults, `CHECK` constraints, generated and identity columns, and comments
 - `ON DELETE` / `ON UPDATE` referential actions
 - Unique constraint names
+
+### Known limitations
+
+- Enum labels are written to the diagram as-is. A label that is itself PlantUML syntax, such as
+  `--`, `..`, `==` or `}`, can break the rendering of the enum diagram.
 
 ---
 

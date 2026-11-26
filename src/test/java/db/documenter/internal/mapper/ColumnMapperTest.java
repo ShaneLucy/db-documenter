@@ -1,7 +1,6 @@
 package db.documenter.internal.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import db.documenter.internal.models.db.Column;
@@ -308,6 +307,7 @@ class ColumnMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final List<Column> result =
@@ -337,6 +337,7 @@ class ColumnMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final List<Column> result =
@@ -380,6 +381,7 @@ class ColumnMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final ForeignKey foreignKey2 =
@@ -390,6 +392,7 @@ class ColumnMapperTest {
               .targetTable("products")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final List<Column> result =
@@ -414,7 +417,7 @@ class ColumnMapperTest {
     }
 
     @Test
-    void isCaseInsensitiveWhenMatchingColumnNames() {
+    void itMatchesColumnNamesCaseSensitively() {
       final Column column =
           Column.builder()
               .isNullable(false)
@@ -431,6 +434,7 @@ class ColumnMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final List<Column> result =
@@ -438,8 +442,7 @@ class ColumnMapperTest {
 
       assertEquals(1, result.size());
       assertEquals("USER_ID", result.getFirst().name());
-      assertFalse(result.getFirst().constraints().isEmpty());
-      assertEquals(Constraint.FK, result.getFirst().constraints().getFirst());
+      assertTrue(result.getFirst().constraints().isEmpty());
     }
 
     @ParameterizedTest
@@ -455,6 +458,7 @@ class ColumnMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final List<Column> result =
@@ -483,6 +487,7 @@ class ColumnMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final List<Column> result =

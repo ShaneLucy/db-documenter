@@ -35,6 +35,7 @@ class CompositeMultiplicityFormatterTest {
             .targetTable("target")
             .targetColumn("id")
             .referencedSchema("public")
+            .isNullable(false)
             .build();
   }
 
@@ -95,10 +96,11 @@ class CompositeMultiplicityFormatterTest {
     }
 
     @Test
-    void handlesNullFormatterListAsEmpty() {
-      final var composite = new CompositeMultiplicityFormatter(null);
-      final var result = composite.format(foreignKey, "public", "val");
-      assertEquals("val", result);
+    void itThrowsExceptionWhenFormatterListIsNull() {
+      final var exception =
+          assertThrows(ValidationException.class, () -> new CompositeMultiplicityFormatter(null));
+
+      assertEquals("formatters must not be null", exception.getMessage());
     }
 
     @Test

@@ -38,7 +38,6 @@ public record DbEnum(String schemaName, String enumName, List<String> enumValues
   public DbEnum {
     Validators.isNotBlank(schemaName, "schemaName");
     Validators.isNotBlank(enumName, "enumName");
-    Validators.isNotNull(enumValues, "enumValues");
     Validators.containsNoNullElements(enumValues, "enumValues");
     enumValues = List.copyOf(enumValues);
   }
@@ -99,16 +98,11 @@ public record DbEnum(String schemaName, String enumName, List<String> enumValues
     /**
      * Sets the allowed enum values.
      *
-     * <p><b>Defensive Copying:</b> The provided list is defensively copied to ensure immutability.
-     *
-     * @param enumValues the {@link List} of {@link String} values (defensively copied)
+     * @param enumValues the {@link List} of {@link String} values; copied when the enum is built
      * @return this builder instance for method chaining
      */
     public Builder enumValues(final List<String> enumValues) {
-      Validators.isNotNull(enumValues, "enumValues");
-      Validators.containsNoNullElements(enumValues, "enumValues");
-
-      this.enumValues = List.copyOf(enumValues);
+      this.enumValues = enumValues;
       return this;
     }
 

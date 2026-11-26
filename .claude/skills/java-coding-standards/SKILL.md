@@ -36,6 +36,8 @@ All models MUST provide a builder:
 - All setter methods return `this` for method chaining
 - Setter method signature: `public Builder fieldName(final Type fieldName)` (non-null by default via `@NullMarked`; use `final @Nullable Type` only for optional fields)
 - Defensive copying happens once, in the record's compact constructor — builder setters just assign
+  (SpotBugs `EI_EXPOSE_REP2` is excluded for `*$Builder` classes in `spotbugs-exclude.xml` for
+  this reason; do not add per-setter suppressions)
 - NO default values - all fields must be explicitly set - except for public api facing objects
 - `build()` method constructs the record (validation happens in compact constructor)
 - Document with Javadoc including `@return this builder instance for method chaining`
@@ -318,6 +320,10 @@ Use JSpecify annotations, enforced at compile time by Error Prone + NullAway:
 - **Builders:** builder fields are `@Nullable` (they are null until set). `build()` passes each
   required field through `Validators.isNotNull(field, "field")`, which returns its argument, so
   the record constructor receives non-null values. The compact constructor still validates.
+- **Don't chain calls on a `Validators.*` result** (`isNotNull(x).toString()`). NullAway accepts it,
+  but SpotBugs analyses bytecode and can't see that the result is non-null, so it reports
+  `NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE`. Use an explicit `if (x == null) throw ...` on a local
+  variable before dereferencing. Passing the result straight to a constructor is fine.
 - **Framework-injected fields** (picocli `@Option`): required options use
   `@SuppressWarnings("NullAway.Init")` with a comment; optional ones are `@Nullable` and null-checked
 - A NullAway error is a build failure; fix the code rather than suppressing

@@ -3,9 +3,10 @@ package db.documenter.cli;
 import static db.documenter.testhelpers.PumlComparison.comparePumlLineByLine;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import db.documenter.DiagramResult;
+import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.testhelpers.PostgresTestEnvironment;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
@@ -47,7 +49,7 @@ class MainTest {
   class ArgumentParsingTests {
 
     @Test
-    void whenHostIsMissingReturnsNonZeroExitCode() {
+    void whenHostIsMissingReturnsInvalidInputExitCode() {
       final var exitCode =
           new CommandLine(new Main())
               .execute(
@@ -56,11 +58,11 @@ class MainTest {
                   "--password", "pass",
                   "--schemas", "public");
 
-      assertNotEquals(0, exitCode);
+      assertEquals(1, exitCode);
     }
 
     @Test
-    void whenDatabaseIsMissingReturnsNonZeroExitCode() {
+    void whenDatabaseIsMissingReturnsInvalidInputExitCode() {
       final var exitCode =
           new CommandLine(new Main())
               .execute(
@@ -69,11 +71,11 @@ class MainTest {
                   "--password", "pass",
                   "--schemas", "public");
 
-      assertNotEquals(0, exitCode);
+      assertEquals(1, exitCode);
     }
 
     @Test
-    void whenUsernameIsMissingReturnsNonZeroExitCode() {
+    void whenUsernameIsMissingReturnsInvalidInputExitCode() {
       final var exitCode =
           new CommandLine(new Main())
               .execute(
@@ -82,11 +84,11 @@ class MainTest {
                   "--password", "pass",
                   "--schemas", "public");
 
-      assertNotEquals(0, exitCode);
+      assertEquals(1, exitCode);
     }
 
     @Test
-    void whenSchemaIsMissingReturnsNonZeroExitCode() {
+    void whenSchemaIsMissingReturnsInvalidInputExitCode() {
       final var exitCode =
           new CommandLine(new Main())
               .execute(
@@ -95,7 +97,183 @@ class MainTest {
                   "--username", "user",
                   "--password", "pass");
 
-      assertNotEquals(0, exitCode);
+      assertEquals(1, exitCode);
+    }
+  }
+
+  @Nested
+  class InvalidOptionValueTests {
+
+    @Test
+    void whenPortIsNotANumberReturnsInvalidInputExitCode() {
+      final var exitCode =
+          new CommandLine(new Main())
+              .execute(
+                  "--host",
+                  "localhost",
+                  "--port=abc",
+                  "--database",
+                  "mydb",
+                  "--username",
+                  "user",
+                  "--password",
+                  "pass",
+                  "--schemas",
+                  "public");
+
+      assertEquals(1, exitCode);
+    }
+
+    @Test
+    void whenPortIsOutOfRangeReturnsInvalidInputExitCodeWithMessage() {
+      final var captured =
+          captureStderr(
+              () ->
+                  new CommandLine(new Main())
+                      .execute(
+                          "--host",
+                          "localhost",
+                          "--port=70000",
+                          "--database",
+                          "mydb",
+                          "--username",
+                          "user",
+                          "--password",
+                          "pass",
+                          "--schemas",
+                          "public"));
+
+      assertEquals(1, captured.exitCode());
+      assertTrue(
+          captured
+              .stderr()
+              .contains("Configuration error: databasePort must be between 1 and 65535"));
+    }
+  }
+
+  @Nested
+  class OutputHandlingTests {
+
+    private static final String[] BASE_ARGS = {
+      "--host", "localhost",
+      "--database", "mydb",
+      "--username", "user",
+      "--password", "pass",
+      "--schemas", "public",
+      "--ssl=false"
+    };
+
+    private int execute(final Main main, final Path erdFile) {
+      final var args = new ArrayList<>(List.of(BASE_ARGS));
+      args.add("--output");
+      args.add(erdFile.toString());
+      return new CommandLine(main).execute(args.toArray(String[]::new));
+    }
+
+    private Main mainReturning(final DiagramResult result) {
+      return new Main(config -> result);
+    }
+
+    private DiagramResult erdOnly() {
+      return DiagramResult.builder().erdDiagram("@startuml\n@enduml\n").build();
+    }
+
+    @Test
+    void itLeavesNonDbDocumenterEnumFileInPlaceAndWarns(@TempDir final Path tempDir)
+        throws IOException {
+      final var erdFile = tempDir.resolve("diagram.puml");
+      final var userFile = tempDir.resolve("diagram_enums.puml");
+      Files.writeString(userFile, "my own notes");
+
+      final var captured = captureStderr(() -> execute(mainReturning(erdOnly()), erdFile));
+
+      assertEquals(0, captured.exitCode());
+      assertEquals("my own notes", Files.readString(userFile));
+      assertEquals(
+          "Warning: "
+              + userFile
+              + " exists but was not written by db-documenter; leaving it in place"
+              + System.lineSeparator(),
+          captured.stderr());
+    }
+
+    @Test
+    void itDeletesStaleDbDocumenterEnumFileWithoutWarning(@TempDir final Path tempDir)
+        throws IOException {
+      final var erdFile = tempDir.resolve("diagram.puml");
+      final var staleFile = tempDir.resolve("diagram_enums.puml");
+      Files.writeString(staleFile, "\n\n@startuml\npackage \"public\" {}\n@enduml\n");
+
+      final var captured = captureStderr(() -> execute(mainReturning(erdOnly()), erdFile));
+
+      assertEquals(0, captured.exitCode());
+      assertFalse(Files.exists(staleFile));
+      assertEquals("", captured.stderr());
+    }
+
+    @Test
+    void itDoesNotFailWhenADirectoryExistsAtTheEnumPath(@TempDir final Path tempDir)
+        throws IOException {
+      final var erdFile = tempDir.resolve("diagram.puml");
+      final var directory = Files.createDirectory(tempDir.resolve("diagram_enums.puml"));
+
+      final var captured = captureStderr(() -> execute(mainReturning(erdOnly()), erdFile));
+
+      assertEquals(0, captured.exitCode());
+      assertTrue(Files.isDirectory(directory));
+      assertEquals(
+          "Warning: "
+              + directory
+              + " exists but was not written by db-documenter; leaving it in place"
+              + System.lineSeparator(),
+          captured.stderr());
+    }
+
+    @Test
+    void itReportsReadableMessageWhenParentDirectoryDoesNotExist(@TempDir final Path tempDir) {
+      final var erdFile = tempDir.resolve("missing-dir").resolve("diagram.puml");
+
+      final var captured = captureStderr(() -> execute(mainReturning(erdOnly()), erdFile));
+
+      assertEquals(3, captured.exitCode());
+      assertEquals(
+          "Output error: Failed to write "
+              + erdFile
+              + ": parent directory does not exist"
+              + System.lineSeparator(),
+          captured.stderr());
+    }
+
+    @Test
+    void itReturnsUnexpectedErrorExitCodeWhenValidationFailsWhileGenerating(
+        @TempDir final Path tempDir) {
+      final var main =
+          new Main(
+              config -> {
+                throw new ValidationException("tableName must not be blank");
+              });
+
+      final var captured = captureStderr(() -> execute(main, tempDir.resolve("diagram.puml")));
+
+      assertEquals(3, captured.exitCode());
+      assertEquals(
+          "Unexpected error: tableName must not be blank" + System.lineSeparator(),
+          captured.stderr());
+    }
+
+    @Test
+    void itReturnsDatabaseErrorExitCodeWhenGenerationFailsWithSqlException(
+        @TempDir final Path tempDir) {
+      final var main =
+          new Main(
+              config -> {
+                throw new SQLException("connection refused");
+              });
+
+      final var captured = captureStderr(() -> execute(main, tempDir.resolve("diagram.puml")));
+
+      assertEquals(2, captured.exitCode());
+      assertTrue(captured.stderr().startsWith("Database error: connection refused"));
     }
   }
 
@@ -457,7 +635,7 @@ class MainTest {
       final var container = POSTGRES_TEST_ENVIRONMENT.getContainer();
       final var erdFile = tempDir.resolve("diagram.puml");
       final var staleEnumFile = tempDir.resolve("diagram_enums.puml");
-      Files.writeString(staleEnumFile, "stale");
+      Files.writeString(staleEnumFile, "@startuml\nstale\n@enduml\n");
 
       final var exitCode =
           new CommandLine(new Main())

@@ -149,6 +149,9 @@ public abstract sealed class AbstractResultSetMapper implements ResultSetMapper
               .targetTable(resultSet.getString("referenced_table"))
               .targetColumn(resultSet.getString("referenced_column"))
               .referencedSchema(resultSet.getString("referenced_schema"))
+              // Placeholder: ForeignKeyMapper.enrichWithNullability sets the real value from the
+              // source column.
+              .isNullable(false)
               .build());
     }
 

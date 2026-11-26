@@ -28,6 +28,13 @@ public final class DbDocumenter {
   private final FormatterConfigurer formatterConfigurer;
   private final SchemaBuilder schemaBuilder;
 
+  /**
+   * Creates a documenter for the given configuration.
+   *
+   * <p>No database connection is opened here; that happens in {@link #generate()}.
+   *
+   * @param dbDocumenterConfig what to connect to and which schemas to document
+   */
   public DbDocumenter(final DbDocumenterConfig dbDocumenterConfig) {
     this.dbDocumenterConfig = dbDocumenterConfig;
     this.formatterConfigurer = new FormatterConfigurer();
@@ -53,6 +60,8 @@ public final class DbDocumenter {
    *
    * @return the ERD and, when any schema defines enums, the enum diagram
    * @throws SQLException if database access fails
+   * @throws IllegalArgumentException if the metadata read from the database is invalid, which
+   *     indicates an unexpected catalog shape rather than a caller error
    */
   public DiagramResult generate() throws SQLException {
     if (LOGGER.isLoggable(Level.INFO)) {

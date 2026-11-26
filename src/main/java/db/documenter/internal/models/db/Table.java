@@ -48,9 +48,9 @@ public record Table(
 
   public Table {
     Validators.isNotBlank(name, "name");
-    Validators.isNotNull(columns, "columns");
+    Validators.containsNoNullElements(columns, "columns");
     Validators.isNotNull(primaryKey, "primaryKey");
-    Validators.isNotNull(foreignKeys, "foreignKeys");
+    Validators.containsNoNullElements(foreignKeys, "foreignKeys");
     columns = List.copyOf(columns);
     foreignKeys = List.copyOf(foreignKeys);
   }
@@ -102,13 +102,11 @@ public record Table(
     /**
      * Sets the columns in this table.
      *
-     * <p><b>Defensive Copying:</b> The provided list is defensively copied to ensure immutability.
-     *
-     * @param columns the {@link List} of {@link Column} instances (defensively copied)
+     * @param columns the {@link List} of {@link Column} instances; copied when the table is built
      * @return this {@link Builder} instance for method chaining
      */
     public Builder columns(final List<Column> columns) {
-      this.columns = List.copyOf(columns);
+      this.columns = columns;
       return this;
     }
 
@@ -127,15 +125,26 @@ public record Table(
     }
 
     /**
+     * Sets the primary key from an {@link Optional}, so callers holding one need no null round
+     * trip.
+     *
+     * @param primaryKey the {@link PrimaryKey}, or empty if the table has no primary key
+     * @return this {@link Builder} instance for method chaining
+     */
+    public Builder primaryKey(final Optional<PrimaryKey> primaryKey) {
+      this.primaryKey = primaryKey.orElse(null);
+      return this;
+    }
+
+    /**
      * Sets the foreign key relationships for this table.
      *
-     * <p><b>Defensive Copying:</b> The provided list is defensively copied to ensure immutability.
-     *
-     * @param foreignKeys the {@link List} of {@link ForeignKey} relationships (defensively copied)
+     * @param foreignKeys the {@link List} of {@link ForeignKey} relationships; copied when the
+     *     table is built
      * @return this {@link Builder} instance for method chaining
      */
     public Builder foreignKeys(final List<ForeignKey> foreignKeys) {
-      this.foreignKeys = List.copyOf(foreignKeys);
+      this.foreignKeys = foreignKeys;
       return this;
     }
 

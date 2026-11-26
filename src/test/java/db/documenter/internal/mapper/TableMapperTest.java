@@ -49,6 +49,7 @@ class TableMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final Table result =
@@ -166,6 +167,7 @@ class TableMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final ForeignKey foreignKey2 =
@@ -176,6 +178,7 @@ class TableMapperTest {
               .targetTable("products")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final Table result =

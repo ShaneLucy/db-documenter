@@ -4,4 +4,18 @@
     <Match>
         <Bug pattern="IMPROPER_UNICODE" />
     </Match>
+
+    <!--
+      Builders deliberately store caller-supplied lists without copying (see the
+      java-coding-standards skill: "builder setters just assign"). A Builder is a short-lived
+      staging object that never exposes its fields; build() hands them to the record's compact
+      constructor, which validates (null list / null elements -> ValidationException) and then
+      defensively copies with List.copyOf. Copying in the setter as well would double-copy and turn
+      a null argument into a bare NullPointerException instead of a ValidationException.
+      Scoped to EI_EXPOSE_REP2 on nested Builder classes only; the records themselves stay checked.
+    -->
+    <Match>
+        <Class name="~db\.documenter\..*\$Builder" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
 </FindBugsFilter>

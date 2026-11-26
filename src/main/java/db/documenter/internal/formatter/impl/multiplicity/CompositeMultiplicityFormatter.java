@@ -11,7 +11,7 @@ public record CompositeMultiplicityFormatter(List<MultiplicityFormatter> formatt
     implements MultiplicityFormatter {
 
   public CompositeMultiplicityFormatter {
-    formatters = formatters == null ? List.of() : List.copyOf(formatters);
+    formatters = List.copyOf(Validators.isNotNull(formatters, "formatters"));
   }
 
   public static Builder builder() {

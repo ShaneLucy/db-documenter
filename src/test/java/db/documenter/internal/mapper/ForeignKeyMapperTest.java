@@ -53,6 +53,7 @@ class ForeignKeyMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final Column column =
@@ -80,6 +81,7 @@ class ForeignKeyMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final Column column =
@@ -98,6 +100,32 @@ class ForeignKeyMapperTest {
     }
 
     @Test
+    void itDoesNotMatchSourceColumnWhenOnlyTheCaseDiffers() {
+      final ForeignKey foreignKey =
+          ForeignKey.builder()
+              .name("fk_user")
+              .sourceTable("orders")
+              .sourceColumn("user_id")
+              .targetTable("users")
+              .targetColumn("id")
+              .referencedSchema("public")
+              .isNullable(false)
+              .build();
+      final Column column =
+          Column.builder()
+              .isNullable(true)
+              .name("USER_ID")
+              .dataType("uuid")
+              .constraints(List.of())
+              .build();
+
+      final List<ForeignKey> result =
+          foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
+
+      assertFalse(result.getFirst().isNullable());
+    }
+
+    @Test
     void preservesForeignKeyWhenColumnNotFound() {
       final ForeignKey foreignKey =
           ForeignKey.builder()
@@ -107,6 +135,7 @@ class ForeignKeyMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final Column column =
@@ -134,6 +163,7 @@ class ForeignKeyMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final ForeignKey foreignKey2 =
@@ -144,6 +174,7 @@ class ForeignKeyMapperTest {
               .targetTable("products")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final Column column1 =
@@ -180,6 +211,7 @@ class ForeignKeyMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final Column column =
@@ -213,6 +245,7 @@ class ForeignKeyMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final Column column1 =
@@ -263,6 +296,7 @@ class ForeignKeyMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final var enrichedColumns =

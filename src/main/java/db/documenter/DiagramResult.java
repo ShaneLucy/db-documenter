@@ -13,7 +13,7 @@ import org.jspecify.annotations.Nullable;
  * <p><b>Immutability:</b> This record is immutable and thread-safe.
  *
  * <p><b>Validation:</b> Validated in the compact constructor; validation failures throw {@link
- * db.documenter.internal.exceptions.ValidationException}.
+ * IllegalArgumentException}.
  *
  * @param erdDiagram entity-relationship diagram of the tables and their relationships; not blank
  * @param enumDiagram diagram of the enum types, grouped by schema; empty when none of the
@@ -21,6 +21,11 @@ import org.jspecify.annotations.Nullable;
  */
 public record DiagramResult(String erdDiagram, Optional<String> enumDiagram) {
 
+  /**
+   * Validates the diagrams.
+   *
+   * @throws IllegalArgumentException if the ERD is blank or a present enum diagram is blank
+   */
   public DiagramResult {
     Validators.isNotBlank(erdDiagram, "erdDiagram");
     Validators.isNotNull(enumDiagram, "enumDiagram");
@@ -49,7 +54,11 @@ public record DiagramResult(String erdDiagram, Optional<String> enumDiagram) {
       return this;
     }
 
-    /** Builds the {@link DiagramResult}; the ERD diagram must have been set. */
+    /**
+     * Builds the {@link DiagramResult}; the ERD diagram must have been set.
+     *
+     * @throws IllegalArgumentException if the ERD diagram is unset or any diagram is blank
+     */
     public DiagramResult build() {
       return new DiagramResult(
           Validators.isNotNull(erdDiagram, "erdDiagram"), Optional.ofNullable(enumDiagram));

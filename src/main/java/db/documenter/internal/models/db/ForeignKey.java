@@ -38,7 +38,8 @@ import org.jspecify.annotations.Nullable;
  * @param targetColumn the referenced column in the target table
  * @param referencedSchema the schema of the referenced table
  * @param isNullable true if the FK column permits NULL (indicating optional relationship); false
- *     for required relationships. Builder defaults to false if not set
+ *     for required relationships. Has no builder default so a forgotten call cannot silently change
+ *     cardinality
  * @see Table
  */
 public record ForeignKey(
@@ -94,51 +95,39 @@ public record ForeignKey(
     private @Nullable String targetTable;
     private @Nullable String targetColumn;
     private @Nullable String referencedSchema;
-    private boolean isNullable;
+    private @Nullable Boolean isNullable;
 
-    /**
-     * @return this builder for method chaining
-     */
+    /** Returns this builder for method chaining. */
     public Builder name(final String name) {
       this.name = name;
       return this;
     }
 
-    /**
-     * @return this builder for method chaining
-     */
+    /** Returns this builder for method chaining. */
     public Builder sourceTable(final String sourceTable) {
       this.sourceTable = sourceTable;
       return this;
     }
 
-    /**
-     * @return this builder for method chaining
-     */
+    /** Returns this builder for method chaining. */
     public Builder sourceColumn(final String sourceColumn) {
       this.sourceColumn = sourceColumn;
       return this;
     }
 
-    /**
-     * @return this builder for method chaining
-     */
+    /** Returns this builder for method chaining. */
     public Builder targetTable(final String targetTable) {
       this.targetTable = targetTable;
       return this;
     }
 
-    /**
-     * @return this builder for method chaining
-     */
+    /** Returns this builder for method chaining. */
     public Builder targetColumn(final String targetColumn) {
       this.targetColumn = targetColumn;
       return this;
     }
 
-    /**
-     * @return this builder for method chaining
-     */
+    /** Returns this builder for method chaining. */
     public Builder referencedSchema(final String referencedSchema) {
       this.referencedSchema = referencedSchema;
       return this;
@@ -159,7 +148,8 @@ public record ForeignKey(
      * Builds and returns a new {@link ForeignKey} instance.
      *
      * @return a new immutable {@link ForeignKey} instance
-     * @throws ValidationException if any required string field is blank
+     * @throws ValidationException if any required string field is blank or {@code isNullable} was
+     *     never set
      */
     public ForeignKey build() {
       return new ForeignKey(
@@ -169,7 +159,7 @@ public record ForeignKey(
           Validators.isNotBlank(targetTable, "targetTable"),
           Validators.isNotBlank(targetColumn, "targetColumn"),
           Validators.isNotBlank(referencedSchema, "referencedSchema"),
-          isNullable);
+          Validators.isNotNull(isNullable, "isNullable"));
     }
   }
 }

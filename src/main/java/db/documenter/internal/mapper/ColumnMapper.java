@@ -164,7 +164,9 @@ public final class ColumnMapper {
             column -> {
               final var isForeignKey =
                   foreignKeys.stream()
-                      .anyMatch(fk -> fk.sourceColumn().equalsIgnoreCase(column.name()));
+                      // Exact match: PostgreSQL identifiers are case-sensitive when quoted, and
+                      // JDBC metadata returns the stored name, so "Id" and "id" are distinct.
+                      .anyMatch(fk -> fk.sourceColumn().equals(column.name()));
 
               if (!isForeignKey) {
                 return column;

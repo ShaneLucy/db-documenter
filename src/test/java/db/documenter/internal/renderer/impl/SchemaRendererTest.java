@@ -156,6 +156,7 @@ class SchemaRendererTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final var table =
@@ -237,6 +238,7 @@ class SchemaRendererTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final var table =
@@ -327,6 +329,7 @@ class SchemaRendererTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
+              .isNullable(false)
               .build();
 
       final var table2 =

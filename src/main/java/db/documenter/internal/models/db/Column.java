@@ -53,7 +53,7 @@ public record Column(
   public Column {
     Validators.isNotBlank(name, "name");
     Validators.isNotBlank(dataType, "dataType");
-    Validators.isNotNull(constraints, "constraints");
+    Validators.containsNoNullElements(constraints, "constraints");
     constraints = List.copyOf(constraints);
   }
 
@@ -185,7 +185,7 @@ public record Column(
      * @return this builder instance for method chaining
      */
     public Builder constraints(final List<Constraint> constraints) {
-      this.constraints = List.copyOf(constraints);
+      this.constraints = constraints;
       return this;
     }
 

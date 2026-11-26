@@ -85,6 +85,7 @@ class CardinalityFormatterTest {
               .targetColumn("id")
               .referencedSchema("public")
               .name("fk")
+              .isNullable(false)
               .build();
 
       final var result = cardinalityFormatter.format(fk, "public", "target  --  source");
@@ -102,6 +103,7 @@ class CardinalityFormatterTest {
               .targetColumn("id")
               .referencedSchema("public")
               .name("fk")
+              .isNullable(false)
               .build();
 
       final var result = cardinalityFormatter.format(fk, "public", "users||orders");
@@ -119,6 +121,7 @@ class CardinalityFormatterTest {
               .targetColumn("id")
               .referencedSchema("public")
               .name("fk_test")
+              .isNullable(false)
               .build();
 
       final var exception =

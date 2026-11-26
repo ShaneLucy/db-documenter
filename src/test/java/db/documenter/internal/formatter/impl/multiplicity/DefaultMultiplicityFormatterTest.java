@@ -29,6 +29,7 @@ class DefaultMultiplicityFormatterTest {
               .targetColumn("id")
               .referencedSchema("public")
               .name("fk_orders_users")
+              .isNullable(false)
               .build();
 
       final var result = defaultMultiplicityFormatter.format(fk, "public", null);
@@ -46,6 +47,7 @@ class DefaultMultiplicityFormatterTest {
               .targetColumn("id")
               .referencedSchema("public")
               .name("fk_test")
+              .isNullable(false)
               .build();
 
       final var result = defaultMultiplicityFormatter.format(fk, "public", "existing value");
@@ -63,6 +65,7 @@ class DefaultMultiplicityFormatterTest {
               .targetColumn("id")
               .referencedSchema("public")
               .name("fk_items_products")
+              .isNullable(false)
               .build();
 
       final var result = defaultMultiplicityFormatter.format(fk, "public", null);
@@ -80,6 +83,7 @@ class DefaultMultiplicityFormatterTest {
               .targetColumn("d")
               .referencedSchema("e")
               .name("f")
+              .isNullable(false)
               .build();
 
       final var result = defaultMultiplicityFormatter.format(fk, "e", null);
@@ -97,6 +101,7 @@ class DefaultMultiplicityFormatterTest {
               .targetColumn("id")
               .referencedSchema("public")
               .name("fk")
+              .isNullable(false)
               .build();
 
       final var result = defaultMultiplicityFormatter.format(fk, "public", null);
@@ -114,6 +119,7 @@ class DefaultMultiplicityFormatterTest {
               .targetColumn("id")
               .referencedSchema("other_schema")
               .name("fk_orders_users")
+              .isNullable(false)
               .build();
 
       final var result = defaultMultiplicityFormatter.format(fk, "public", null);

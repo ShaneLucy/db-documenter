@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 public final class PostgresConnectionManager implements ConnectionManager {
 
   private static final Logger LOGGER = Logger.getLogger(PostgresConnectionManager.class.getName());
-  private static final String BASE_CONNECTION_STRING = "jdbc:postgresql://%s:%s/%s";
   private final String url;
   private final DbDocumenterConfig dbDocumenterConfig;
   private final Properties properties;
@@ -21,7 +20,7 @@ public final class PostgresConnectionManager implements ConnectionManager {
     this.dbDocumenterConfig = dbDocumenterConfig;
     this.url =
         String.format(
-            BASE_CONNECTION_STRING,
+            "jdbc:postgresql://%s:%s/%s",
             dbDocumenterConfig.databaseHost(),
             dbDocumenterConfig.databasePort(),
             dbDocumenterConfig.databaseName());

@@ -89,13 +89,12 @@ public record PrimaryKey(String constraintName, List<String> columnNames) {
     /**
      * Sets the column names that compose the primary key.
      *
-     * <p><b>Defensive Copying:</b> The provided list is defensively copied to ensure immutability.
-     *
-     * @param columnNames the {@link List} of column name {@link String} values (defensively copied)
+     * @param columnNames the {@link List} of column name {@link String} values; copied when the key
+     *     is built
      * @return this builder instance for method chaining
      */
     public Builder columnNames(final List<String> columnNames) {
-      this.columnNames = List.copyOf(columnNames);
+      this.columnNames = columnNames;
       return this;
     }
 

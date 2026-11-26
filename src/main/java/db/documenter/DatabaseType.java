@@ -1,7 +1,5 @@
 package db.documenter;
 
-import org.jspecify.annotations.NonNull;
-
 /**
  * Defines supported database systems and their JDBC connection characteristics.
  *
@@ -32,8 +30,8 @@ public enum DatabaseType {
    */
   POSTGRESQL("PostgreSQL", "jdbc:postgresql://%s:%d/%s");
 
-  private final @NonNull String displayName;
-  private final @NonNull String urlTemplate;
+  private final String displayName;
+  private final String urlTemplate;
 
   /**
    * Creates a database type with its display name and JDBC URL template.
@@ -42,7 +40,7 @@ public enum DatabaseType {
    * @param urlTemplate JDBC URL format string with placeholders for host (%s), port (%d), and
    *     database name (%s) in that order
    */
-  DatabaseType(final @NonNull String displayName, final @NonNull String urlTemplate) {
+  DatabaseType(final String displayName, final String urlTemplate) {
     this.displayName = displayName;
     this.urlTemplate = urlTemplate;
   }
@@ -52,7 +50,7 @@ public enum DatabaseType {
    *
    * @return display name such as "PostgreSQL"; never null
    */
-  public @NonNull String getDisplayName() {
+  public String getDisplayName() {
     return displayName;
   }
 
@@ -76,7 +74,7 @@ public enum DatabaseType {
    *
    * @return JDBC URL format string; never null
    */
-  public @NonNull String getUrlTemplate() {
+  public String getUrlTemplate() {
     return urlTemplate;
   }
 }

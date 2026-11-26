@@ -21,6 +21,8 @@ public final class ForeignKeyMapper {
             foreignKey -> {
               final var optionalColumn =
                   columns.stream()
+                      // Exact match: PostgreSQL identifiers are case-sensitive when quoted, and
+                      // JDBC metadata returns the stored name, so "Id" and "id" are distinct.
                       .filter(column -> column.name().equals(foreignKey.sourceColumn()))
                       .findFirst();
 

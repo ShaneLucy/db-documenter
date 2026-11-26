@@ -38,7 +38,8 @@ class ForeignKeyTest {
                           .sourceColumn("user_id")
                           .targetTable("users")
                           .targetColumn("id")
-                          .referencedSchema("public")),
+                          .referencedSchema("public")
+                          .isNullable(false)),
           Arguments.of(
               "sourceTable must not be blank",
               (Supplier<ForeignKey.Builder>)
@@ -48,7 +49,8 @@ class ForeignKeyTest {
                           .sourceColumn("user_id")
                           .targetTable("users")
                           .targetColumn("id")
-                          .referencedSchema("public")),
+                          .referencedSchema("public")
+                          .isNullable(false)),
           Arguments.of(
               "sourceColumn must not be blank",
               (Supplier<ForeignKey.Builder>)
@@ -58,7 +60,8 @@ class ForeignKeyTest {
                           .sourceTable("orders")
                           .targetTable("users")
                           .targetColumn("id")
-                          .referencedSchema("public")),
+                          .referencedSchema("public")
+                          .isNullable(false)),
           Arguments.of(
               "targetTable must not be blank",
               (Supplier<ForeignKey.Builder>)
@@ -68,7 +71,8 @@ class ForeignKeyTest {
                           .sourceTable("orders")
                           .sourceColumn("user_id")
                           .targetColumn("id")
-                          .referencedSchema("public")),
+                          .referencedSchema("public")
+                          .isNullable(false)),
           Arguments.of(
               "targetColumn must not be blank",
               (Supplier<ForeignKey.Builder>)
@@ -78,7 +82,8 @@ class ForeignKeyTest {
                           .sourceTable("orders")
                           .sourceColumn("user_id")
                           .targetTable("users")
-                          .referencedSchema("public")),
+                          .referencedSchema("public")
+                          .isNullable(false)),
           Arguments.of(
               "referencedSchema must not be blank",
               (Supplier<ForeignKey.Builder>)
@@ -88,7 +93,19 @@ class ForeignKeyTest {
                           .sourceTable("orders")
                           .sourceColumn("user_id")
                           .targetTable("users")
-                          .targetColumn("id")));
+                          .targetColumn("id")
+                          .isNullable(false)),
+          Arguments.of(
+              "isNullable must not be null",
+              (Supplier<ForeignKey.Builder>)
+                  () ->
+                      ForeignKey.builder()
+                          .name("fk")
+                          .sourceTable("orders")
+                          .sourceColumn("user_id")
+                          .targetTable("users")
+                          .targetColumn("id")
+                          .referencedSchema("public")));
     }
   }
 }

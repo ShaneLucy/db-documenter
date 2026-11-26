@@ -36,8 +36,8 @@ public record Schema(String name, List<Table> tables, List<DbEnum> dbEnums) {
 
   public Schema {
     Validators.isNotBlank(name, "name");
-    Validators.isNotNull(tables, "tables");
-    Validators.isNotNull(dbEnums, "dbEnums");
+    Validators.containsNoNullElements(tables, "tables");
+    Validators.containsNoNullElements(dbEnums, "dbEnums");
     tables = List.copyOf(tables);
     dbEnums = List.copyOf(dbEnums);
   }
@@ -85,26 +85,22 @@ public record Schema(String name, List<Table> tables, List<DbEnum> dbEnums) {
     /**
      * Sets the tables in this schema.
      *
-     * <p><b>Defensive Copying:</b> The provided list is defensively copied to ensure immutability.
-     *
-     * @param tables the {@link List} of {@link Table} instances (defensively copied)
+     * @param tables the {@link List} of {@link Table} instances; copied when the schema is built
      * @return this builder instance for method chaining
      */
     public Builder tables(final List<Table> tables) {
-      this.tables = List.copyOf(tables);
+      this.tables = tables;
       return this;
     }
 
     /**
      * Sets the custom enum types in this schema.
      *
-     * <p><b>Defensive Copying:</b> The provided list is defensively copied to ensure immutability.
-     *
-     * @param dbEnums the {@link List} of {@link DbEnum} instances (defensively copied)
+     * @param dbEnums the {@link List} of {@link DbEnum} instances; copied when the schema is built
      * @return this builder instance for method chaining
      */
     public Builder dbEnums(final List<DbEnum> dbEnums) {
-      this.dbEnums = List.copyOf(dbEnums);
+      this.dbEnums = dbEnums;
       return this;
     }
 

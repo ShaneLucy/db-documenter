@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import db.documenter.internal.exceptions.ValidationException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;
@@ -64,6 +66,45 @@ class TableTest {
               .build();
 
       assertEquals(pk, table.primaryKey().orElseThrow());
+    }
+
+    @Test
+    void itBuildsTableWithPrimaryKeyFromOptional() {
+      final var pk = PrimaryKey.builder().constraintName("pk").columnNames(List.of("id")).build();
+
+      final var table =
+          Table.builder()
+              .name("t")
+              .columns(List.of())
+              .primaryKey(Optional.of(pk))
+              .foreignKeys(List.of())
+              .build();
+
+      assertEquals(pk, table.primaryKey().orElseThrow());
+    }
+
+    @Test
+    void itBuildsTableWithEmptyPrimaryKeyFromEmptyOptional() {
+      final var table =
+          Table.builder()
+              .name("t")
+              .columns(List.of())
+              .primaryKey(Optional.empty())
+              .foreignKeys(List.of())
+              .build();
+
+      assertTrue(table.primaryKey().isEmpty());
+    }
+
+    @Test
+    void itThrowsValidationExceptionWhenColumnsContainNull() {
+      final var columns = new ArrayList<Column>();
+      columns.add(null);
+      final var builder = Table.builder().name("t").columns(columns).foreignKeys(List.of());
+
+      final var exception = assertThrows(ValidationException.class, builder::build);
+
+      assertEquals("columns must not contain null elements", exception.getMessage());
     }
   }
 }

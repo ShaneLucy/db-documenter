@@ -14,6 +14,9 @@ import org.jspecify.annotations.Nullable;
  */
 public final class Validators {
 
+  private static final int MIN_PORT = 1;
+  private static final int MAX_PORT = 65_535;
+
   private Validators() {
     throw new IllegalStateException("Utility class");
   }
@@ -49,6 +52,21 @@ public final class Validators {
       throw new ValidationException(propertyName + " must not contain null elements");
     }
     return value;
+  }
+
+  /**
+   * Ensures {@code number} is a valid TCP port, between 1 and 65535 inclusive.
+   *
+   * @param number the port to check
+   * @param propertyName name used in the failure message
+   * @return {@code number}, for chaining
+   * @throws ValidationException if the port is outside the valid range
+   */
+  public static int isValidPort(final int number, final String propertyName) {
+    if (number < MIN_PORT || number > MAX_PORT) {
+      throw new ValidationException(propertyName + " must be between 1 and 65535");
+    }
+    return number;
   }
 
   public static int isPositive(final int number, final String propertyName) {

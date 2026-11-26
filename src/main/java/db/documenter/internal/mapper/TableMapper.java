@@ -27,7 +27,7 @@ public final class TableMapper {
     return Table.builder()
         .name(tableName)
         .columns(columns)
-        .primaryKey(primaryKey.orElse(null))
+        .primaryKey(primaryKey)
         .foreignKeys(foreignKeys)
         .build();
   }

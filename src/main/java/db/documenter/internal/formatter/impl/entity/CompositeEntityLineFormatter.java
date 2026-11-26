@@ -12,7 +12,7 @@ public record CompositeEntityLineFormatter(List<EntityLineFormatter> lineFormatt
     implements EntityLineFormatter {
 
   public CompositeEntityLineFormatter {
-    lineFormatters = lineFormatters == null ? List.of() : List.copyOf(lineFormatters);
+    lineFormatters = List.copyOf(Validators.isNotNull(lineFormatters, "lineFormatters"));
   }
 
   public static Builder builder() {

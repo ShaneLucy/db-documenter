@@ -141,6 +141,11 @@ class ValidatorsTest {
     }
 
     @Test
+    void isValidPortReturnsTheSameNumber() {
+      assertEquals(65535, Validators.isValidPort(65535, "test"));
+    }
+
+    @Test
     void isPositiveReturnsTheSameNumber() {
       assertEquals(42, Validators.isPositive(42, "test"));
     }
