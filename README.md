@@ -1,43 +1,51 @@
 # db-documenter
 
-A library that generates [PlantUML](https://plantuml.com/) entity-relationship diagrams by introspecting live database schemas.
+Generates [PlantUML](https://plantuml.com/) entity-relationship diagrams (ERDs) by introspecting a
+live PostgreSQL database.
+
+Point it at one or more schemas and it produces:
+
+- **`schema.puml`**: the ERD, with tables, columns, primary/foreign/unique keys and relationship
+  cardinality, including foreign keys that cross schemas.
+- **`schema_enums.puml`**: a separate diagram of the enum types, written only when at least one
+  documented schema defines an enum.
+
+db-documenter deliberately draws **ERDs only**. It doesn't try to be a full physical data model, so
+views, defaults, check constraints and similar details are left out (see [What's in the diagram](#whats-in-the-diagram)).
 
 ---
 
 ## Installation
 
-### Docker
+### Docker (recommended)
 
 ```bash
 docker pull ghcr.io/shanelucy/db-documenter:latest
 ```
 
-### Maven
+Images are tagged `latest`, the full version (e.g. `0.2.0`) and `major.minor` (e.g. `0.2`).
 
-```xml
-<dependency>
-  <groupId>db.documenter</groupId>
-  <artifactId>db-documenter</artifactId>
-  <version>1.0.22</version>
-</dependency>
+### Standalone jar
+
+Every [GitHub Release](https://github.com/ShaneLucy/db-documenter/releases) includes
+`db-documenter-<version>-cli.jar`. It needs Java 25:
+
+```bash
+java -jar db-documenter-0.2.0-cli.jar --help
 ```
 
 ---
 
 ## Usage
 
-### Docker (Manual)
-
-Use this when you want to generate a diagram for a database running on your local machine.
-
-> **Linux:** Use `--network=host` with `--host=localhost` instead of `host.docker.internal`.
-
-#### Write to a file (volume mount)
+### Write both diagrams to files
 
 ```bash
-docker run --rm -v "$(pwd):/output" ghcr.io/shanelucy/db-documenter:latest \
+docker run --rm \
+  --user "$(id -u):$(id -g)" \
+  -v "$(pwd):/output" \
+  ghcr.io/shanelucy/db-documenter:latest \
   --host=host.docker.internal \
-  --port=5432 \
   --database=myapp \
   --username=postgres \
   --password=secret \
@@ -45,11 +53,16 @@ docker run --rm -v "$(pwd):/output" ghcr.io/shanelucy/db-documenter:latest \
   --output=/output/schema.puml
 ```
 
-This writes the ERD to `schema.puml`. If any schema defines enums they are written to a separate
-diagram next to it, `schema_enums.puml` (the name gets `_enums` before the extension). When there are
-no enums, a stale `schema_enums.puml` from a previous run is deleted.
+This writes `schema.puml` and, if any of the schemas define enums, `schema_enums.puml`.
 
-#### Write to stdout
+> **Why `--user`?** The image runs as an unprivileged user. Running it as your own user id lets it
+> write into the mounted directory, and the generated files end up owned by you rather than by a
+> container account.
+
+> **Linux:** `host.docker.internal` isn't available by default. Add `--network=host` and use
+> `--host=localhost`.
+
+### Write the ERD to stdout
 
 ```bash
 docker run --rm ghcr.io/shanelucy/db-documenter:latest \
@@ -60,72 +73,69 @@ docker run --rm ghcr.io/shanelucy/db-documenter:latest \
   --schemas=public > schema.puml
 ```
 
-Only the ERD is written to stdout. If the schemas define enums, a warning on stderr says the enum
-diagram was not written; use `--output` to get it.
+Only the ERD goes to stdout. If the schemas contain enums, a one-line warning is printed to stderr,
+and you need `--output` to get the enum diagram as well.
 
-#### Linux (host network)
+### Output file naming
 
-```bash
-docker run --rm --network=host -v "$(pwd):/output" ghcr.io/shanelucy/db-documenter:latest \
-  --host=localhost \
-  --database=myapp \
-  --username=postgres \
-  --password=secret \
-  --schemas=public \
-  --output=/output/schema.puml
-```
+The enum diagram's name comes from the `--output` file name, with `_enums` inserted before the
+extension:
 
-#### Disable SSL (for databases without SSL configured)
+| `--output`                | Enum diagram                    |
+|---------------------------|---------------------------------|
+| `schema.puml`             | `schema_enums.puml`             |
+| `docs/erd`                | `docs/erd_enums`                |
+| `out/v1.2/model.puml`     | `out/v1.2/model_enums.puml`     |
 
-Pass `--ssl=false` to skip SSL negotiation:
+If no documented schema has enums, no enum file is written, and any `*_enums` file left over from a
+previous run is deleted so the two files never come from different runs.
 
-```bash
-docker run --rm ghcr.io/shanelucy/db-documenter:latest \
-  --host=host.docker.internal \
-  --database=myapp \
-  --username=postgres \
-  --password=secret \
-  --schemas=public \
-  --ssl=false > schema.puml
-```
-
-#### All options
+### Options
 
 ```
 --host=<host>       Database hostname (required)
 --port=<port>       Database port (default: 5432)
 --database=<name>   Database name (required)
 --username=<user>   Database username (required)
---password=<pass>   Database password (omit to be prompted interactively)
+--password=<pass>   Database password (omit the value to be prompted; needs `docker run -it`)
 --schemas=<list>    Comma-separated schema names (required)
---ssl=<bool>        Use SSL connection (default: true, pass --ssl=false to disable)
---output=<path>     Output file path (default: stdout)
---help              Show help message
---version           Print version
+--ssl=<bool>        Use SSL (default: true; pass --ssl=false for databases without SSL)
+--output=<path>     ERD output file; the enum diagram is written alongside it (default: stdout)
+-h, --help          Show help
+-V, --version       Print the version
 ```
 
-**Exit codes:** `0` success · `1` configuration error · `2` database error · `3` unexpected error
+### Exit codes
+
+| Code | Meaning |
+|:----:|---------|
+| `0`  | Success |
+| `1`  | Configuration or validation error, such as a missing or blank option |
+| `2`  | Database error, such as a refused connection or failed authentication |
+| `3`  | Unexpected error, including failure to write or delete an output file. If the ERD was written and the enum file then failed, the ERD file is left in place. |
 
 ---
 
-### Testcontainers
+## Generating diagrams in your test suite
 
-Use db-documenter to generate schema diagrams as part of an automated test suite. Connect it to your test database container via a shared Docker network.
+You can run db-documenter against the database container in your own tests. Both containers share a
+Docker network, and db-documenter connects using the database's network alias and its **internal**
+port (`5432`), not the port mapped to the host. As with `docker run`, run the container as your user
+so it can write to the mounted directory.
 
-**Pattern:** Both containers share a network. db-documenter connects to the database using the container's network alias and the internal port (5432), not the mapped host port. Check the exit code to detect failures.
-
-#### Python
+<details>
+<summary><b>Python</b> (testcontainers-python)</summary>
 
 ```python
-from testcontainers.postgres import PostgresContainer
+import os
+
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.network import Network
+from testcontainers.postgres import PostgresContainer
+
 
 def test_generate_documentation(tmp_path):
-    network = Network()
-    network.create()
-
-    with PostgresContainer("postgres:16") \
+    with Network() as network, PostgresContainer("postgres:16") \
             .with_network(network) \
             .with_network_aliases("postgres") as postgres:
 
@@ -134,15 +144,14 @@ def test_generate_documentation(tmp_path):
         doc_gen = (
             DockerContainer("ghcr.io/shanelucy/db-documenter:latest")
             .with_network(network)
+            .with_kwargs(user=f"{os.getuid()}:{os.getgid()}")
             .with_volume_mapping(str(tmp_path), "/output", "rw")
             .with_command(
-                "--host postgres "
-                "--port 5432 "
+                "--host postgres --port 5432 "
                 f"--database {postgres.dbname} "
                 f"--username {postgres.username} "
                 f"--password {postgres.password} "
-                "--schemas public "
-                "--ssl=false "
+                "--schemas public --ssl=false "
                 "--output /output/schema.puml"
             )
         )
@@ -150,22 +159,24 @@ def test_generate_documentation(tmp_path):
         exit_code = doc_gen.get_wrapped_container().wait()["StatusCode"]
         doc_gen.stop()
 
-    network.remove()
-
     assert exit_code == 0
     assert (tmp_path / "schema.puml").exists()
 ```
 
-#### Node.js
+</details>
+
+<details>
+<summary><b>Node.js</b> (testcontainers-node)</summary>
 
 ```javascript
-const { PostgreSqlContainer, GenericContainer, Network } = require('testcontainers');
-const { existsSync } = require('fs');
+const { PostgreSqlContainer } = require('@testcontainers/postgresql');
+const { GenericContainer, Network, Wait } = require('testcontainers');
+const { existsSync, mkdtempSync } = require('fs');
+const os = require('os');
 const path = require('path');
 
 test('generate database documentation', async () => {
   const network = await new Network().start();
-
   const postgres = await new PostgreSqlContainer('postgres:16')
     .withNetwork(network)
     .withNetworkAliases('postgres')
@@ -173,10 +184,11 @@ test('generate database documentation', async () => {
 
   // Run your migrations here
 
-  const outputDir = __dirname;
+  const outputDir = mkdtempSync(path.join(os.tmpdir(), 'db-docs-'));
 
   const docGen = await new GenericContainer('ghcr.io/shanelucy/db-documenter:latest')
     .withNetwork(network)
+    .withUser(`${process.getuid()}:${process.getgid()}`)
     .withBindMounts([{ source: outputDir, target: '/output', mode: 'rw' }])
     .withCommand([
       '--host', 'postgres',
@@ -188,11 +200,10 @@ test('generate database documentation', async () => {
       '--ssl=false',
       '--output', '/output/schema.puml',
     ])
+    .withWaitStrategy(Wait.forOneShotStartup())
     .start();
+  await docGen.stop();
 
-  const exitCode = (await docGen.stop()).exitCode;
-
-  expect(exitCode).toBe(0);
   expect(existsSync(path.join(outputDir, 'schema.puml'))).toBe(true);
 
   await postgres.stop();
@@ -200,49 +211,42 @@ test('generate database documentation', async () => {
 });
 ```
 
-#### Go
+</details>
+
+<details>
+<summary><b>Go</b> (testcontainers-go)</summary>
 
 ```go
 func TestGenerateDocumentation(t *testing.T) {
     ctx := context.Background()
 
-    network, _ := testcontainers.GenericNetwork(ctx, testcontainers.GenericNetworkRequest{
-        NetworkRequest: testcontainers.NetworkRequest{Name: "db-docs-net"},
-    })
-    defer network.Remove(ctx)
+    net, err := network.New(ctx)
+    require.NoError(t, err)
+    defer net.Remove(ctx)
 
-    postgres, _ := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-        ContainerRequest: testcontainers.ContainerRequest{
-            Image:          "postgres:16",
-            Networks:       []string{"db-docs-net"},
-            NetworkAliases: map[string][]string{"db-docs-net": {"postgres"}},
-            Env: map[string]string{
-                "POSTGRES_DB":       "testdb",
-                "POSTGRES_USER":     "test",
-                "POSTGRES_PASSWORD": "test",
-            },
-            WaitingFor: wait.ForLog("database system is ready to accept connections"),
-        },
-        Started: true,
-    })
-    defer postgres.Terminate(ctx)
+    pg, err := postgres.Run(ctx, "postgres:16",
+        postgres.WithDatabase("testdb"),
+        postgres.WithUsername("test"),
+        postgres.WithPassword("test"),
+        network.WithNetwork([]string{"postgres"}, net),
+        postgres.BasicWaitStrategies(),
+    )
+    require.NoError(t, err)
+    defer pg.Terminate(ctx)
 
     // Run your migrations here
 
     outputDir := t.TempDir()
 
-    docGen, _ := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+    docGen, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
         ContainerRequest: testcontainers.ContainerRequest{
             Image:    "ghcr.io/shanelucy/db-documenter:latest",
-            Networks: []string{"db-docs-net"},
+            Networks: []string{net.Name},
+            User:     fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()),
             Cmd: []string{
-                "--host", "postgres",
-                "--port", "5432",
-                "--database", "testdb",
-                "--username", "test",
-                "--password", "test",
-                "--schemas", "public",
-                "--ssl=false",
+                "--host", "postgres", "--port", "5432",
+                "--database", "testdb", "--username", "test", "--password", "test",
+                "--schemas", "public", "--ssl=false",
                 "--output", "/output/schema.puml",
             },
             Mounts:     testcontainers.Mounts(testcontainers.BindMount(outputDir, "/output")),
@@ -250,125 +254,104 @@ func TestGenerateDocumentation(t *testing.T) {
         },
         Started: true,
     })
+    require.NoError(t, err)
     defer docGen.Terminate(ctx)
 
-    state, _ := docGen.State(ctx)
+    state, err := docGen.State(ctx)
+    require.NoError(t, err)
     assert.Equal(t, 0, state.ExitCode)
-    _, err := os.Stat(filepath.Join(outputDir, "schema.puml"))
-    assert.NoError(t, err)
+    assert.FileExists(t, filepath.Join(outputDir, "schema.puml"))
 }
 ```
 
-#### Java
+</details>
+
+<details>
+<summary><b>Java</b> (Testcontainers for Java)</summary>
 
 ```java
 @Test
-void generateDocumentation() throws Exception {
-    try (Network network = Network.newNetwork();
-         PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16")
-                 .withNetwork(network)
-                 .withNetworkAliases("postgres")) {
+void generateDocumentation(@TempDir final Path outputDir) throws Exception {
+  final var user = Files.getAttribute(outputDir, "unix:uid") + ":" + Files.getAttribute(outputDir, "unix:gid");
 
-        postgres.start();
+  try (var network = Network.newNetwork();
+      var postgres = new PostgreSQLContainer<>("postgres:16")
+          .withNetwork(network)
+          .withNetworkAliases("postgres")) {
+    postgres.start();
 
-        // Run your migrations here
+    // Run your migrations here
 
-        Path outputDir = Files.createTempDirectory("db-docs");
+    try (var docGen = new GenericContainer<>("ghcr.io/shanelucy/db-documenter:latest")
+        .withNetwork(network)
+        .withCreateContainerCmdModifier(cmd -> cmd.withUser(user))
+        .withFileSystemBind(outputDir.toString(), "/output", BindMode.READ_WRITE)
+        .withCommand(
+            "--host", "postgres", "--port", "5432",
+            "--database", postgres.getDatabaseName(),
+            "--username", postgres.getUsername(),
+            "--password", postgres.getPassword(),
+            "--schemas", "public", "--ssl=false",
+            "--output", "/output/schema.puml")
+        .withStartupCheckStrategy(new OneShotStartupCheckStrategy())) {
+      docGen.start();
 
-        try (GenericContainer<?> docGen = new GenericContainer<>("ghcr.io/shanelucy/db-documenter:latest")
-                .withNetwork(network)
-                .withFileSystemBind(outputDir.toString(), "/output", BindMode.READ_WRITE)
-                .withCommand(
-                        "--host", "postgres",
-                        "--port", "5432",
-                        "--database", postgres.getDatabaseName(),
-                        "--username", postgres.getUsername(),
-                        "--password", postgres.getPassword(),
-                        "--schemas", "public",
-                        "--ssl=false",
-                        "--output", "/output/schema.puml")
-                .waitingFor(Wait.forExit(30))) {
-
-            docGen.start();
-
-            assertEquals(0, docGen.getCurrentContainerInfo().getState().getExitCodeLong());
-            assertTrue(Files.exists(outputDir.resolve("schema.puml")));
-        }
+      assertTrue(Files.exists(outputDir.resolve("schema.puml")));
     }
+  }
 }
 ```
 
----
-
-## Database Support
-
-The tables below document which schema features are supported for each database. This is a reference for both **consumers** evaluating db-documenter and **maintainers** tracking feature coverage across database implementations.
-
-### Legend
-
-| Symbol | Meaning |
-|:------:|---------|
-| ✅ | Fully supported |
-| 🔜 | Planned |
-| ❌ | Not supported |
+</details>
 
 ---
 
-### Schema Objects
+## What's in the diagram
 
-Which top-level database objects are discovered and rendered.
+db-documenter currently supports **PostgreSQL**. The codebase is structured so that other databases
+can be added later.
 
-| Feature | PostgreSQL |
-|---------|:----------:|
-| Regular tables | ✅ |
-| Partitioned tables (with partition key) | ✅ |
-| Partition children (listed under parent) | ✅ |
-| Views | ✅ |
-| Materialized views | ✅ |
-| Enums | ✅ |
-| Composite types | ✅ |
-| Standalone sequences | ❌ |
-| Non-constraint indexes | ❌ |
-| Domain types | ❌ |
-| Foreign tables (FDW) | ❌ |
-| Functions / stored procedures | ❌ |
-| Triggers | ❌ |
+### Included
 
----
+| Feature | Notes |
+|---------|-------|
+| Tables | Regular tables, plus partitioned *parent* tables, which render as ordinary entities. Child partitions are left out. |
+| Columns | Name, data type (including arrays, `numeric(p,s)`, character length and enum type names) |
+| Primary keys | Listed first and highlighted |
+| Foreign keys | `<<FK>>` marker, with a relationship line to the target table |
+| Unique constraints | `<<UNIQUE>>` marker, for single- and multi-column constraints |
+| Cardinality | `\|\|--o{` when the FK column is nullable, `\|\|--\|{` when it is `NOT NULL` |
+| Cross-schema relationships | Foreign keys and enum references between documented schemas |
+| Enums | Drawn in the separate `_enums` diagram |
 
-### Column Metadata
+### Intentionally excluded
 
-Which column-level properties are captured and included in the diagram output.
+These belong in a logical or physical data model rather than an ERD. They are **ignored**, not
+rejected, so databases that use them are still documented.
 
-| Feature | PostgreSQL |
-|---------|:----------:|
-| Data type | ✅ |
-| Nullability | ✅ |
-| Primary key | ✅ |
-| Foreign key | ✅ |
-| Unique constraint (single-column) | ✅ |
-| Unique constraint (composite, with constraint name) | ✅ |
-| Auto-increment / sequence (`nextval`) | ✅ |
-| Default value | ✅ |
-| Check constraint | ✅ |
-| Generated column | ✅ |
-| Array type | ✅ |
-| User-defined type (enum / composite reference) | ✅ |
-| Character maximum length | ✅ |
-| Numeric precision and scale | ✅ |
-| Column comments | ❌ |
-| Collation | ❌ |
+- Views and materialized views
+- Composite types, domains, sequences, functions, triggers and indexes
+- Partition keys and child partitions
+- Column defaults, `CHECK` constraints, generated and identity columns, and comments
+- `ON DELETE` / `ON UPDATE` referential actions
+- Unique constraint names
 
 ---
 
-### Relationships
+## Building from source
 
-How foreign key relationships are represented in the output diagram.
+Requirements: JDK 25, Maven 3.8+, and Docker for the integration tests.
 
-| Feature | PostgreSQL |
-|---------|:----------:|
-| Foreign key relationships | ✅ |
-| Relationship cardinality | ✅ |
-| Cross-schema relationships | ✅ |
-| ON DELETE action | ✅ |
-| ON UPDATE action | ✅ |
+```bash
+mvn clean verify
+```
+
+The `verify` build runs:
+- unit tests and Testcontainers integration tests, including one that runs the Docker image
+- Error Prone with NullAway for compile-time null safety
+- SpotBugs, Checkstyle, PMD/CPD, Spotless and modernizer
+- the JaCoCo coverage check
+
+## License
+
+[Apache License 2.0](LICENSE)

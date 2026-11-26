@@ -10,6 +10,8 @@ import db.documenter.testhelpers.PostgresTestEnvironment;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
@@ -23,6 +25,23 @@ import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
 
 class MainTest {
+
+  @Nested
+  class VersionTests {
+
+    @Test
+    void itExitsZeroAndPrintsDevelopmentBuildVersion() {
+      final var out = new StringWriter();
+      final var commandLine = new CommandLine(new Main());
+      commandLine.setOut(new PrintWriter(out, true));
+
+      final var exitCode = commandLine.execute("--version");
+
+      assertEquals(0, exitCode);
+      assertEquals(
+          ManifestVersionProvider.DEVELOPMENT_VERSION + System.lineSeparator(), out.toString());
+    }
+  }
 
   @Nested
   class ArgumentParsingTests {

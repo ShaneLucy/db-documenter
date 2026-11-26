@@ -66,7 +66,7 @@ import picocli.CommandLine.Option;
     name = "db-documenter",
     description = "Generates a PlantUML entity-relationship diagram from a live database schema.",
     mixinStandardHelpOptions = true,
-    version = "1.0.22")
+    versionProvider = ManifestVersionProvider.class)
 public final class Main implements Callable<Integer> {
   private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 

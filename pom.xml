@@ -4,7 +4,25 @@
 
   <groupId>db.documenter</groupId>
   <artifactId>db-documenter</artifactId>
-  <version>0.1.1</version>
+  <version>0.2.0</version>
+
+  <name>db-documenter</name>
+  <description>Generates PlantUML entity-relationship diagrams from live PostgreSQL schemas</description>
+  <url>https://github.com/ShaneLucy/db-documenter</url>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:https://github.com/ShaneLucy/db-documenter.git</connection>
+    <developerConnection>scm:git:git@github.com:ShaneLucy/db-documenter.git</developerConnection>
+    <url>https://github.com/ShaneLucy/db-documenter</url>
+  </scm>
 
   <properties>
     <java.version>25</java.version>
@@ -361,8 +379,12 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>db.documenter.DbDocumenter</mainClass>
+              <mainClass>db.documenter.cli.Main</mainClass>
             </manifest>
+            <manifestEntries>
+              <Implementation-Title>${project.name}</Implementation-Title>
+              <Implementation-Version>${project.version}</Implementation-Version>
+            </manifestEntries>
           </archive>
         </configuration>
       </plugin>
@@ -534,9 +556,14 @@
               <shadedArtifactAttached>true</shadedArtifactAttached>
               <shadedClassifierName>jar-with-dependencies</shadedClassifierName>
               <minimizeJar>false</minimizeJar>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>db.documenter.cli.Main</mainClass>
+                  <manifestEntries>
+                    <Implementation-Title>${project.name}</Implementation-Title>
+                    <Implementation-Version>${project.version}</Implementation-Version>
+                  </manifestEntries>
                 </transformer>
               </transformers>
               <filters>

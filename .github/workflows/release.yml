@@ -1,4 +1,10 @@
-# Release workflow: builds once, publishes to Maven Central and GHCR in parallel.
+# Release workflow, triggered by pushing a vX.Y.Z tag.
+#
+#   build --> publish-docker --> create-release
+#     \------------------------------^ (version output)
+#
+# The pom <version> is the single source of truth; the tag must match it.
+# Publishing targets: GHCR Docker image + GitHub Release with the fat CLI jar.
 name: Release
 
 on:
@@ -10,13 +16,16 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
+# Deny everything by default; each job requests only what it needs.
+permissions: {}
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}/db-documenter
 
 jobs:
   # ---------------------------------------------------------------------------
-  # Job 1: Build all artifacts once. Subsequent jobs consume them.
+  # Job 1: Verify the tagged commit end to end and build the fat JAR once.
   # ---------------------------------------------------------------------------
   build:
     runs-on: ubuntu-latest
@@ -24,6 +33,9 @@ jobs:
     permissions:
       contents: read
 
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,14 +47,46 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # Produce all JARs: main JAR, fat JAR, sources JAR, javadoc JAR.
-      # Tests are skipped here because CI already ran them on push/PR.
-      # The -Prelease profile activates GPG signing and Central Portal plugins,
-      # but signing is deferred to the publish-maven job where secrets are available.
-      - name: Build all artifacts
-        run: mvn -B clean package -DskipTests -Dgpg.skip=true
+      # Fail fast (before the long verify) if the tag and the pom disagree.
+      - name: Verify tag matches pom version
+        id: version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          POM_VERSION="$(mvn -B -q help:evaluate -Dexpression=project.version -DforceStdout)"
+          if [[ "${TAG_VERSION}" != "${POM_VERSION}" ]]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} (version '${TAG_VERSION}') does not match pom version '${POM_VERSION}'"
+            exit 1
+          fi
+          echo "Tag and pom agree on version ${POM_VERSION}"
+          echo "version=${POM_VERSION}" >> "$GITHUB_OUTPUT"
 
-      - name: Upload fat JAR for Docker
+      # Full gate: unit tests, Testcontainers ITs (ubuntu runners ship Docker),
+      # and all static analysis. Never trust that CI passed for the tagged commit.
+      - name: Build and verify
+        run: mvn -B clean verify
+
+      - name: Smoke test fat JAR
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          shopt -s nullglob
+          jars=(target/*-jar-with-dependencies.jar)
+          if (( ${#jars[@]} != 1 )); then
+            echo "::error::Expected exactly one fat JAR, found ${#jars[@]}: ${jars[*]}"
+            exit 1
+          fi
+          JAR="${jars[0]}"
+
+          VERSION_OUTPUT="$(java -jar "${JAR}" --version)"
+          echo "--version output: ${VERSION_OUTPUT}"
+          if ! grep -qwF -- "${VERSION}" <<< "${VERSION_OUTPUT}"; then
+            echo "::error::'--version' output does not contain pom version ${VERSION}"
+            exit 1
+          fi
+
+          java -jar "${JAR}" --help > /dev/null
+
+      - name: Upload fat JAR
         uses: actions/upload-artifact@v4
         with:
           name: fat-jar
@@ -50,69 +94,8 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-      - name: Upload Maven artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: maven-target
-          path: |
-            target/*.jar
-            target/*.pom
-            pom.xml
-          retention-days: 1
-          if-no-files-found: error
-
   # ---------------------------------------------------------------------------
-  # Job 2: Publish to Maven Central via the Central Portal.
-  # Uses the pre-built artifacts from Job 1.
-  # ---------------------------------------------------------------------------
-  publish-maven:
-    needs: build
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      id-token: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 25
-        uses: actions/setup-java@v4
-        with:
-          java-version: '25'
-          distribution: 'temurin'
-          cache: 'maven'
-          server-id: central
-          server-username: ${{ secrets.CENTRAL_USERNAME }}
-          server-password: ${{ secrets.CENTRAL_PASSWORD }}
-          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
-
-      - name: Download Maven artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: maven-target
-
-
-      - name: Publish to Maven Central
-        env:
-          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
-          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          mvn -B deploy \
-            -Prelease \
-            -DskipTests \
-            -Dmaven.main.skip=true \
-            -Dmaven.resources.skip=true \
-            -Dmaven.shade.skip=true \
-            -Dmaven.javadoc.skip=true \
-            -Dmaven.source.skip=true
-
-  # ---------------------------------------------------------------------------
-  # Job 3: Build and push Docker image to GHCR.
-  # Uses the pre-built fat JAR from Job 1. No Java/Maven needed.
+  # Job 2: Build and push the Docker image to GHCR from the verified fat JAR.
   # ---------------------------------------------------------------------------
   publish-docker:
     needs: build
@@ -121,9 +104,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-      # Needed for GHCR attestation (optional, future-proofing)
-      attestations: write
-      id-token: write
 
     steps:
       - name: Checkout repository
@@ -137,9 +117,9 @@ jobs:
 
       - name: Verify fat JAR exists
         run: |
-          echo "Contents of target/:"
           ls -lh target/
-          test -f target/*-jar-with-dependencies.jar || { echo "ERROR: Fat JAR not found"; exit 1; }
+          compgen -G 'target/*-jar-with-dependencies.jar' > /dev/null \
+            || { echo "::error::Fat JAR not found"; exit 1; }
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -148,13 +128,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # latest=auto: 'latest' is applied only to non-prerelease semver tags,
+      # so pushing e.g. v1.0.0-rc.1 does not move 'latest'.
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=auto
           tags: |
-            type=raw,value=latest
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
@@ -171,10 +154,10 @@ jobs:
           cache-to: type=gha,mode=max
 
   # ---------------------------------------------------------------------------
-  # Job 4: Create a GitHub Release with the fat JAR attached.
+  # Job 3: Create a GitHub Release with the fat JAR attached.
   # ---------------------------------------------------------------------------
   create-release:
-    needs: [publish-maven, publish-docker]
+    needs: [build, publish-docker]
     runs-on: ubuntu-latest
 
     permissions:
@@ -188,15 +171,15 @@ jobs:
           path: artifacts
 
       - name: Prepare release asset
-        id: prepare
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
           mv artifacts/*-jar-with-dependencies.jar "artifacts/db-documenter-${VERSION}-cli.jar"
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: artifacts/db-documenter-${{ steps.prepare.outputs.version }}-cli.jar
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: artifacts/db-documenter-${{ needs.build.outputs.version }}-cli.jar
           fail_on_unmatched_files: true

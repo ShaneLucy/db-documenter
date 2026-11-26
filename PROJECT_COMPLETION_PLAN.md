@@ -45,8 +45,8 @@ Done when:
 | E | ERD Phase 4: Schema model cleanup verification | DONE |
 | G | Null safety: Error Prone + NullAway in build (before new API is written) | DONE |
 | F | ERD Phase 5: `DiagramResult`, enum diagram, CLI two-file output | DONE |
-| H | Release readiness (workflow, version, manifest, README, LICENSE, git hygiene) | NEXT |
-| I | Final `tech-lead-reviewer` review; fix findings; final `mvn clean verify` | NOT STARTED |
+| H | Release readiness (workflow, version, manifest, README, LICENSE, git hygiene) | DONE |
+| I | Final `tech-lead-reviewer` review; fix findings; final `mvn clean verify` | NEXT |
 
 ### C. ERD Phase 2 — corrections to ERD_REFACTORING_PLAN.md
 - **CRITICAL:** `ColumnMapper.java` (`mapUserDefinedTypes` ~L148 and `enrichWithForeignKeyConstraints`
@@ -111,6 +111,16 @@ Done when:
   setter Javadoc, 1 `InlineFormatString` in `PostgresConnectionManager:15`.
 - (from phase F) Skill note: SpotBugs can't see that `Validators.*` returns non-null — don't chain
   calls on its result (`isNotNull(x).toString()`); use an explicit null check for dereferences.
+
+## Out-of-scope follow-ups for the user (from devops-lead, phase H)
+1. Pin GitHub Actions to commit SHAs (esp. `softprops/action-gh-release`, which has `contents: write`).
+2. Skip the `{{major}}` image tag for `v0.x` releases (publishes a meaningless `:0`).
+3. Smoke-test the exact image before pushing (`load: true` build → `docker run … --version` → push).
+4. `build.yaml`: make the Sonar goal conditional on `SONAR_TOKEN` (fork PRs fail today); add a
+   `concurrency` group.
+5. Pin `eclipse-temurin:25-jre-alpine` by digest/patch; enable Dependabot (docker + github-actions).
+6. Protect `v*` tags / require tagged commits to be on `main`.
+7. Maven Central publishing (needs groupId decision, Sonatype account, GPG) — see `RELEASE_SETUP_TODO.md`.
 
 ## Environment notes
 - Docker Desktop WSL integration enabled 2026-11-26 (server 28.3.2) → ITs run locally. Gate before
