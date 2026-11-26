@@ -4,6 +4,7 @@ import org.jspecify.annotations.NullMarked;
 module dev.shanelucy.dbdocumenter {
   requires java.sql;
   requires java.logging;
+  requires static com.github.spotbugs.annotations;
   requires static org.jspecify;
   requires info.picocli;
 

@@ -26,6 +26,8 @@
 
   <properties>
     <java.version>25</java.version>
+    <!-- Minimum JDK to run the build; deliberately independent of the compile release -->
+    <build.jdk>25</build.jdk>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.compiler.release>${java.version}</maven.compiler.release>
@@ -68,16 +70,16 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.github.spotbugs</groupId>
-      <artifactId>spotbugs-annotations</artifactId>
-      <version>${spotbugs-annotations.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>info.picocli</groupId>
       <artifactId>picocli</artifactId>
       <version>${picocli.version}</version>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+      <version>${spotbugs-annotations.version}</version>
+      <scope>provided</scope>
     </dependency>
     <!-- Annotations -->
     <dependency>
@@ -275,8 +277,6 @@
         <configuration>
           <release>${java.version}</release>
           <compilerArgs>
-            <arg>--add-reads</arg>
-            <arg>dev.shanelucy.dbdocumenter=ALL-UNNAMED</arg>
             <arg>-XDcompilePolicy=simple</arg>
             <arg>--should-stop=ifError=FLOW</arg>
             <!-- OnlyNullMarked: module-info.java is @NullMarked; no duplicate package list to maintain -->
@@ -341,7 +341,7 @@
                   <version>[3.8.1,)</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
-                  <version>${java.version}</version>
+                  <version>${build.jdk}</version>
                 </requireJavaVersion>
                 <dependencyConvergence/>
                 <requirePluginVersions>
@@ -392,12 +392,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${maven-javadoc.version}</version>
-        <configuration>
-          <additionalOptions>
-            <additionalOption>--add-reads</additionalOption>
-            <additionalOption>dev.shanelucy.dbdocumenter=ALL-UNNAMED</additionalOption>
-          </additionalOptions>
-        </configuration>
         <dependencies>
           <dependency>
             <groupId>com.github.spotbugs</groupId>
@@ -416,10 +410,6 @@
             <configuration>
               <outputDirectory>${project.build.directory}/site/apidocs</outputDirectory>
               <excludePackageNames>dev.shanelucy.dbdocumenter.internal.*</excludePackageNames>
-              <additionalOptions>
-                <additionalOption>--add-reads</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter=ALL-UNNAMED</additionalOption>
-              </additionalOptions>
             </configuration>
           </execution>
           <!-- Internal/Contributor Documentation -->
@@ -437,8 +427,6 @@
               <additionalOptions>
                 <additionalOption>--add-modules</additionalOption>
                 <additionalOption>com.github.spotbugs.annotations</additionalOption>
-                <additionalOption>--add-reads</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-reads</additionalOption>
                 <additionalOption>dev.shanelucy.dbdocumenter=com.github.spotbugs.annotations</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
@@ -493,10 +481,6 @@
             <phase>package</phase>
             <configuration>
               <excludePackageNames>dev.shanelucy.dbdocumenter.internal.*</excludePackageNames>
-              <additionalOptions>
-                <additionalOption>--add-reads</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter=ALL-UNNAMED</additionalOption>
-              </additionalOptions>
             </configuration>
           </execution>
         </executions>
