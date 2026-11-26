@@ -1,6 +1,7 @@
 package dev.shanelucy.dbdocumenter.internal.validation;
 
 import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
@@ -28,6 +29,25 @@ public final class Validators {
     return value;
   }
 
+  /**
+   * Ensures {@code value} is non-null and non-empty, but unlike {@link #isNotBlank} accepts
+   * whitespace, because database identifiers may legally consist of whitespace.
+   *
+   * @param value the string to check
+   * @param propertyName name used in the failure message
+   * @return {@code value}, for chaining
+   * @throws ValidationException if the value is null or empty
+   */
+  public static String isNotEmpty(final @Nullable String value, final String propertyName) {
+    if (value == null) {
+      throw new ValidationException(propertyName + " must not be null");
+    }
+    if (value.isEmpty()) {
+      throw new ValidationException(propertyName + " must not be empty");
+    }
+    return value;
+  }
+
   public static <T extends List<?>> T containsAtLeast1Item(
       final @Nullable T value, final String propertyName) {
     if (value == null || value.isEmpty()) {
@@ -50,6 +70,29 @@ public final class Validators {
     }
     if (value.stream().anyMatch(Objects::isNull)) {
       throw new ValidationException(propertyName + " must not contain null elements");
+    }
+    return value;
+  }
+
+  /**
+   * Ensures {@code value} contains no element twice, by {@link Object#equals}.
+   *
+   * @param value the list to check
+   * @param propertyName name used in the failure message, which also names the first duplicate
+   * @return {@code value}, for chaining
+   * @throws ValidationException if the list is null or contains a duplicate
+   */
+  public static <T> List<T> containsNoDuplicates(
+      final @Nullable List<T> value, final String propertyName) {
+    if (value == null) {
+      throw new ValidationException(propertyName + " must not be null");
+    }
+    final var seen = new HashSet<T>();
+    for (final T element : value) {
+      if (!seen.add(element)) {
+        throw new ValidationException(
+            propertyName + " must not contain duplicates, found duplicate: " + element);
+      }
     }
     return value;
   }

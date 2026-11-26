@@ -8,6 +8,7 @@ module dev.shanelucy.dbdocumenter {
   requires static org.jspecify;
 
   exports dev.shanelucy.dbdocumenter;
+  exports dev.shanelucy.dbdocumenter.catalog;
 
   // TODO(Phase 3): remove once DbDocumenterException is public
   exports dev.shanelucy.dbdocumenter.internal.exceptions to

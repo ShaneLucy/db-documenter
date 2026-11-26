@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
@@ -36,6 +37,80 @@ class ValidatorsTest {
           assertThrows(ValidationException.class, () -> Validators.isNotBlank("", "test"));
 
       assertEquals("test must not be blank", exception.getMessage());
+    }
+  }
+
+  @Nested
+  class IsNotEmptyTests {
+
+    @ParameterizedTest
+    @ValueSource(strings = {"test", " ", "\t", " test "})
+    void itReturnsTheValueWhenStringIsNotEmpty(final String input) {
+      assertSame(input, Validators.isNotEmpty(input, "test"));
+    }
+
+    @Test
+    void itThrowsExceptionWhenStringIsNull() {
+      final var exception =
+          assertThrows(ValidationException.class, () -> Validators.isNotEmpty(null, "test"));
+
+      assertEquals("test must not be null", exception.getMessage());
+    }
+
+    @Test
+    void itThrowsExceptionWhenStringIsEmpty() {
+      final var exception =
+          assertThrows(ValidationException.class, () -> Validators.isNotEmpty("", "test"));
+
+      assertEquals("test must not be empty", exception.getMessage());
+    }
+  }
+
+  @Nested
+  class ContainsNoDuplicatesTests {
+
+    @Test
+    void itReturnsTheSameListWhenElementsAreDistinct() {
+      final var input = new ArrayList<>(List.of("a", "b", "A"));
+
+      assertSame(input, Validators.containsNoDuplicates(input, "test"));
+    }
+
+    @Test
+    void itAcceptsEmptyList() {
+      assertDoesNotThrow(() -> Validators.containsNoDuplicates(List.of(), "test"));
+    }
+
+    @Test
+    void itThrowsExceptionWhenListIsNull() {
+      final var exception =
+          assertThrows(
+              ValidationException.class, () -> Validators.containsNoDuplicates(null, "test"));
+
+      assertEquals("test must not be null", exception.getMessage());
+    }
+
+    @Test
+    void itThrowsExceptionNamingTheFirstDuplicate() {
+      final var input = List.of("a", "b", "b", "a");
+
+      final var exception =
+          assertThrows(
+              ValidationException.class, () -> Validators.containsNoDuplicates(input, "test"));
+
+      assertEquals("test must not contain duplicates, found duplicate: b", exception.getMessage());
+    }
+
+    @Test
+    void itTreatsRepeatedNullAsDuplicate() {
+      final var input = Arrays.asList("a", null, null);
+
+      final var exception =
+          assertThrows(
+              ValidationException.class, () -> Validators.containsNoDuplicates(input, "test"));
+
+      assertEquals(
+          "test must not contain duplicates, found duplicate: null", exception.getMessage());
     }
   }
 
