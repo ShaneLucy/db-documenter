@@ -25,7 +25,7 @@ class MainTest {
   class ArgumentParsingTests {
 
     @Test
-    void whenHostIsMissing_returnsNonZeroExitCode() {
+    void whenHostIsMissingReturnsNonZeroExitCode() {
       final var exitCode =
           new CommandLine(new Main())
               .execute(
@@ -38,7 +38,7 @@ class MainTest {
     }
 
     @Test
-    void whenDatabaseIsMissing_returnsNonZeroExitCode() {
+    void whenDatabaseIsMissingReturnsNonZeroExitCode() {
       final var exitCode =
           new CommandLine(new Main())
               .execute(
@@ -51,7 +51,7 @@ class MainTest {
     }
 
     @Test
-    void whenUsernameIsMissing_returnsNonZeroExitCode() {
+    void whenUsernameIsMissingReturnsNonZeroExitCode() {
       final var exitCode =
           new CommandLine(new Main())
               .execute(
@@ -64,7 +64,7 @@ class MainTest {
     }
 
     @Test
-    void whenSchemaIsMissing_returnsNonZeroExitCode() {
+    void whenSchemaIsMissingReturnsNonZeroExitCode() {
       final var exitCode =
           new CommandLine(new Main())
               .execute(
@@ -81,7 +81,7 @@ class MainTest {
   class ValidationErrorTests {
 
     @Test
-    void whenHostIsBlankWhitespace_returnsValidationExitCode() {
+    void whenHostIsBlankWhitespaceReturnsValidationExitCode() {
       final var captured = captureStderr(() -> executeWith("--host", " "));
 
       assertEquals(1, captured.exitCode());
@@ -89,7 +89,7 @@ class MainTest {
     }
 
     @Test
-    void whenDatabaseIsBlankWhitespace_returnsValidationExitCode() {
+    void whenDatabaseIsBlankWhitespaceReturnsValidationExitCode() {
       final var captured = captureStderr(this::executeWithBlankDatabase);
 
       assertEquals(1, captured.exitCode());
@@ -97,7 +97,7 @@ class MainTest {
     }
 
     @Test
-    void whenUsernameIsBlankWhitespace_returnsValidationExitCode() {
+    void whenUsernameIsBlankWhitespaceReturnsValidationExitCode() {
       final var captured = captureStderr(this::executeWithBlankUsername);
 
       assertEquals(1, captured.exitCode());
@@ -105,11 +105,32 @@ class MainTest {
     }
 
     @Test
-    void whenPasswordIsBlankWhitespace_returnsValidationExitCode() {
+    void whenPasswordIsBlankWhitespaceReturnsValidationExitCode() {
       final var captured = captureStderr(this::executeWithBlankPassword);
 
       assertEquals(1, captured.exitCode());
       assertTrue(captured.stderr().contains("Configuration error"));
+    }
+
+    @Test
+    void whenPasswordOptionIsAbsentReturnsValidationExitCodeWithMessage() {
+      final var captured =
+          captureStderr(
+              () ->
+                  new CommandLine(new Main())
+                      .execute(
+                          "--host",
+                          "localhost",
+                          "--database",
+                          "mydb",
+                          "--username",
+                          "user",
+                          "--schemas",
+                          "public",
+                          "--ssl=false"));
+
+      assertEquals(1, captured.exitCode());
+      assertTrue(captured.stderr().contains("Configuration error: password must not be blank"));
     }
 
     private int executeWith(final String nameArg, final String valueArg) {
@@ -181,7 +202,7 @@ class MainTest {
   class DatabaseConnectivityTests {
 
     @Test
-    void whenConnectionIsRefused_returnsDatabaseErrorExitCode() {
+    void whenConnectionIsRefusedReturnsDatabaseErrorExitCode() {
       // Port 1 on localhost is closed and responds with connection refused immediately,
       // avoiding any DNS timeout from an unresolvable hostname.
       final var captured =

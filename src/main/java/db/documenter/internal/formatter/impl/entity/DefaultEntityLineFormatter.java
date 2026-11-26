@@ -3,6 +3,7 @@ package db.documenter.internal.formatter.impl.entity;
 import db.documenter.internal.formatter.api.EntityLineFormatter;
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.Table;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link EntityLineFormatter} implementation which creates the basic structure of a line in a
@@ -17,11 +18,11 @@ public final class DefaultEntityLineFormatter implements EntityLineFormatter {
    *
    * @param table {@link Table}
    * @param column {@link Column}
-   * @param current {@link String}
+   * @param current the line built so far, or null at the start of the chain
    * @return the formatted line or the current line {@link String}
    */
   @Override
-  public String format(final Table table, final Column column, final String current) {
+  public String format(final Table table, final Column column, final @Nullable String current) {
     if (current != null) {
       return current;
     }

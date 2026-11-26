@@ -2,6 +2,7 @@ package db.documenter.internal.models.db;
 
 import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.validation.Validators;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a foreign key relationship between database tables.
@@ -87,12 +88,12 @@ public record ForeignKey(
    * @see ForeignKey
    */
   public static final class Builder {
-    private String name;
-    private String sourceTable;
-    private String sourceColumn;
-    private String targetTable;
-    private String targetColumn;
-    private String referencedSchema;
+    private @Nullable String name;
+    private @Nullable String sourceTable;
+    private @Nullable String sourceColumn;
+    private @Nullable String targetTable;
+    private @Nullable String targetColumn;
+    private @Nullable String referencedSchema;
     private boolean isNullable;
 
     /**
@@ -162,7 +163,13 @@ public record ForeignKey(
      */
     public ForeignKey build() {
       return new ForeignKey(
-          name, sourceTable, sourceColumn, targetTable, targetColumn, referencedSchema, isNullable);
+          Validators.isNotBlank(name, "name"),
+          Validators.isNotBlank(sourceTable, "sourceTable"),
+          Validators.isNotBlank(sourceColumn, "sourceColumn"),
+          Validators.isNotBlank(targetTable, "targetTable"),
+          Validators.isNotBlank(targetColumn, "targetColumn"),
+          Validators.isNotBlank(referencedSchema, "referencedSchema"),
+          isNullable);
     }
   }
 }

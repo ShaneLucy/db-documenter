@@ -1192,7 +1192,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", appUser.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", appUser.name()).orElseThrow();
 
         assertEquals("app_user_pkey", primaryKey.constraintName());
       }
@@ -1200,7 +1200,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", appUser.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", appUser.name()).orElseThrow();
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1220,7 +1220,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", role.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", role.name()).orElseThrow();
 
         assertEquals("role_pkey", primaryKey.constraintName());
       }
@@ -1228,7 +1228,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", role.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", role.name()).orElseThrow();
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1249,7 +1249,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", userRole.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", userRole.name()).orElseThrow();
 
         assertEquals("user_role_pkey", primaryKey.constraintName());
       }
@@ -1257,7 +1257,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", userRole.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", userRole.name()).orElseThrow();
 
         assertEquals(2, primaryKey.columnNames().size());
         assertEquals("user_id", primaryKey.columnNames().getFirst());
@@ -1278,7 +1278,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", address.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", address.name()).orElseThrow();
 
         assertEquals("address_pkey", primaryKey.constraintName());
       }
@@ -1286,7 +1286,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", address.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", address.name()).orElseThrow();
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1306,7 +1306,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", product.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", product.name()).orElseThrow();
 
         assertEquals("product_pkey", primaryKey.constraintName());
       }
@@ -1314,7 +1314,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", product.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", product.name()).orElseThrow();
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1335,7 +1335,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", category.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", category.name()).orElseThrow();
 
         assertEquals("category_pkey", primaryKey.constraintName());
       }
@@ -1343,7 +1343,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", category.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", category.name()).orElseThrow();
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1368,7 +1368,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", productCategory.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", productCategory.name()).orElseThrow();
 
         assertEquals("product_category_pkey", primaryKey.constraintName());
       }
@@ -1376,7 +1376,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", productCategory.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", productCategory.name()).orElseThrow();
 
         assertEquals(2, primaryKey.columnNames().size());
         assertEquals("product_id", primaryKey.columnNames().getFirst());
@@ -1402,7 +1402,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", customerOrder.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", customerOrder.name()).orElseThrow();
 
         assertEquals("customer_order_pkey", primaryKey.constraintName());
       }
@@ -1410,7 +1410,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", customerOrder.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", customerOrder.name()).orElseThrow();
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1431,7 +1431,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", orderItem.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", orderItem.name()).orElseThrow();
 
         assertEquals("order_item_pkey", primaryKey.constraintName());
       }
@@ -1439,7 +1439,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", orderItem.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", orderItem.name()).orElseThrow();
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1459,7 +1459,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", payment.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", payment.name()).orElseThrow();
 
         assertEquals("payment_pkey", primaryKey.constraintName());
       }
@@ -1467,7 +1467,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", payment.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", payment.name()).orElseThrow();
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1488,7 +1488,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectConstraintName() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", auditLog.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", auditLog.name()).orElseThrow();
 
         assertEquals("audit_log_pkey", primaryKey.constraintName());
       }
@@ -1496,7 +1496,7 @@ class PostgresqlQueryRunnerTest {
       @Test
       void itHasTheCorrectColumnNames() throws SQLException {
         final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", auditLog.name());
+            postgresqlQueryRunner.getPrimaryKeyInfo("public", auditLog.name()).orElseThrow();
 
         assertEquals(1, primaryKey.columnNames().size());
         assertEquals("id", primaryKey.columnNames().getFirst());
@@ -1515,9 +1515,8 @@ class PostgresqlQueryRunnerTest {
 
       @Test
       void itHasNoPrimaryKey() throws SQLException {
-        final PrimaryKey primaryKey =
-            postgresqlQueryRunner.getPrimaryKeyInfo("public", tagLog.name());
-        assertNull(primaryKey);
+        final var primaryKey = postgresqlQueryRunner.getPrimaryKeyInfo("public", tagLog.name());
+        assertTrue(primaryKey.isEmpty());
       }
     }
   }

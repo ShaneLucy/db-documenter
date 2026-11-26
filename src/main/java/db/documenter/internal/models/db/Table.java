@@ -4,6 +4,7 @@ import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.validation.Validators;
 import java.util.List;
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a database table with its columns, primary key, and foreign key relationships.
@@ -82,10 +83,10 @@ public record Table(
    * @see Table
    */
   public static final class Builder {
-    private String name;
-    private List<Column> columns;
-    private PrimaryKey primaryKey;
-    private List<ForeignKey> foreignKeys;
+    private @Nullable String name;
+    private @Nullable List<Column> columns;
+    private @Nullable PrimaryKey primaryKey;
+    private @Nullable List<ForeignKey> foreignKeys;
 
     /**
      * Sets the table name.
@@ -120,7 +121,7 @@ public record Table(
      * @param primaryKey the {@link PrimaryKey}, or null if the table has no primary key
      * @return this {@link Builder} instance for method chaining
      */
-    public Builder primaryKey(final PrimaryKey primaryKey) {
+    public Builder primaryKey(final @Nullable PrimaryKey primaryKey) {
       this.primaryKey = primaryKey;
       return this;
     }
@@ -148,7 +149,11 @@ public record Table(
      * @throws ValidationException if any required field is null or blank
      */
     public Table build() {
-      return new Table(name, columns, Optional.ofNullable(primaryKey), foreignKeys);
+      return new Table(
+          Validators.isNotBlank(name, "name"),
+          Validators.isNotNull(columns, "columns"),
+          Optional.ofNullable(primaryKey),
+          Validators.isNotNull(foreignKeys, "foreignKeys"));
     }
   }
 }

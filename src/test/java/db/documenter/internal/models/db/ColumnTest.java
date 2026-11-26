@@ -6,10 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import db.documenter.internal.exceptions.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class ColumnTest {
@@ -90,6 +94,27 @@ class ColumnTest {
       final var exception = assertThrows(ValidationException.class, builder::build);
 
       assertEquals("isNullable must not be null", exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @MethodSource("incompleteBuilders")
+    void itThrowsValidationExceptionWhenRequiredFieldIsMissing(
+        final String expectedMessage, final Supplier<Column.Builder> incompleteBuilder) {
+      final var builder = incompleteBuilder.get();
+
+      final var exception = assertThrows(ValidationException.class, builder::build);
+
+      assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    static Stream<Arguments> incompleteBuilders() {
+      return Stream.of(
+          Arguments.of(
+              "name must not be blank",
+              (Supplier<Column.Builder>) () -> Column.builder().dataType("uuid").isNullable(false)),
+          Arguments.of(
+              "dataType must not be blank",
+              (Supplier<Column.Builder>) () -> Column.builder().name("id").isNullable(false)));
     }
 
     @ParameterizedTest

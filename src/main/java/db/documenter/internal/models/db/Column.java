@@ -121,8 +121,8 @@ public record Column(
    * @see Column
    */
   public static final class Builder {
-    private String name;
-    private String dataType;
+    private @Nullable String name;
+    private @Nullable String dataType;
     private int maximumLength;
     private @Nullable Boolean isNullable;
     private List<Constraint> constraints = List.of();
@@ -198,8 +198,12 @@ public record Column(
      *     cardinality
      */
     public Column build() {
-      Validators.isNotNull(isNullable, "isNullable");
-      return new Column(name, dataType, maximumLength, isNullable, constraints);
+      return new Column(
+          Validators.isNotBlank(name, "name"),
+          Validators.isNotBlank(dataType, "dataType"),
+          maximumLength,
+          Validators.isNotNull(isNullable, "isNullable"),
+          constraints);
     }
   }
 }

@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -335,12 +336,12 @@ class PostgresqlResultSetMapperTest {
     private final String column2 = "username";
 
     @Test
-    void itReturnsNullIfResultSetIsEmpty() throws SQLException {
+    void itReturnsEmptyIfResultSetIsEmpty() throws SQLException {
       when(resultSet.next()).thenReturn(false);
 
-      final PrimaryKey result = postgresqlResultSetMapper.mapToPrimaryKey(resultSet);
+      final var result = postgresqlResultSetMapper.mapToPrimaryKey(resultSet);
 
-      assertNull(result);
+      assertEquals(Optional.empty(), result);
     }
 
     @Test
@@ -349,7 +350,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("constraint_name")).thenReturn(constraintName1);
       when(resultSet.getString("column_name")).thenReturn(column1);
 
-      final PrimaryKey result = postgresqlResultSetMapper.mapToPrimaryKey(resultSet);
+      final PrimaryKey result = postgresqlResultSetMapper.mapToPrimaryKey(resultSet).orElseThrow();
 
       assertEquals(constraintName1, result.constraintName());
       assertEquals(List.of(column1), result.columnNames());
@@ -365,7 +366,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("constraint_name")).thenReturn(constraintName1);
       when(resultSet.getString("column_name")).thenAnswer(invocation -> columnIt.next());
 
-      final PrimaryKey result = postgresqlResultSetMapper.mapToPrimaryKey(resultSet);
+      final PrimaryKey result = postgresqlResultSetMapper.mapToPrimaryKey(resultSet).orElseThrow();
 
       assertEquals(constraintName1, result.constraintName());
       assertEquals(columnNames, result.columnNames());

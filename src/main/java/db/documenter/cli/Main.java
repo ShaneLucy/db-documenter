@@ -3,12 +3,14 @@ package db.documenter.cli;
 import db.documenter.DbDocumenter;
 import db.documenter.DbDocumenterConfig;
 import db.documenter.internal.exceptions.ValidationException;
+import db.documenter.internal.validation.Validators;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.Callable;
+import org.jspecify.annotations.Nullable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -62,10 +64,10 @@ public final class Main implements Callable<Integer> {
 
   private static final int EXIT_UNEXPECTED_ERROR = 3;
 
-  // Picocli populates these fields after construction, so they must not carry @NonNull.
-  // --password and --output are intentionally nullable: null signals "not provided".
+  // Picocli populates required options before call(); --password and --output are optional.
 
   @Option(names = "--host", description = "Database hostname.", required = true)
+  @SuppressWarnings("NullAway.Init") // populated by picocli before call()
   private String host;
 
   @Option(
@@ -75,9 +77,11 @@ public final class Main implements Callable<Integer> {
   private int port;
 
   @Option(names = "--database", description = "Database name.", required = true)
+  @SuppressWarnings("NullAway.Init") // populated by picocli before call()
   private String database;
 
   @Option(names = "--username", description = "Database username.", required = true)
+  @SuppressWarnings("NullAway.Init") // populated by picocli before call()
   private String username;
 
   @Option(
@@ -85,13 +89,14 @@ public final class Main implements Callable<Integer> {
       description = "Database password. Omit the value to be prompted interactively.",
       interactive = true,
       arity = "0..1")
-  private String password;
+  private @Nullable String password;
 
   @Option(
       names = "--schemas",
       description = "Comma-separated list of schemas to document.",
       required = true,
       split = ",")
+  @SuppressWarnings("NullAway.Init") // populated by picocli before call()
   private List<String> schemas;
 
   @Option(
@@ -105,7 +110,7 @@ public final class Main implements Callable<Integer> {
   private boolean ssl;
 
   @Option(names = "--output", description = "Output file path. Omit to write to stdout.")
-  private String output;
+  private @Nullable String output;
 
   /**
    * Executes the documentation generation pipeline.
@@ -130,15 +135,16 @@ public final class Main implements Callable<Integer> {
               .databasePort(port)
               .databaseName(database)
               .username(username)
-              .password(password)
+              .password(Validators.isNotBlank(password, "password"))
               .schemas(schemas)
               .useSsl(ssl)
               .build();
 
       final var puml = new DbDocumenter(config).generatePuml();
 
-      if (output != null) {
-        Files.writeString(Path.of(output), puml);
+      final var outputPath = output;
+      if (outputPath != null) {
+        Files.writeString(Path.of(outputPath), puml);
       } else {
         System.out.print(puml);
       }

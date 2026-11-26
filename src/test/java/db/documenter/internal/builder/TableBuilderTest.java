@@ -25,6 +25,7 @@ import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -147,21 +148,23 @@ class TableBuilderTest {
       when(columnMapper.mapUserDefinedTypes(
               eq(List.of(rawColumn1)), any(ColumnMappingContext.class)))
           .thenReturn(List.of(mappedColumn1));
-      when(queryRunner.getPrimaryKeyInfo("test_schema", table1.name())).thenReturn(primaryKey);
+      when(queryRunner.getPrimaryKeyInfo("test_schema", table1.name()))
+          .thenReturn(Optional.of(primaryKey));
       when(queryRunner.getForeignKeyInfo("test_schema", table1.name())).thenReturn(List.of());
       when(foreignKeyMapper.enrichWithNullability(List.of(), List.of(mappedColumn1)))
           .thenReturn(List.of());
       when(columnMapper.enrichWithForeignKeyConstraints(List.of(mappedColumn1), List.of()))
           .thenReturn(List.of(mappedColumn1));
       when(tableMapper.combineTableComponents(
-              "users", List.of(mappedColumn1), primaryKey, List.of()))
+              "users", List.of(mappedColumn1), Optional.of(primaryKey), List.of()))
           .thenReturn(builtTable1);
 
       when(queryRunner.getColumnInfo("test_schema", table2.name())).thenReturn(List.of(rawColumn2));
       when(columnMapper.mapUserDefinedTypes(
               eq(List.of(rawColumn2)), any(ColumnMappingContext.class)))
           .thenReturn(List.of(mappedColumn2));
-      when(queryRunner.getPrimaryKeyInfo("test_schema", table2.name())).thenReturn(primaryKey);
+      when(queryRunner.getPrimaryKeyInfo("test_schema", table2.name()))
+          .thenReturn(Optional.of(primaryKey));
       when(queryRunner.getForeignKeyInfo("test_schema", table2.name()))
           .thenReturn(List.of(rawForeignKey));
       when(foreignKeyMapper.enrichWithNullability(List.of(rawForeignKey), List.of(mappedColumn2)))
@@ -170,7 +173,10 @@ class TableBuilderTest {
               List.of(mappedColumn2), List.of(rawForeignKey)))
           .thenReturn(List.of(mappedColumn2));
       when(tableMapper.combineTableComponents(
-              "orders", List.of(mappedColumn2), primaryKey, List.of(enrichedForeignKey)))
+              "orders",
+              List.of(mappedColumn2),
+              Optional.of(primaryKey),
+              List.of(enrichedForeignKey)))
           .thenReturn(builtTable2);
 
       final List<Table> result =
@@ -229,14 +235,15 @@ class TableBuilderTest {
       when(columnMapper.mapUserDefinedTypes(
               eq(List.of(rawColumn)), any(ColumnMappingContext.class)))
           .thenReturn(List.of(mappedColumn));
-      when(queryRunner.getPrimaryKeyInfo("test_schema", table.name())).thenReturn(primaryKey);
+      when(queryRunner.getPrimaryKeyInfo("test_schema", table.name()))
+          .thenReturn(Optional.of(primaryKey));
       when(queryRunner.getForeignKeyInfo("test_schema", table.name())).thenReturn(List.of());
       when(foreignKeyMapper.enrichWithNullability(List.of(), List.of(mappedColumn)))
           .thenReturn(List.of());
       when(columnMapper.enrichWithForeignKeyConstraints(List.of(mappedColumn), List.of()))
           .thenReturn(List.of(mappedColumn));
       when(tableMapper.combineTableComponents(
-              "users", List.of(mappedColumn), primaryKey, List.of()))
+              "users", List.of(mappedColumn), Optional.of(primaryKey), List.of()))
           .thenReturn(builtTable);
 
       final List<Table> result =

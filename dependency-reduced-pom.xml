@@ -118,12 +118,51 @@
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler.version}</version>
+        <executions>
+          <execution>
+            <id>default-testCompile</id>
+            <configuration>
+              <annotationProcessorPaths />
+              <compilerArgs>
+                <arg>--add-reads</arg>
+                <arg>db.documenter=ALL-UNNAMED</arg>
+              </compilerArgs>
+            </configuration>
+          </execution>
+        </executions>
         <configuration>
           <release>${java.version}</release>
           <compilerArgs>
             <arg>--add-reads</arg>
             <arg>db.documenter=ALL-UNNAMED</arg>
+            <arg>-XDcompilePolicy=simple</arg>
+            <arg>--should-stop=ifError=FLOW</arg>
+            <arg>-Xplugin:ErrorProne -XepOpt:NullAway:OnlyNullMarked=true -Xep:NullAway:ERROR</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
           </compilerArgs>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>com.google.errorprone</groupId>
+              <artifactId>error_prone_core</artifactId>
+              <version>${error-prone.version}</version>
+            </path>
+            <path>
+              <groupId>com.uber.nullaway</groupId>
+              <artifactId>nullaway</artifactId>
+              <version>${nullaway.version}</version>
+            </path>
+          </annotationProcessorPaths>
           <fork>true</fork>
         </configuration>
       </plugin>
@@ -559,6 +598,8 @@
     <enforcer.version>3.5.0</enforcer.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>6.0.1</junit.version>
+    <nullaway.version>0.14.4</nullaway.version>
+    <error-prone.version>2.53.0</error-prone.version>
     <spotbugs.version>4.9.8.1</spotbugs.version>
     <spotless.version>3.1.0</spotless.version>
     <java.version>25</java.version>

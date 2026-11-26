@@ -2,6 +2,7 @@ package db.documenter.internal.formatter.impl.multiplicity;
 
 import db.documenter.internal.formatter.api.MultiplicityFormatter;
 import db.documenter.internal.models.db.ForeignKey;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link MultiplicityFormatter} implementation which creates the basic structure of a
@@ -17,12 +18,12 @@ public final class DefaultMultiplicityFormatter implements MultiplicityFormatter
    *
    * @param foreignKey {@link ForeignKey}
    * @param currentSchemaName {@link String} the schema name of the source table
-   * @param current {@link String}
+   * @param current the line built so far, or null at the start of the chain
    * @return the formatted relationship line or the current line {@link String}
    */
   @Override
   public String format(
-      final ForeignKey foreignKey, final String currentSchemaName, final String current) {
+      final ForeignKey foreignKey, final String currentSchemaName, final @Nullable String current) {
     if (current != null) {
       return current;
     }

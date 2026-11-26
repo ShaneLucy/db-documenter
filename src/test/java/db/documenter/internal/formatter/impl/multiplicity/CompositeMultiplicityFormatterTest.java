@@ -1,8 +1,10 @@
 package db.documenter.internal.formatter.impl.multiplicity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.formatter.api.MultiplicityFormatter;
 import db.documenter.internal.models.db.ForeignKey;
 import java.util.List;
@@ -119,6 +121,30 @@ class CompositeMultiplicityFormatterTest {
 
       assertEquals("out", result);
       verify(multiplicityFormatter1).format(null, "public", "val");
+    }
+
+    @Test
+    void whenChainStartsWithNullRealFormattersProduceFullLine() {
+      final var composite =
+          CompositeMultiplicityFormatter.builder()
+              .addFormatter(new DefaultMultiplicityFormatter())
+              .addFormatter(new CardinalityFormatter())
+              .build();
+
+      final var result = composite.format(foreignKey, "public", null);
+
+      assertEquals("target ||--|{ source", result);
+    }
+
+    @Test
+    void whenEmptyChainStartsWithNullThrowsValidationException() {
+      final var composite = new CompositeMultiplicityFormatter(List.of());
+
+      final var exception =
+          assertThrows(
+              ValidationException.class, () -> composite.format(foreignKey, "public", null));
+
+      assertEquals("formattedLine must not be null", exception.getMessage());
     }
   }
 }

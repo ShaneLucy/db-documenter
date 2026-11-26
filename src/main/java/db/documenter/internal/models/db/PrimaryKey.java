@@ -3,6 +3,7 @@ package db.documenter.internal.models.db;
 import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.validation.Validators;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a primary key constraint on a database table.
@@ -71,8 +72,8 @@ public record PrimaryKey(String constraintName, List<String> columnNames) {
    * @see PrimaryKey
    */
   public static final class Builder {
-    private String constraintName;
-    private List<String> columnNames;
+    private @Nullable String constraintName;
+    private @Nullable List<String> columnNames;
 
     /**
      * Sets the primary key constraint name.
@@ -105,7 +106,9 @@ public record PrimaryKey(String constraintName, List<String> columnNames) {
      * @throws ValidationException if any required field is null
      */
     public PrimaryKey build() {
-      return new PrimaryKey(constraintName, columnNames);
+      return new PrimaryKey(
+          Validators.isNotBlank(constraintName, "constraintName"),
+          Validators.containsAtLeast1Item(columnNames, "columnNames"));
     }
   }
 }

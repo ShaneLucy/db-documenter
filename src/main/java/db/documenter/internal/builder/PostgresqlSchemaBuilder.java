@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -111,7 +112,9 @@ public final class PostgresqlSchemaBuilder implements SchemaBuilder {
               Level.SEVERE,
               "Failed to build schema: {0} - {1}",
               new Object[] {
-                LogUtils.sanitizeForLog(schemaName), LogUtils.sanitizeForLog(e.getMessage())
+                LogUtils.sanitizeForLog(schemaName),
+                LogUtils.sanitizeForLog(
+                    Objects.requireNonNullElse(e.getMessage(), e.getClass().getSimpleName()))
               });
         }
         throw e;

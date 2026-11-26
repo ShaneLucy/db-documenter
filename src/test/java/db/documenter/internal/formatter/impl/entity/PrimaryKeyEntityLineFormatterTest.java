@@ -3,6 +3,7 @@ package db.documenter.internal.formatter.impl.entity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
@@ -63,15 +64,18 @@ class PrimaryKeyEntityLineFormatterTest {
     }
 
     @Test
-    void ifCurrentIsNullAndColumnIsPrimaryKeyReturnsBoldedNull() {
+    void whenCurrentIsNullThrowsValidationException() {
       final var column = columnBuilder.build();
       final var pk =
           PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("col")).build();
       final var table = tableBuilder.primaryKey(pk).build();
 
-      final var result = primaryKeyEntityLineFormatter.format(table, column, null);
+      final var exception =
+          assertThrows(
+              ValidationException.class,
+              () -> primaryKeyEntityLineFormatter.format(table, column, null));
 
-      assertEquals("**null**", result);
+      assertEquals("current must not be null", exception.getMessage());
     }
 
     @Test

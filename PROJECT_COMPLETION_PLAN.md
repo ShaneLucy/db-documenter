@@ -43,8 +43,8 @@ Done when:
 | C | ERD Phase 2: constraint stereotypes, referential actions, `Column.isNullable` → compiles, green, **commit B+C** | DONE |
 | D | ERD Phase 3: remove partition info | DONE |
 | E | ERD Phase 4: Schema model cleanup verification | DONE |
-| G | Null safety: Error Prone + NullAway in build (before new API is written) | NEXT |
-| F | ERD Phase 5: `DiagramResult`, enum diagram, CLI two-file output | NOT STARTED |
+| G | Null safety: Error Prone + NullAway in build (before new API is written) | DONE |
+| F | ERD Phase 5: `DiagramResult`, enum diagram, CLI two-file output | NEXT |
 | H | Release readiness (workflow, version, manifest, README, LICENSE, git hygiene) | NOT STARTED |
 | I | Final `tech-lead-reviewer` review; fix findings; final `mvn clean verify` | NOT STARTED |
 
@@ -104,6 +104,11 @@ Done when:
 - `ForeignKeyMapper.enrichWithNullability` matches source column with case-sensitive `equals` while
   `ColumnMapper.enrichWithForeignKeyConstraints` uses `equalsIgnoreCase` → make consistent.
 - `ForeignKey.Builder` silently defaults `isNullable` → same fail-fast treatment as `Column.Builder`.
+- (from phase G) Composite formatters silently treat a null formatter list as empty → validate instead.
+- (from phase G) `TableMapper` does `primaryKey.orElse(null)` only for `Table.Builder` to re-wrap it →
+  let `Table.Builder.primaryKey` accept `Optional<PrimaryKey>` (or add an overload).
+- (from phase G verify) Clear the 7 Error Prone warnings: 6 `MissingSummary` on `ForeignKey.Builder`
+  setter Javadoc, 1 `InlineFormatString` in `PostgresConnectionManager:15`.
 
 ## Environment notes
 - Docker Desktop WSL integration enabled 2026-11-26 (server 28.3.2) → ITs run locally. Gate before

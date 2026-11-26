@@ -1,12 +1,21 @@
 package db.documenter;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import db.documenter.internal.exceptions.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class DbDocumenterConfigTest {
 
@@ -302,6 +311,71 @@ class DbDocumenterConfigTest {
               .build();
 
       assertTrue(result.useSsl());
+    }
+  }
+
+  @Nested
+  class BuilderRequiredFieldTests {
+
+    @ParameterizedTest
+    @MethodSource("incompleteBuilders")
+    void itThrowsValidationExceptionWhenRequiredFieldIsMissing(
+        final String expectedMessage,
+        final Supplier<DbDocumenterConfig.Builder> incompleteBuilder) {
+      final var builder = incompleteBuilder.get();
+
+      final var exception = assertThrows(ValidationException.class, builder::build);
+
+      assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    static Stream<Arguments> incompleteBuilders() {
+      return Stream.of(
+          Arguments.of(
+              "schemas must contain at least 1 item",
+              (Supplier<DbDocumenterConfig.Builder>)
+                  () ->
+                      DbDocumenterConfig.builder()
+                          .databaseHost("host")
+                          .databaseName("db")
+                          .username("user")
+                          .password("pass")),
+          Arguments.of(
+              "databaseHost must not be blank",
+              (Supplier<DbDocumenterConfig.Builder>)
+                  () ->
+                      DbDocumenterConfig.builder()
+                          .schemas(List.of("schema"))
+                          .databaseName("db")
+                          .username("user")
+                          .password("pass")),
+          Arguments.of(
+              "databaseName must not be blank",
+              (Supplier<DbDocumenterConfig.Builder>)
+                  () ->
+                      DbDocumenterConfig.builder()
+                          .schemas(List.of("schema"))
+                          .databaseHost("host")
+                          .username("user")
+                          .password("pass")),
+          Arguments.of(
+              "username must not be blank",
+              (Supplier<DbDocumenterConfig.Builder>)
+                  () ->
+                      DbDocumenterConfig.builder()
+                          .schemas(List.of("schema"))
+                          .databaseHost("host")
+                          .databaseName("db")
+                          .password("pass")),
+          Arguments.of(
+              "password must not be blank",
+              (Supplier<DbDocumenterConfig.Builder>)
+                  () ->
+                      DbDocumenterConfig.builder()
+                          .schemas(List.of("schema"))
+                          .databaseHost("host")
+                          .databaseName("db")
+                          .username("user")));
     }
   }
 }

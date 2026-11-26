@@ -2,6 +2,7 @@ package db.documenter.internal.formatter.impl.entity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.Constraint;
 import db.documenter.internal.models.db.Table;
@@ -49,10 +50,13 @@ class ConstraintEntityLineFormatterTest {
     }
 
     @Test
-    void whenCurrentIsNullAndHasConstraintsAppendsConstraints() {
+    void whenCurrentIsNullThrowsValidationException() {
       final var column = columnBuilder.constraints(List.of(Constraint.UNIQUE)).build();
-      final var result = constraintEntityLineFormatter.format(table, column, null);
-      assertEquals("null <<UNIQUE>>", result);
+      final var exception =
+          assertThrows(
+              ValidationException.class,
+              () -> constraintEntityLineFormatter.format(table, column, null));
+      assertEquals("current must not be null", exception.getMessage());
     }
 
     @Test

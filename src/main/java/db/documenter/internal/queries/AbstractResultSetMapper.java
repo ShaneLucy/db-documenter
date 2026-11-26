@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Sealed base class for all database-specific result set mapper implementations.
@@ -52,9 +53,9 @@ public abstract sealed class AbstractResultSetMapper implements ResultSetMapper
   }
 
   @Override
-  public PrimaryKey mapToPrimaryKey(final ResultSet resultSet) throws SQLException {
+  public Optional<PrimaryKey> mapToPrimaryKey(final ResultSet resultSet) throws SQLException {
     if (!resultSet.next()) {
-      return null;
+      return Optional.empty();
     }
 
     final var primaryKeyBuilder =
@@ -67,7 +68,7 @@ public abstract sealed class AbstractResultSetMapper implements ResultSetMapper
       columnNames.add(resultSet.getString("column_name"));
     }
 
-    return primaryKeyBuilder.columnNames(columnNames).build();
+    return Optional.of(primaryKeyBuilder.columnNames(columnNames).build());
   }
 
   @Override

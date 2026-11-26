@@ -1,7 +1,9 @@
 package db.documenter.internal.formatter.impl.multiplicity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.models.db.ForeignKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -105,6 +107,25 @@ class CardinalityFormatterTest {
       final var result = cardinalityFormatter.format(fk, "public", "users||orders");
 
       assertEquals("users||orders", result);
+    }
+
+    @Test
+    void whenCurrentIsNullThrowsValidationException() {
+      final var fk =
+          ForeignKey.builder()
+              .sourceTable("orders")
+              .sourceColumn("user_id")
+              .targetTable("users")
+              .targetColumn("id")
+              .referencedSchema("public")
+              .name("fk_test")
+              .build();
+
+      final var exception =
+          assertThrows(
+              ValidationException.class, () -> cardinalityFormatter.format(fk, "public", null));
+
+      assertEquals("current must not be null", exception.getMessage());
     }
   }
 }

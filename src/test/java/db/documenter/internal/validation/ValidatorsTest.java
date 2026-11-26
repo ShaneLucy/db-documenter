@@ -1,6 +1,9 @@
 package db.documenter.internal.validation;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import db.documenter.internal.exceptions.ValidationException;
 import java.util.ArrayList;
@@ -103,6 +106,43 @@ class ValidatorsTest {
               ValidationException.class, () -> Validators.containsNoNullElements(list, "propName"));
 
       assertEquals("propName must not contain null elements", exception.getMessage());
+    }
+  }
+
+  @Nested
+  class ReturnValueTests {
+
+    @Test
+    void isNotBlankReturnsTheSameString() {
+      final var input = new String("value");
+
+      assertSame(input, Validators.isNotBlank(input, "test"));
+    }
+
+    @Test
+    void containsAtLeast1ItemReturnsTheSameList() {
+      final var input = new ArrayList<>(List.of("a"));
+
+      assertSame(input, Validators.containsAtLeast1Item(input, "test"));
+    }
+
+    @Test
+    void isNotNullReturnsTheSameInstance() {
+      final var input = new Object();
+
+      assertSame(input, Validators.isNotNull(input, "test"));
+    }
+
+    @Test
+    void containsNoNullElementsReturnsTheSameList() {
+      final var input = new ArrayList<>(List.of("a", "b"));
+
+      assertSame(input, Validators.containsNoNullElements(input, "test"));
+    }
+
+    @Test
+    void isPositiveReturnsTheSameNumber() {
+      assertEquals(42, Validators.isPositive(42, "test"));
     }
   }
 }

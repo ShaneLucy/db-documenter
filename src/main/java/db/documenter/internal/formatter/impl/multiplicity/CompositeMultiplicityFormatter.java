@@ -2,8 +2,10 @@ package db.documenter.internal.formatter.impl.multiplicity;
 
 import db.documenter.internal.formatter.api.MultiplicityFormatter;
 import db.documenter.internal.models.db.ForeignKey;
+import db.documenter.internal.validation.Validators;
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 public record CompositeMultiplicityFormatter(List<MultiplicityFormatter> formatters)
     implements MultiplicityFormatter {
@@ -18,12 +20,12 @@ public record CompositeMultiplicityFormatter(List<MultiplicityFormatter> formatt
 
   @Override
   public String format(
-      final ForeignKey foreignKey, final String currentSchemaName, final String current) {
-    String result = current;
+      final ForeignKey foreignKey, final String currentSchemaName, final @Nullable String current) {
+    @Nullable String result = current;
     for (MultiplicityFormatter formatter : formatters) {
       result = formatter.format(foreignKey, currentSchemaName, result);
     }
-    return result;
+    return Validators.isNotNull(result, "formattedLine");
   }
 
   public static final class Builder {

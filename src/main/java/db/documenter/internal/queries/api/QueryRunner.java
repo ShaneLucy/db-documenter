@@ -6,6 +6,7 @@ import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Contract for querying the common database metadata required to build schema documentation.
@@ -47,10 +48,10 @@ public interface QueryRunner {
    *
    * @param schema the schema containing the table
    * @param tableName the name of the table to query
-   * @return the {@link PrimaryKey} or null if the table has no primary key
+   * @return the {@link PrimaryKey}, or empty if the table has no primary key
    * @throws SQLException if the database query fails
    */
-  PrimaryKey getPrimaryKeyInfo(String schema, String tableName) throws SQLException;
+  Optional<PrimaryKey> getPrimaryKeyInfo(String schema, String tableName) throws SQLException;
 
   /**
    * Retrieves all foreign key relationships originating from a named table.

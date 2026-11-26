@@ -1,10 +1,13 @@
 package db.documenter.internal.formatter.impl.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.formatter.api.EntityLineFormatter;
 import db.documenter.internal.models.db.Column;
+import db.documenter.internal.models.db.Constraint;
 import db.documenter.internal.models.db.Table;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -130,6 +133,30 @@ class CompositeEntityLineFormatterTest {
 
       assertEquals("out", result);
       verify(lineFormatter1).format(table, null, "val");
+    }
+
+    @Test
+    void whenChainStartsWithNullRealFormattersProduceFullLine() {
+      final var composite =
+          CompositeEntityLineFormatter.builder()
+              .addFormatter(new DefaultEntityLineFormatter())
+              .addFormatter(new ConstraintEntityLineFormatter())
+              .build();
+      final var uniqueColumn = column.withConstraints(List.of(Constraint.UNIQUE));
+
+      final var result = composite.format(table, uniqueColumn, null);
+
+      assertEquals("col: varchar <<UNIQUE>>", result);
+    }
+
+    @Test
+    void whenEmptyChainStartsWithNullThrowsValidationException() {
+      final var composite = new CompositeEntityLineFormatter(List.of());
+
+      final var exception =
+          assertThrows(ValidationException.class, () -> composite.format(table, column, null));
+
+      assertEquals("formattedLine must not be null", exception.getMessage());
     }
   }
 }

@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,7 +73,7 @@ public final class TableBuilder {
       final List<Column> columnsWithEnumTypes =
           columnMapper.mapUserDefinedTypes(rawColumns, context);
 
-      final PrimaryKey primaryKey = queryRunner.getPrimaryKeyInfo(schema, table.name());
+      final Optional<PrimaryKey> primaryKey = queryRunner.getPrimaryKeyInfo(schema, table.name());
 
       final List<ForeignKey> rawForeignKeys = queryRunner.getForeignKeyInfo(schema, table.name());
       final List<ForeignKey> foreignKeys =

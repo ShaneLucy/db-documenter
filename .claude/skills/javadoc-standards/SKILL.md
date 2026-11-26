@@ -113,10 +113,10 @@ Focus on **behavior, constraints, and side effects**:
 ```java
 public static class Builder {
 
-  /** @return this builder for method chaining */
+  /** Returns this builder for method chaining. */
   public Builder name(final @NonNull String name) { }
 
-  /** @return this builder for method chaining */
+  /** Returns this builder for method chaining. */
   public Builder tables(final @NonNull List<Table> tables) { }
 }
 ```
@@ -170,9 +170,10 @@ public Builder name(final @NonNull String name) {
 
 ### Standard Builder Return
 
-For builder methods, use a consistent short form:
+For builder methods, use a consistent short form. Write it as a summary sentence, not a bare
+`@return` tag: Error Prone's `MissingSummary` check flags Javadoc that has only block tags.
 ```java
-/** @return this builder for method chaining */
+/** Returns this builder for method chaining. */
 ```
 
 ---

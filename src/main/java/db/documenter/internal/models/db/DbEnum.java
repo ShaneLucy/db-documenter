@@ -3,6 +3,7 @@ package db.documenter.internal.models.db;
 import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.validation.Validators;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a database enum type definition.
@@ -69,9 +70,9 @@ public record DbEnum(String schemaName, String enumName, List<String> enumValues
    * @see DbEnum
    */
   public static final class Builder {
-    private String schemaName;
-    private String enumName;
-    private List<String> enumValues;
+    private @Nullable String schemaName;
+    private @Nullable String enumName;
+    private @Nullable List<String> enumValues;
 
     /**
      * Sets the schema containing this enum type.
@@ -118,7 +119,10 @@ public record DbEnum(String schemaName, String enumName, List<String> enumValues
      * @throws ValidationException if any required field is null or blank
      */
     public DbEnum build() {
-      return new DbEnum(schemaName, enumName, enumValues);
+      return new DbEnum(
+          Validators.isNotBlank(schemaName, "schemaName"),
+          Validators.isNotBlank(enumName, "enumName"),
+          Validators.isNotNull(enumValues, "enumValues"));
     }
   }
 }

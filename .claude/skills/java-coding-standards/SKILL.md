@@ -315,6 +315,11 @@ Use JSpecify annotations, enforced at compile time by Error Prone + NullAway:
 - Placement: after modifiers, directly before the type — `final @Nullable String name`,
   `private @Nullable String name`, `public @Nullable Table findTable(...)`
 - Prefer empty collections / `Optional` returns over `@Nullable` where it reads naturally
+- **Builders:** builder fields are `@Nullable` (they are null until set). `build()` passes each
+  required field through `Validators.isNotNull(field, "field")`, which returns its argument, so
+  the record constructor receives non-null values. The compact constructor still validates.
+- **Framework-injected fields** (picocli `@Option`): required options use
+  `@SuppressWarnings("NullAway.Init")` with a comment; optional ones are `@Nullable` and null-checked
 - A NullAway error is a build failure; fix the code rather than suppressing
 
 ### Run-time

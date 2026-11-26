@@ -13,6 +13,7 @@ import db.documenter.internal.utils.LogUtils;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -109,7 +110,7 @@ public abstract sealed class AbstractQueryRunner implements QueryRunner
   }
 
   @Override
-  public PrimaryKey getPrimaryKeyInfo(final String schema, final String tableName)
+  public Optional<PrimaryKey> getPrimaryKeyInfo(final String schema, final String tableName)
       throws SQLException {
     try (final var preparedStatement =
         preparedStatements.primaryKeyInfoPreparedStatement(connection)) {

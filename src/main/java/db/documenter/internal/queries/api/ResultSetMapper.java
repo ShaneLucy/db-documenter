@@ -7,6 +7,7 @@ import db.documenter.internal.models.db.Table;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Contract for mapping JDBC {@link ResultSet} rows to domain model objects.
@@ -51,10 +52,10 @@ public interface ResultSetMapper {
    * Maps result set rows to a {@link PrimaryKey}.
    *
    * @param resultSet the result set positioned before the first row
-   * @return the primary key, or null if the result set is empty
+   * @return the primary key, or empty if the result set has no rows
    * @throws SQLException if a database access error occurs
    */
-  PrimaryKey mapToPrimaryKey(ResultSet resultSet) throws SQLException;
+  Optional<PrimaryKey> mapToPrimaryKey(ResultSet resultSet) throws SQLException;
 
   /**
    * Maps result set rows to {@link ForeignKey} objects.

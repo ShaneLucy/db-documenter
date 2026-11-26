@@ -9,6 +9,7 @@ import db.documenter.internal.models.db.ForeignKey;
 import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
 import java.util.List;
+import java.util.Optional;
 import org.gaul.modernizer_maven_annotations.SuppressModernizer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -52,7 +53,7 @@ class TableMapperTest {
 
       final Table result =
           tableMapper.combineTableComponents(
-              "orders", List.of(column), primaryKey, List.of(foreignKey));
+              "orders", List.of(column), Optional.of(primaryKey), List.of(foreignKey));
 
       assertNotNull(result);
       assertEquals("orders", result.name());
@@ -75,7 +76,8 @@ class TableMapperTest {
               .build();
 
       final Table result =
-          tableMapper.combineTableComponents("tag_log", List.of(column), null, List.of());
+          tableMapper.combineTableComponents(
+              "tag_log", List.of(column), Optional.empty(), List.of());
 
       assertNotNull(result);
       assertEquals("tag_log", result.name());
@@ -97,7 +99,8 @@ class TableMapperTest {
           PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();
 
       final Table result =
-          tableMapper.combineTableComponents("users", List.of(column), primaryKey, List.of());
+          tableMapper.combineTableComponents(
+              "users", List.of(column), Optional.of(primaryKey), List.of());
 
       assertNotNull(result);
       assertEquals("users", result.name());
@@ -135,7 +138,7 @@ class TableMapperTest {
 
       final Table result =
           tableMapper.combineTableComponents(
-              "users", List.of(column1, column2, column3), primaryKey, List.of());
+              "users", List.of(column1, column2, column3), Optional.of(primaryKey), List.of());
 
       assertEquals(3, result.columns().size());
       assertEquals("id", result.columns().getFirst().name());
@@ -177,7 +180,10 @@ class TableMapperTest {
 
       final Table result =
           tableMapper.combineTableComponents(
-              "orders", List.of(column), primaryKey, List.of(foreignKey1, foreignKey2));
+              "orders",
+              List.of(column),
+              Optional.of(primaryKey),
+              List.of(foreignKey1, foreignKey2));
 
       assertEquals(2, result.foreignKeys().size());
       assertEquals("fk_user", result.foreignKeys().getFirst().name());
@@ -209,7 +215,7 @@ class TableMapperTest {
 
       final Table result =
           tableMapper.combineTableComponents(
-              "user_role", List.of(column1, column2), primaryKey, List.of());
+              "user_role", List.of(column1, column2), Optional.of(primaryKey), List.of());
 
       assertTrue(result.primaryKey().isPresent());
       assertEquals(2, result.primaryKey().get().columnNames().size());
@@ -223,7 +229,8 @@ class TableMapperTest {
           PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();
 
       final Table result =
-          tableMapper.combineTableComponents("test_table", List.of(), primaryKey, List.of());
+          tableMapper.combineTableComponents(
+              "test_table", List.of(), Optional.of(primaryKey), List.of());
 
       assertNotNull(result);
       assertEquals("test_table", result.name());

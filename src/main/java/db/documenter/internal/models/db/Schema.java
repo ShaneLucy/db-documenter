@@ -3,6 +3,7 @@ package db.documenter.internal.models.db;
 import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.validation.Validators;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a database schema containing tables and custom enum types.
@@ -66,9 +67,9 @@ public record Schema(String name, List<Table> tables, List<DbEnum> dbEnums) {
    * @see Schema
    */
   public static final class Builder {
-    private String name;
-    private List<Table> tables;
-    private List<DbEnum> dbEnums;
+    private @Nullable String name;
+    private @Nullable List<Table> tables;
+    private @Nullable List<DbEnum> dbEnums;
 
     /**
      * Sets the schema name.
@@ -114,7 +115,10 @@ public record Schema(String name, List<Table> tables, List<DbEnum> dbEnums) {
      * @throws ValidationException if any required field is null
      */
     public Schema build() {
-      return new Schema(name, tables, dbEnums);
+      return new Schema(
+          Validators.isNotBlank(name, "name"),
+          Validators.isNotNull(tables, "tables"),
+          Validators.isNotNull(dbEnums, "dbEnums"));
     }
   }
 }

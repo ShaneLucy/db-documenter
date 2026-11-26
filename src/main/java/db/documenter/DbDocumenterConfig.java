@@ -2,6 +2,7 @@ package db.documenter;
 
 import db.documenter.internal.validation.Validators;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /** Configuration object for {@link DbDocumenter} application. */
 public record DbDocumenterConfig(
@@ -43,13 +44,13 @@ public record DbDocumenterConfig(
 
   /** Convenience utility for creating {@link DbDocumenterConfig} object. */
   public static final class Builder {
-    private List<String> schemas;
-    private String databaseHost;
-    private String databaseName;
+    private @Nullable List<String> schemas;
+    private @Nullable String databaseHost;
+    private @Nullable String databaseName;
     private int databasePort = 5432;
     private boolean useSsl = true;
-    private String username;
-    private String password;
+    private @Nullable String username;
+    private @Nullable String password;
     private DatabaseType databaseType = DatabaseType.POSTGRESQL;
 
     /**
@@ -150,25 +151,15 @@ public record DbDocumenterConfig(
      * @return {@link DbDocumenterConfig}
      */
     public DbDocumenterConfig build() {
-      validate();
       return new DbDocumenterConfig(
-          schemas,
-          databaseHost,
+          Validators.containsAtLeast1Item(schemas, "schemas"),
+          Validators.isNotBlank(databaseHost, "databaseHost"),
           databasePort,
-          databaseName,
+          Validators.isNotBlank(databaseName, "databaseName"),
           useSsl,
-          username,
-          password,
-          databaseType);
-    }
-
-    private void validate() {
-      Validators.containsAtLeast1Item(schemas, "schemas");
-      Validators.isNotBlank(databaseHost, "databaseHost");
-      Validators.isNotBlank(databaseName, "databaseName");
-      Validators.isNotBlank(username, "username");
-      Validators.isNotBlank(password, "password");
-      Validators.isNotNull(databaseType, "databaseType");
+          Validators.isNotBlank(username, "username"),
+          Validators.isNotBlank(password, "password"),
+          Validators.isNotNull(databaseType, "databaseType"));
     }
   }
 }
