@@ -113,18 +113,30 @@ Done when:
   calls on its result (`isNotNull(x).toString()`); use an explicit null check for dereferences.
 
 ## Out-of-scope follow-ups for the user (from devops-lead, phase H)
-1. Pin GitHub Actions to commit SHAs (esp. `softprops/action-gh-release`, which has `contents: write`).
+1. ~~Pin GitHub Actions to commit SHAs~~ — DONE 2026-11-26 (was failing the Sonar gate, rule S7637).
 2. Skip the `{{major}}` image tag for `v0.x` releases (publishes a meaningless `:0`).
 3. Smoke-test the exact image before pushing (`load: true` build → `docker run … --version` → push).
-4. `build.yaml`: make the Sonar goal conditional on `SONAR_TOKEN` (fork PRs fail today); add a
-   `concurrency` group.
+4. ~~`build.yaml`: Sonar conditional on `SONAR_TOKEN`; `concurrency` group~~ — DONE 2026-11-26.
 5. Pin `eclipse-temurin:25-jre-alpine` by digest/patch; enable Dependabot (docker + github-actions).
 6. Protect `v*` tags / require tagged commits to be on `main`.
 7. Maven Central publishing (needs groupId decision, Sonatype account, GPG) — see `RELEASE_SETUP_TODO.md`.
 
 ## Status (2026-11-26)
 All phases complete. `mvn clean verify` green at HEAD: 451 unit tests, 2 Docker ITs, Error Prone/NullAway
-(0 warnings), SpotBugs, Checkstyle, PMD/CPD, modernizer, jacoco (branch 0.83). Ready to tag `v0.2.0`.
+(0 warnings), SpotBugs, Checkstyle, PMD/CPD, modernizer, jacoco (branch 0.83).
+
+**Release decision (user, 2026-11-26): v0.2.0 will not be released; the first release is 1.0.0.**
+Development continues as `0.2.0-SNAPSHOT` (the current code is NOT 1.0.0 — more features are
+planned first). A SNAPSHOT pom can never match a `v*` tag, so the release workflow's tag/pom guard
+blocks accidental releases. CI now fails when the SonarCloud quality gate fails
+(`sonar.qualitygate.wait`).
+
+### Road to 1.0.0 (scope to be defined with the user)
+- Feature list: TBD — user has more work planned before 1.0.0.
+- Quality gate green on `main`.
+- To release: set pom to `1.0.0`, commit, push, wait for green CI, tag `v1.0.0`, push the tag.
+
+
 Known limitation (documented in README): PlantUML-special enum labels are not escaped.
 
 ## Environment notes

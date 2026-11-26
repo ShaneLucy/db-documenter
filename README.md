@@ -13,6 +13,10 @@ Point it at one or more schemas and it produces:
 db-documenter deliberately draws **ERDs only**. It doesn't try to be a full physical data model, so
 views, defaults, check constraints and similar details are left out (see [What's in the diagram](#whats-in-the-diagram)).
 
+> **Status: pre-1.0.** The first release will be **1.0.0**. Until then, no versioned image or
+> release jar is published, and the instructions below describe how they will be distributed. To
+> use it now, [build from source](#building-from-source).
+
 ---
 
 ## Installation
@@ -23,7 +27,7 @@ views, defaults, check constraints and similar details are left out (see [What's
 docker pull ghcr.io/shanelucy/db-documenter:latest
 ```
 
-Images are tagged `latest`, the full version (e.g. `0.2.0`), `major.minor` (e.g. `0.2`) and the
+Images are tagged `latest`, the full version (e.g. `1.0.0`), `major.minor` (e.g. `1.0`) and the
 short commit SHA. Pin a full version in CI so you get reproducible output.
 
 ### Standalone jar
@@ -32,7 +36,7 @@ Every [GitHub Release](https://github.com/ShaneLucy/db-documenter/releases) incl
 `db-documenter-<version>-cli.jar`. It needs Java 25:
 
 ```bash
-java -jar db-documenter-0.2.0-cli.jar --help
+java -jar db-documenter-1.0.0-cli.jar --help
 ```
 
 ---

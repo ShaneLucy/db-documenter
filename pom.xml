@@ -4,7 +4,7 @@
 
   <groupId>db.documenter</groupId>
   <artifactId>db-documenter</artifactId>
-  <version>0.2.0</version>
+  <version>0.2.0-SNAPSHOT</version>
 
   <name>db-documenter</name>
   <description>Generates PlantUML entity-relationship diagrams from live PostgreSQL schemas</description>
