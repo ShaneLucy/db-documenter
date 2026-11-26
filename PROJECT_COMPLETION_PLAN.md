@@ -131,10 +131,8 @@ planned first). A SNAPSHOT pom can never match a `v*` tag, so the release workfl
 blocks accidental releases. CI now fails when the SonarCloud quality gate fails
 (`sonar.qualitygate.wait`).
 
-### Road to 1.0.0 (scope to be defined with the user)
-- Feature list: TBD — user has more work planned before 1.0.0.
-- Quality gate green on `main`.
-- To release: set pom to `1.0.0`, commit, push, wait for green CI, tag `v1.0.0`, push the tag.
+### Road to 1.0.0
+Superseded by **`PLAN_1.0.0.md`** (scope, decisions, phases and deep-review findings).
 
 
 Known limitation (documented in README): PlantUML-special enum labels are not escaped.
