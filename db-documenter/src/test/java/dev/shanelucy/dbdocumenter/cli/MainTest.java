@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import dev.shanelucy.dbdocumenter.DiagramResult;
 import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
 import dev.shanelucy.dbdocumenter.testhelpers.PostgresTestEnvironment;
+import dev.shanelucy.dbdocumenter.testhelpers.TestResources;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -436,7 +437,7 @@ class MainTest {
         new PostgresTestEnvironment();
     private static final String SCHEMAS = "ecommerce,inventory,analytics";
     private static final String EXPECTED_PUML_PATH =
-        "src/test/resources/postgresql/sql-agnostic-multiple-schema-postgres-expected-output.puml";
+        "/postgresql/sql-agnostic-multiple-schema-postgres-expected-output.puml";
 
     @BeforeAll
     static void startContainer() throws SQLException, IOException {
@@ -480,7 +481,7 @@ class MainTest {
       }
 
       assertEquals(0, exitCode);
-      final var expected = Files.readString(Path.of(EXPECTED_PUML_PATH));
+      final var expected = TestResources.readString(EXPECTED_PUML_PATH);
 
       comparePumlLineByLine(capturedOut.toString(), expected.lines().toList());
     }
@@ -511,7 +512,7 @@ class MainTest {
                   outputFile.toString());
 
       assertEquals(0, exitCode);
-      final var expected = Files.readString(Path.of(EXPECTED_PUML_PATH));
+      final var expected = TestResources.readString(EXPECTED_PUML_PATH);
 
       comparePumlLineByLine(Files.readString(outputFile), expected.lines().toList());
     }
@@ -522,7 +523,7 @@ class MainTest {
 
     private static final PostgresTestEnvironment POSTGRES_TEST_ENVIRONMENT =
         new PostgresTestEnvironment();
-    private static final String FIXTURE_DIR = "src/test/resources/postgresql/single-schema/";
+    private static final String FIXTURE_DIR = "/postgresql/single-schema/";
     private static final String EXPECTED_ERD =
         FIXTURE_DIR + "postgresql-specific-single-schema-expected-output.puml";
     private static final String EXPECTED_ENUMS =
@@ -570,10 +571,10 @@ class MainTest {
 
       assertEquals(0, exitCode);
       comparePumlLineByLine(
-          Files.readString(erdFile), Files.readString(Path.of(EXPECTED_ERD)).lines().toList());
+          Files.readString(erdFile), TestResources.readString(EXPECTED_ERD).lines().toList());
       comparePumlLineByLine(
           Files.readString(tempDir.resolve("diagram_enums.puml")),
-          Files.readString(Path.of(EXPECTED_ENUMS)).lines().toList());
+          TestResources.readString(EXPECTED_ENUMS).lines().toList());
     }
 
     @Test
@@ -591,7 +592,7 @@ class MainTest {
 
       assertEquals(0, captured.exitCode());
       comparePumlLineByLine(
-          capturedOut.toString(), Files.readString(Path.of(EXPECTED_ERD)).lines().toList());
+          capturedOut.toString(), TestResources.readString(EXPECTED_ERD).lines().toList());
       assertEquals(
           "Warning: enum diagram was not written; use --output to write it to a file."
               + System.lineSeparator(),

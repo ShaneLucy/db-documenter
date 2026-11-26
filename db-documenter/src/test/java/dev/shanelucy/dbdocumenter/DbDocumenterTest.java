@@ -4,9 +4,8 @@ import static dev.shanelucy.dbdocumenter.testhelpers.PumlComparison.comparePumlL
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import dev.shanelucy.dbdocumenter.testhelpers.PostgresTestEnvironment;
+import dev.shanelucy.dbdocumenter.testhelpers.TestResources;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -59,17 +58,15 @@ class DbDocumenterTest {
       @Test
       void itWorksCorrectlyForASingleSchema() throws IOException, SQLException {
         final var expected =
-            Files.readString(
-                Path.of(
-                    "src/test/resources/postgresql/single-schema/postgresql-specific-single-schema-expected-output.puml"));
+            TestResources.readString(
+                "/postgresql/single-schema/postgresql-specific-single-schema-expected-output.puml");
         final var expectedLines = expected.lines().toList();
 
         final var result = dbDocumenter.generate();
         comparePumlLineByLine(result.erdDiagram(), expectedLines);
         final var expectedEnums =
-            Files.readString(
-                Path.of(
-                    "src/test/resources/postgresql/single-schema/postgresql-specific-single-schema-expected-enums-output.puml"));
+            TestResources.readString(
+                "/postgresql/single-schema/postgresql-specific-single-schema-expected-enums-output.puml");
         comparePumlLineByLine(result.enumDiagram().orElseThrow(), expectedEnums.lines().toList());
       }
     }
@@ -111,9 +108,8 @@ class DbDocumenterTest {
       @Test
       void itWorksCorrectlyForMultipleSqlAgnosticSchemas() throws IOException, SQLException {
         final var expected =
-            Files.readString(
-                Path.of(
-                    "src/test/resources/postgresql/sql-agnostic-multiple-schema-postgres-expected-output.puml"));
+            TestResources.readString(
+                "/postgresql/sql-agnostic-multiple-schema-postgres-expected-output.puml");
         final var expectedLines = expected.lines().toList();
 
         final var result = dbDocumenter.generate();
@@ -159,17 +155,15 @@ class DbDocumenterTest {
       @Test
       void itWorksCorrectlyForMultiplePostgresSchemas() throws IOException, SQLException {
         final var expected =
-            Files.readString(
-                Path.of(
-                    "src/test/resources/postgresql/multiple-schema/postgresql-specific-multiple-schema-expected-output.puml"));
+            TestResources.readString(
+                "/postgresql/multiple-schema/postgresql-specific-multiple-schema-expected-output.puml");
         final var expectedLines = expected.lines().toList();
 
         final var result = dbDocumenter.generate();
         comparePumlLineByLine(result.erdDiagram(), expectedLines);
         final var expectedEnums =
-            Files.readString(
-                Path.of(
-                    "src/test/resources/postgresql/multiple-schema/postgresql-specific-multiple-schema-expected-enums-output.puml"));
+            TestResources.readString(
+                "/postgresql/multiple-schema/postgresql-specific-multiple-schema-expected-enums-output.puml");
         comparePumlLineByLine(result.enumDiagram().orElseThrow(), expectedEnums.lines().toList());
       }
     }

@@ -3,6 +3,7 @@ package dev.shanelucy.dbdocumenter;
 import static dev.shanelucy.dbdocumenter.testhelpers.PumlComparison.comparePumlLineByLine;
 
 import dev.shanelucy.dbdocumenter.testhelpers.PostgresTestEnvironment;
+import dev.shanelucy.dbdocumenter.testhelpers.TestResources;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -99,9 +100,8 @@ class ApplicationDockerIT {
         appContainer.start();
 
         final var expected =
-            Files.readString(
-                Path.of(
-                    "src/test/resources/postgresql/sql-agnostic-multiple-schema-postgres-expected-output.puml"));
+            TestResources.readString(
+                "/postgresql/sql-agnostic-multiple-schema-postgres-expected-output.puml");
 
         comparePumlLineByLine(stdoutCapture.toString(), expected.lines().toList());
       }
@@ -156,16 +156,14 @@ class ApplicationDockerIT {
 
         comparePumlLineByLine(
             Files.readString(outputDir.resolve("diagram.puml")),
-            Files.readString(
-                    Path.of(
-                        "src/test/resources/postgresql/single-schema/postgresql-specific-single-schema-expected-output.puml"))
+            TestResources.readString(
+                    "/postgresql/single-schema/postgresql-specific-single-schema-expected-output.puml")
                 .lines()
                 .toList());
         comparePumlLineByLine(
             Files.readString(outputDir.resolve("diagram_enums.puml")),
-            Files.readString(
-                    Path.of(
-                        "src/test/resources/postgresql/single-schema/postgresql-specific-single-schema-expected-enums-output.puml"))
+            TestResources.readString(
+                    "/postgresql/single-schema/postgresql-specific-single-schema-expected-enums-output.puml")
                 .lines()
                 .toList());
       } finally {

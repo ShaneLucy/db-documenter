@@ -20,6 +20,7 @@
   </licenses>
 
   <modules>
+    <module>db-documenter-test-support</module>
     <module>db-documenter</module>
   </modules>
 
@@ -50,6 +51,8 @@
     <postgresql.version>42.7.15</postgresql.version>
     <junit.version>6.0.1</junit.version>
     <test-containers.version>2.0.2</test-containers.version>
+    <!-- Pinned to the version Testcontainers' own closure resolves to; fixes enforcer convergence -->
+    <slf4j.version>1.7.36</slf4j.version>
     <mockito.version>5.20.0</mockito.version>
     <failsafe.version>3.5.4</failsafe.version>
     <surefire.version>3.5.4</surefire.version>
@@ -84,6 +87,11 @@
   <!-- Versions only: each module declares the dependencies it uses and their scopes -->
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>db-documenter-test-support</artifactId>
+        <version>${project.version}</version>
+      </dependency>
       <dependency>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-annotations</artifactId>
@@ -128,6 +136,11 @@
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
         <version>${postgresql.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.testcontainers</groupId>
