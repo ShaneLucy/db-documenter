@@ -22,6 +22,7 @@
   <modules>
     <module>db-documenter-test-support</module>
     <module>db-documenter</module>
+    <module>db-documenter-cli</module>
   </modules>
 
   <scm>
@@ -87,6 +88,11 @@
   <!-- Versions only: each module declares the dependencies it uses and their scopes -->
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>db-documenter</artifactId>
+        <version>${project.version}</version>
+      </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>db-documenter-test-support</artifactId>
@@ -177,6 +183,13 @@
             <threshold>Low</threshold>
             <failOnError>true</failOnError>
             <excludeFilterFile>${config.dir}/spotbugs-exclude.xml</excludeFilterFile>
+            <!--
+              findsecbugs-taint.txt (no comments allowed in that format) declares LogUtils.sanitizeForLog,
+              which strips CR and LF, as a CRLF sanitiser. FindSecBugs only infers that when the sanitiser
+              is analysed with its callers; the CLI module calls it across a jar boundary, where it would
+              otherwise be an unknown method and the log argument reported as CRLF_INJECTION_LOGS.
+            -->
+            <jvmArgs>-Dfindsecbugs.taint.customconfigfile=${config.dir}/findsecbugs-taint.txt</jvmArgs>
             <plugins>
               <plugin>
                 <groupId>com.h3xstream.findsecbugs</groupId>

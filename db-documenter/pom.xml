@@ -13,12 +13,12 @@
   <name>db-documenter</name>
   <description>Generates PlantUML entity-relationship diagrams from live PostgreSQL schemas</description>
 
+  <properties>
+    <!-- Referenced by the testCompile add-reads override below -->
+    <jpms.module.name>dev.shanelucy.dbdocumenter</jpms.module.name>
+  </properties>
+
   <dependencies>
-    <dependency>
-      <groupId>info.picocli</groupId>
-      <artifactId>picocli</artifactId>
-      <scope>compile</scope>
-    </dependency>
     <dependency>
       <groupId>com.github.spotbugs</groupId>
       <artifactId>spotbugs-annotations</artifactId>
@@ -104,7 +104,7 @@
               <annotationProcessorPaths combine.self="override"/>
               <compilerArgs combine.self="override">
                 <arg>--add-reads</arg>
-                <arg>dev.shanelucy.dbdocumenter=ALL-UNNAMED</arg>
+                <arg>${jpms.module.name}=ALL-UNNAMED</arg>
               </compilerArgs>
             </configuration>
           </execution>
@@ -112,17 +112,9 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
           <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <mainClass>dev.shanelucy.dbdocumenter.cli.Main</mainClass>
-            </manifest>
             <manifestEntries>
               <Implementation-Title>${project.name}</Implementation-Title>
               <Implementation-Version>${project.version}</Implementation-Version>
@@ -150,43 +142,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
-      </plugin>
-      <!-- Fat JAR for CLI/Docker distribution -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>shade-cli</id>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <phase>package</phase>
-            <configuration>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <shadedClassifierName>jar-with-dependencies</shadedClassifierName>
-              <minimizeJar>false</minimizeJar>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>dev.shanelucy.dbdocumenter.cli.Main</mainClass>
-                  <manifestEntries>
-                    <Implementation-Title>${project.name}</Implementation-Title>
-                    <Implementation-Version>${project.version}</Implementation-Version>
-                  </manifestEntries>
-                </transformer>
-              </transformers>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>module-info.class</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.gaul</groupId>

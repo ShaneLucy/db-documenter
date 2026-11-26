@@ -359,8 +359,9 @@ Requirements: JDK 25, Maven 3.8+, and Docker for the integration tests.
 ```
 
 The repository is a Maven reactor: the root `pom.xml` is the parent (`db-documenter-parent`) and the
-code lives in the `db-documenter/` module. The runnable fat JAR is built to
-`db-documenter/target/db-documenter-<version>-jar-with-dependencies.jar`. Run `./mvnw -Pdocs -DskipTests verify`
+code lives in three modules: `db-documenter/` (the library), `db-documenter-cli/` (the command-line
+interface) and `db-documenter-test-support/` (shared test helpers, never published). The runnable fat JAR is built to
+`db-documenter-cli/target/db-documenter-cli-<version>-jar-with-dependencies.jar`. Run `./mvnw -Pdocs -DskipTests verify`
 to also generate the public and contributor Javadoc sites under `db-documenter/target/site/`.
 
 The `verify` build runs:

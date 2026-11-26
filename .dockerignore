@@ -27,7 +27,7 @@ src/
 mvnw
 mvnw.cmd
 
-# Exclude every module's target/ except the fat JAR built by the db-documenter module
+# Exclude every module's target/ except the fat JAR built by the db-documenter-cli module
 target/
 */target/*
-!db-documenter/target/*-jar-with-dependencies.jar
+!db-documenter-cli/target/*-jar-with-dependencies.jar

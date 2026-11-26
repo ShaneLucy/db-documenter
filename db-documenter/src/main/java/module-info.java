@@ -6,10 +6,16 @@ module dev.shanelucy.dbdocumenter {
   requires java.logging;
   requires static com.github.spotbugs.annotations;
   requires static org.jspecify;
-  requires info.picocli;
 
   exports dev.shanelucy.dbdocumenter;
 
-  opens dev.shanelucy.dbdocumenter.cli to
-      info.picocli;
+  // TODO(Phase 3): remove once DbDocumenterException is public
+  exports dev.shanelucy.dbdocumenter.internal.exceptions to
+      dev.shanelucy.dbdocumenter.cli;
+  // TODO(Phase 3): remove once DbDocumenterException is public
+  exports dev.shanelucy.dbdocumenter.internal.utils to
+      dev.shanelucy.dbdocumenter.cli;
+  // TODO(Phase 3): remove once DbDocumenterException is public
+  exports dev.shanelucy.dbdocumenter.internal.validation to
+      dev.shanelucy.dbdocumenter.cli;
 }

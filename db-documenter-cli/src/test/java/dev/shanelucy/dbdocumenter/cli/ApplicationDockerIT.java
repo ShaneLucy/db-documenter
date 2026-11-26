@@ -1,4 +1,4 @@
-package dev.shanelucy.dbdocumenter;
+package dev.shanelucy.dbdocumenter.cli;
 
 import static dev.shanelucy.dbdocumenter.testhelpers.PumlComparison.comparePumlLineByLine;
 
@@ -68,7 +68,7 @@ class ApplicationDockerIT {
       final var appImage =
           new ImageFromDockerfile()
               .withFileFromPath("Dockerfile", DOCKERFILE)
-              .withFileFromPath("db-documenter/target/" + fatJar.getFileName(), fatJar);
+              .withFileFromPath("db-documenter-cli/target/" + fatJar.getFileName(), fatJar);
 
       final var stdoutCapture = new StringBuilder();
 
@@ -122,7 +122,7 @@ class ApplicationDockerIT {
         final var appImage =
             new ImageFromDockerfile()
                 .withFileFromPath("Dockerfile", DOCKERFILE)
-                .withFileFromPath("db-documenter/target/" + fatJar.getFileName(), fatJar);
+                .withFileFromPath("db-documenter-cli/target/" + fatJar.getFileName(), fatJar);
 
         // The image runs as non-root 'appuser', which cannot write to a host-owned bind mount.
         // Run the container as the host uid:gid so the mount is writable and the files are
