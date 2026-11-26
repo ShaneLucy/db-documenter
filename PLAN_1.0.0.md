@@ -77,14 +77,26 @@ This plan is designed to be picked up by a new Claude Code session with no prior
 
 1. Read this file end to end, then `CLAUDE.md` (agent routing, Maven permissions) and skim
    `PROJECT_COMPLETION_PLAN.md` (history of the 0.x work, known patterns and pitfalls).
-2. `git log --oneline -10` — the 0.x work ends at `4751a2a` (plan committed on top of it).
-3. **Before any code**: have `tech-lead-reviewer` review this plan (phase order, the Phase 0/1 boundary, the
-   `MetadataReader`/`CatalogSnapshot` design, multi-module layout with Java 21 core + Java 25 CLI under JPMS +
-   NullAway). Fold its findings into this file, then start Phase 0.
+2. `git log --oneline -15`. The 0.x work ends at `4751a2a`. **Phase 0 is complete and pushed** (ends at
+   `874989c`; SonarCloud gate green after the split). The whole-plan review has been done and folded in: see
+   "Decisions from the plan review" and the "Phase 0 completion review" carry-forward items.
+3. **Next: Phase 1.** Before any code, write a Phase 1 step table in this file, in the same style as "Phase 0 steps".
+   It must cover:
+   - the `CatalogSnapshot` public records + builders in an exported `catalog` package
+   - the internal `MetadataReader` and registry
+   - the `pg_catalog` bulk reader
+   - the catalog-dump golden
+   - the second-vendor spike
+   - least-privilege and query-count ITs
+   - the C1/C2 fixes
+
+   It must also resolve the Phase 1 carry-forward decisions: where the dump writer and fixtures live, given that
+   test-support can't depend on the library, and where goldens live. Then have `tech-lead-reviewer` review that step
+   table, fold in its findings, and only then start coding.
 4. Work one phase at a time; update the Phases table status as you go so progress survives context compaction.
 
 **Environment facts (WSL2, verified 2026-11-26):**
-- JDK 25.0.1 (Temurin via sdkman), Maven 3.8.7, Docker Desktop with WSL integration (Testcontainers works).
+- JDK 25.0.1 (Temurin via sdkman); use the Maven wrapper `./mvnw` (3.9.16; system Maven is 3.8.7); Docker Desktop with WSL integration (Testcontainers works).
 - `gh` CLI is **not** installed; `jq` is not installed (use `python3` for JSON).
 - SonarCloud project `ShaneLucy_db-documenter`, org `shanelucy`; public API readable without auth, e.g.
   `curl -s "https://sonarcloud.io/api/qualitygates/project_status?projectKey=ShaneLucy_db-documenter"`.
@@ -97,6 +109,14 @@ This plan is designed to be picked up by a new Claude Code session with no prior
 - Builders store lists without copying; `EI_EXPOSE_REP2` is excluded for `*$Builder` only.
 - Error Prone + NullAway run on main code only, with `-J--add-exports` flags because the compiler is forked.
 - Golden files can encode bugs — review regenerated expected output, don't just accept it.
+
+**Pitfalls learned in Phase 0:**
+- **IntelliJ rewrites `.idea/` during builds.** It is now untracked.
+- **Known flake:** Testcontainers "connection refused" under WSL. Re-run once before investigating.
+- **Auto-mode blocks security suppressions** (SpotBugs excludes, `@SuppressFBWarnings`). Ask the user. Prefer fixes that suppress nothing, such as `findsecbugs-taint.txt`.
+- **Dependency convergence is reactor-wide.** A compile-scope dependency in test-support can trip it, as with `slf4j-api`.
+- **XML comments can't contain `--`**, e.g. `--release`, or the POM won't parse.
+- **Module layout:** `*Test` = Docker-free (surefire); `*IT` = Docker (failsafe). JaCoCo checks merged coverage. The library's branch coverage is 81.9% against a 0.80 floor, which is a thin margin.
 
 ## Working agreement (unchanged from 0.x work)
 
