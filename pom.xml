@@ -32,6 +32,7 @@
   </scm>
 
   <properties>
+    <!-- Default compile release (the CLI and Docker image); the library and test-support override it with 21 -->
     <java.version>25</java.version>
     <!-- Minimum JDK to run the build; deliberately independent of the compile release -->
     <build.jdk>25</build.jdk>
@@ -310,6 +311,10 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>${maven-javadoc.version}</version>
+          <configuration>
+            <!-- Applies to every execution (jar, docs profile) so the docs are checked against the same API level -->
+            <release>${java.version}</release>
+          </configuration>
           <dependencies>
             <dependency>
               <groupId>com.github.spotbugs</groupId>
