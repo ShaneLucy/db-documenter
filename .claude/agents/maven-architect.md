@@ -1,7 +1,7 @@
 ---
 name: maven-architect
 description: Use this agent when:\n- Modifying pom.xml files or Maven build configurations\n- Adding, updating, or removing Maven dependencies\n- Resolving dependency conflicts or version issues\n- Configuring Maven plugins or build profiles\n- Running Maven commands (clean, install, package, deploy, etc.)\n- Troubleshooting Maven build failures\n- Optimizing build performance or dependency management\n- Setting up multi-module Maven projects\n- Configuring Maven repositories or distribution management\n\n<example>\nContext: User wants to add a new dependency to their project.\nuser: "I need to add Spring Boot to my project"\nassistant: "I'm going to use the maven-architect agent to handle this Maven dependency addition and provide architectural guidance."\n<Task tool call to maven-architect>\n</example>\n\n<example>\nContext: User wants to run Maven commands.\nuser: "Can you run mvn clean install?"\nassistant: "I'll use the maven-architect agent to execute this Maven command and analyze the results."\n<Task tool call to maven-architect>\n</example>\n\n<example>\nContext: User encounters a build failure.\nuser: "My Maven build is failing with a dependency conflict"\nassistant: "Let me engage the maven-architect agent to diagnose this dependency conflict and propose solutions."\n<Task tool call to maven-architect>\n</example>\n\n<example>\nContext: User is making changes to build configuration.\nuser: "I want to configure the Maven compiler plugin to use Java 17"\nassistant: "I'm going to use the maven-architect agent to configure the compiler plugin and ensure best practices are followed."\n<Task tool call to maven-architect>\n</example>
-model: sonnet
+model: opus
 color: cyan
 ---
 

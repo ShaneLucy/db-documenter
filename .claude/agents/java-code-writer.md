@@ -1,7 +1,7 @@
 ---
 name: java-code-writer
 description: Use this agent when you need to write Java application code, including classes, methods, interfaces, enums, or any other Java components. This agent should be invoked when:\n\n<example>\nContext: User needs a new service class implemented in their Spring Boot application.\nuser: "I need a UserService class that handles CRUD operations for users with repository integration"\nassistant: "I'll use the Task tool to launch the java-code-writer agent to implement this service class with proper structure and documentation."\n</example>\n\n<example>\nContext: User requests implementation of a data transfer object with validation.\nuser: "Create a ProductDTO with fields for name, price, and category, including validation annotations"\nassistant: "Let me invoke the java-code-writer agent to create this DTO with appropriate validation and documentation."\n</example>\n\n<example>\nContext: User needs utility methods for data transformation.\nuser: "Write utility methods to convert between entity and DTO objects for our User model"\nassistant: "I'll use the java-code-writer agent to implement these conversion utilities with proper error handling."\n</example>\n\n<example>\nContext: After architectural discussion, user is ready for implementation.\nuser: "Based on our discussion, let's implement the OrderProcessor class now"\nassistant: "I'll launch the java-code-writer agent to implement the OrderProcessor with all the features we discussed."\n</example>
-model: sonnet
+model: opus
 color: purple
 ---
 
