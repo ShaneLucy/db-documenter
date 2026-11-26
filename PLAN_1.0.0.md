@@ -15,7 +15,7 @@ A correct, fast, multi-vendor ERD generator, published as a library and CLI:
 2. **Scales**: a bounded number of metadata queries per schema (no per-table N+1); a 2,000-table test.
 3. **Stable public API** (semver from 1.0): `DataSource`/JDBC-URL connection, builder-based config, a read-only
    catalog model, a public exception type, documented thread-safety and connection ownership.
-4. **Published**: `dev.shanelucy:db-documenter` (library, Java 21) and the CLI fat jar (classifier) on Maven
+4. **Published**: `dev.shanelucy:db-documenter` (library, Java 21) and `dev.shanelucy:db-documenter-cli` (fat jar classifier) on Maven
    Central, signed, with sources + Javadoc; Docker image (multi-arch) on GHCR; GitHub Release.
 5. **Docs**: versioned public + internal Javadoc on GitHub Pages; README accurate for all vendors.
 6. **Delivery hygiene**: licence notices in shipped artifacts, Dependabot, SECURITY.md, CHANGELOG, SBOM/
@@ -32,6 +32,44 @@ A correct, fast, multi-vendor ERD generator, published as a library and CLI:
 | Maven Central artifacts | library + CLI fat jar (classifier) |
 | Javadoc on GitHub Pages | public **and** internal, versioned per release + `latest` alias (internal site carries a "not public API" banner) |
 | Versioning | development on `0.x-SNAPSHOT`; first release is `1.0.0` |
+
+### Decisions from the plan review (user, 2026-11-26)
+
+`tech-lead-reviewer` reviewed this plan before Phase 0; the user accepted these changes:
+
+| Topic | Decision |
+|---|---|
+| Artifacts | `dev.shanelucy:db-documenter` (library) + `dev.shanelucy:db-documenter-cli` (thin jar + fat-jar classifier). The parent POM is published too (or flattened). Supersedes "CLI fat jar as classifier of the library". |
+| Public catalog model | **Public records** in an exported `catalog` package, built via builders. Adding a component breaks record patterns and the canonical constructor, so **1.0 is not released until the model is believed stable** (all four vendor families read into it, and the deferred facts below are considered). Accepted risk. |
+| Reader selection | `MetadataReader` stays **internal**; an internal static registry selects it by `getDatabaseProductName()`, plus the version for MariaDB. No ServiceLoader and no public SPI at 1.0. |
+| Reader implementation | Native **bulk** catalog queries per vendor (`pg_catalog`, MySQL `information_schema`, SQL Server `sys.*`). A `DatabaseMetaData` reader is kept only as a fallback and test oracle. SQLite is exempt from the scale target (its pragmas work one table at a time). |
+| Derived facts | Cardinality, 1:1 and composite nullability are computed by pure functions (renderer or model helpers), never by readers. |
+| Golden strategy | Phase 1 adds a canonical sorted **catalog dump** golden (one fact per line). Reader ITs assert against it, and it becomes the cross-vendor expected output in Phase 4. Renderer tests use hand-built snapshots. PUML goldens are regenerated **once**, in Phase 2, and reviewed by `puml-schema-validator`. |
+| Phase 1 spike | Read a second vendor (SQLite or MySQL) into `CatalogSnapshot` as a throwaway spike, so the model isn't shaped by `pg_catalog` alone. |
+
+**Catalog model sketch:** all immutable, deterministic order (schemas and tables by name, columns by ordinal, key columns by key position).
+- `CatalogSnapshot { productName, productVersion, List<Schema> }`
+- `QualifiedName { schema, name }`. The `Dialect` maps vendor namespaces onto it: MySQL database → schema, SQL Server schema, SQLite `main`/attached databases.
+- `Table { QualifiedName, List<Column>, Optional<Key> primaryKey, List<Key> uniqueKeys (constraint vs unique index), List<ForeignKey> }`
+- `Column { name, ordinal, nullable, DataType { displayText, Optional<QualifiedName> userType } }`
+- `ForeignKey { name, ordered column pairs, referenced QualifiedName, onDelete, onUpdate }`
+- `EnumType { QualifiedName, ordered values }`. Decide in Phase 1 how MySQL inline `ENUM(...)` columns are represented.
+- Facts deliberately considered before freezing the model at 1.0: check constraints, comments, views, non-unique indexes.
+
+**Public at 1.0:**
+- `DbDocumenter`, the config class and builder, `DbDocumenterException`, `DiagramResult`, the catalog model, `readCatalog()`.
+- Documented connection ownership: a caller-supplied `Connection` stays caller-owned; with a `DataSource`, the library opens and closes one connection per run.
+
+**Internal at 1.0:** readers, dialects, renderer. `DatabaseType.getUrlTemplate()` is deleted.
+
+**Risks flagged for later phases:**
+- **Driver licensing (Phase 4/5).** MySQL Connector/J is GPLv2 with the FOSS Exception; MariaDB Connector/J is LGPL-2.1. Bundling either in the Apache-2.0 fat jar and image needs a deliberate choice and NOTICE entries.
+- **SQLite in the Alpine image.** sqlite-jdbc ships musl/aarch64 natives and extracts them to tmp; check read-only rootfs.
+- **Identifier case folding** differs per vendor. Define it per `Dialect`, which affects H3 schema validation.
+- **Least privilege per vendor.** SQL Server needs `VIEW DEFINITION`. Decide whether "no constraints visible" warns or exits non-zero.
+- **Scale test.** The 2,000-table test asserts the **query count** via a counting `Connection`/`DataSource` proxy, not wall-clock time, and is tagged so it doesn't dominate every `verify`.
+- **Portable fixture.** A common core plus per-vendor extensions: SQLite has no schemas (needs `ATTACH`) and needs `PRAGMA foreign_keys`, and MySQL has no named enums.
+- **Java 21 runtime.** `--release 21` checks the API only. Add a CI job that runs the core tests on a JDK 21 JVM (Phase 0 or 7).
 
 ## Starting a fresh session (read this first)
 
@@ -72,17 +110,43 @@ This plan is designed to be picked up by a new Claude Code session with no prior
 
 | # | Phase | Status |
 |---|---|---|
-| 0 | Package/module rename; multi-module split (`core` library on Java 21, `cli` on Java 25); drivers non-transitive for the library | NOT STARTED |
-| 1 | New core: vendor-neutral `CatalogSnapshot` model + `MetadataReader` SPI; PostgreSQL reader on `pg_catalog` with bulk per-schema queries; least-privilege + performance ITs; corrected fixtures | NOT STARTED |
+| 0 | Package/module rename; multi-module split (`core` library on Java 21, `cli` on Java 25); drivers non-transitive for the library (steps below) | IN PROGRESS |
+| 1 | New core: vendor-neutral `CatalogSnapshot` model + `MetadataReader` SPI; PostgreSQL reader on `pg_catalog` with bulk per-schema queries; public record catalog model; catalog-dump golden; second-vendor spike; least-privilege + query-count ITs; corrected fixtures | NOT STARTED |
 | 2 | Rendering: schema-qualified aliases + escaping, correct cardinality + 1:1, UNIQUE semantics (composite/unique indexes), deterministic name ordering, types via `format_type` | NOT STARTED |
 | 3 | Public API + CLI: DataSource/JDBC URL, config builder class, exported exception, `readCatalog()`, password env/file + optional, SSL options/driver properties, schema validation, quiet logging + `--verbose`, UTF-8 stdout | NOT STARTED |
-| 4 | Vendors: `DatabaseMetaData`-based base reader; MySQL/MariaDB → SQL Server → SQLite; shared portable fixture, parameterised Testcontainers ITs; ServiceLoader selection | NOT STARTED |
+| 4 | Vendors: native bulk-query readers MySQL/MariaDB → SQL Server → SQLite (`DatabaseMetaData` reader as fallback/oracle); shared portable fixture (common core + per-vendor extensions), parameterised Testcontainers ITs; internal static registry selection | NOT STARTED |
 | 5 | Maven Central: `dev.shanelucy`, POM metadata (developers), sources jar, GPG signing, `central-publishing-maven-plugin`, CLI fat jar classifier, licence/NOTICE bundling, Multi-Release manifest | NOT STARTED |
 | 6 | Javadoc on GitHub Pages: docs profile, versioned public + internal sites, Pages deploy on release | NOT STARTED |
 | 7 | Hardening: Dependabot (maven, docker, actions), SECURITY.md, CHANGELOG, Sonar token step-scoped + plugin pinned, SBOM/provenance/signing, multi-arch image, digest-pinned base, PG version matrix, Maven wrapper + reproducible builds, release ordering | NOT STARTED |
 | 8 | Final independent review → fixes → set `1.0.0` → user tags | NOT STARTED |
 
+### Phase 0 steps
+
+Phase 0 is purely mechanical. Each step ends with a green `mvn -B clean verify` and its own commit.
+
+| Step | Work | Status |
+|---|---|---|
+| 0.1 | Rename `db.documenter` → `dev.shanelucy.dbdocumenter` (packages, module, `git mv`), groupId → `dev.shanelucy`; update pom references (mainClass, `--add-reads`, javadoc package lists), spotbugs-exclude regex, `.claude/skills/*/SKILL.md`, CLAUDE.md, README. No other changes. | DONE |
+| 0.2 | Scope hygiene: `spotbugs-annotations` → `provided` + `requires static`; drop the main-compile `--add-reads …=ALL-UNNAMED` if no longer needed; a `build.jdk` property for the enforcer; commit `.mvn/` (Maven wrapper) | TODO |
+| 0.3 | Parent POM (`db-documenter-parent`, `pom` packaging, plugin/dependency management) + one child `db-documenter/` with everything moved unchanged. Config file paths via `${maven.multiModuleProjectDirectory}`. Dockerfile, `.dockerignore`, `ApplicationDockerIT` (Dockerfile path via system property) and `release.yml` paths updated, keeping CRLF. Per-verify javadoc may move to a `docs` profile here. | TODO |
+| 0.4 | `db-documenter-test-support` (not deployed, no module-info): `testhelpers/*`, SQL fixtures, goldens read as classpath resources | TODO |
+| 0.5 | Split out `db-documenter-cli`. Its module-info: `@NullMarked`, `requires dev.shanelucy.dbdocumenter`, picocli, `requires static org.jspecify`. Core drops picocli and gets **temporary** qualified exports of `internal.{exceptions,utils,validation}` to the cli module (TODO: remove in Phase 3). Shade/manifest/Dockerfile wiring moves to cli; core jar manifest loses `mainClass`/`Class-Path`. Per-module JaCoCo thresholds set after measuring. | TODO |
+| 0.6 | Core `--release 21` (modernizer and javadoc 21); cli `--release 25`. Confirm NullAway still fires in both modules with a deliberate violation, then revert. | TODO |
+| 0.7 | Drivers non-transitive: core `postgresql` `runtime` + `optional`; cli declares it explicitly. Check `dependency:tree` and `jar tf` on the fat jar; `ApplicationDockerIT` must pass. | TODO |
+| 0.8 | Housekeeping: untrack `.idea/*`, rename the Docker-requiring `*Test` classes to `*IT`, update CLAUDE.md "Key Project Characteristics", update the status here | TODO |
+
+**Phase 0 must NOT:**
+- change behaviour or golden output, or fix C1/C2/H1–H3
+- introduce `CatalogSnapshot`/`MetadataReader`/`Dialect` or the public exception
+- restructure the `internal.*` layers that Phase 1 replaces
+- change the public API
+- add drivers, publishing or Pages work
+
+After the first push of the split, check that SonarCloud picks up both modules: the new-code baseline resets on renamed paths.
+
 ## User actions required (cannot be done by Claude)
+
+These have lead time: start them now, in parallel with Phases 0–4.
 
 - Add the DNS TXT record for `shanelucy.dev` in the Central Portal; create a Central user token.
 - Generate a GPG key, publish it to keyservers.
