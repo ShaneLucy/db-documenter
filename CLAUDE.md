@@ -270,7 +270,8 @@ For other Maven operations, use the `maven-architect` agent.
 
 ## Key Project Characteristics
 
-- **Target Java Version:** Java 25 for both application code and test
+- **Target Java Version:** the library (`db-documenter`) and `db-documenter-test-support` compile with `--release 21`; the CLI (`db-documenter-cli`) and the Docker image use Java 25. The build JDK is 25. Don't use Java 22+ APIs or language features in the library.
+- **Tests:** `*Test` classes are Docker-free unit tests (surefire, `mvn test`); anything that needs Docker/Testcontainers is a `*IT` (failsafe, `mvn verify`). JaCoCo checks the merged unit and integration coverage.
 - **Build Tool:** Maven (use `./mvnw`). Multi-module: the root `pom.xml` is the parent `db-documenter-parent`; modules are `db-documenter-test-support/` (test-only helpers, fixtures, goldens), `db-documenter/` (the library, JPMS module `dev.shanelucy.dbdocumenter`) and `db-documenter-cli/` (the picocli CLI and fat JAR, JPMS module `dev.shanelucy.dbdocumenter.cli`); each has its own `src/`. `checkstyle.xml`, `pmd-ruleset.xml` and `spotbugs-exclude.xml` stay at the repo root.
 - **Logging:** `java.util.logging.Logger` (not SLF4J)
 - **Null Safety:** JSpecify `@NullMarked`/`@Nullable`, enforced by Error Prone + NullAway

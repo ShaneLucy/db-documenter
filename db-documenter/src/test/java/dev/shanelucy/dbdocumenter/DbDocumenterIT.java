@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.List;
 import org.junit.jupiter.api.*;
 
-class DbDocumenterTest {
+class DbDocumenterIT {
 
   private static final PostgresTestEnvironment POSTGRES_TEST_ENVIRONMENT =
       new PostgresTestEnvironment();
