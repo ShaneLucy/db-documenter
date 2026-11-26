@@ -144,6 +144,38 @@ Phase 0 is purely mechanical. Each step ends with a green `mvn -B clean verify` 
 
 After the first push of the split, check that SonarCloud picks up both modules: the new-code baseline resets on renamed paths.
 
+### Phase 0 completion review (`tech-lead-reviewer`, 2026-11-26): carry-forward items
+
+The review found no behaviour changes. `sonar.skip` was added to test-support and two inaccurate export TODOs were reworded. Open items, by phase:
+
+**Phase 1 (decide in the Phase 1 plan before coding)**
+- **Test-support can't depend on the library** (that would be a reactor cycle). Hand-built `CatalogSnapshot` fixtures and the catalog-dump writer/comparator can't live there. Options:
+  - (a) the dump writer as an internal class in library main, which also helps debugging
+  - (b) a library `test-jar` that the CLI consumes
+- **Goldens stay in test-support.** Library tests run on the module path with test resources patched into the named module. `TestResources` runs in the unnamed module, so it can't read library-local resources in encapsulated packages. Library-local resources would have to be read with the test class's own `getResourceAsStream`.
+- **No package overlap.** Never put a test-support class in a package the library owns, e.g. `…catalog`: it would be silently unloadable.
+- **Keep the `-Pdocs` internal-site `--add-exports` list in sync.** It sits at `db-documenter/pom.xml` (~L199-243). Add or remove packages in the same commit that adds or deletes them.
+- **Export the new public `catalog` package in `module-info.java`.**
+
+**Phase 3**
+- **`requires transitive java.sql` in the library `module-info`:** the public API exposes `SQLException`, and soon `DataSource`/`Connection`.
+- **Qualified exports:**
+  - `internal.exceptions` goes with the public exception.
+  - `internal.utils` and `internal.validation` go only when the CLI stops calling `LogUtils`/`Validators`.
+  - Dropping `LogUtils` from the CLI also retires `findsecbugs-taint.txt`.
+
+**Phase 5**
+- **Inherited `url`/`scm` paths:** child POMs inherit them with the artifactId appended, which produces 404s. Set `child.project.url.inherit.append.path="false"` and the `child.scm.*.inherit.append.path="false"` attributes. Publish the parent; don't flatten it away. Add `developers`.
+- **Keep test-support out of the publish.** Verify that `central-publishing-maven-plugin` skips it: `maven.deploy.skip` isn't enough, and `skipPublishing` may need to be plugin config rather than a property. The parent's `dependencyManagement` names test-support, which is harmless.
+- **Shade filters:** also exclude `META-INF/versions/*/module-info.class` (picocli's), and `META-INF/*.SF`, `*.DSA`, `*.RSA` before Phase 4's drivers land.
+- **If the `jar-with-dependencies` classifier changes,** update all of these in one commit: Dockerfile `COPY`, `.dockerignore`, `ApplicationDockerIT`, and the `release.yml` jar globs and paths.
+
+**Phase 7**
+- **Bytecode version check:** `extra-enforcer-rules` `enforceBytecodeVersion` with `maxJdkVersion=21`, scoped to the library, in addition to the JDK 21 runtime job.
+- **Maven wrapper:** add `distributionSha256Sum`. Consider a `./mvnw -v` warm-up before the `release.yml` version-capture step, because that step makes the first wrapper call in the job.
+- **Maven 4:** `${maven.multiModuleProjectDirectory}` becomes `${session.rootDirectory}`.
+- **If JUnit parallel execution is ever enabled,** mark `MainIT`/`MainTest` `@Isolated`, because they swap `System.err`.
+
 ## User actions required (cannot be done by Claude)
 
 These have lead time: start them now, in parallel with Phases 0–4.

@@ -283,7 +283,8 @@
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>${failsafe.version}</version>
           <configuration>
-            <!-- Separate property so the integration-test agent does not stack onto surefire's argLine -->
+            <!-- Separate property so the integration-test agent does not stack onto surefire's argLine.
+                 Set by jacoco prepare-agent-integration: any module using failsafe must also declare jacoco. -->
             <argLine>@{failsafeArgLine}</argLine>
             <systemPropertyVariables>
               <!-- Tests run with the module as basedir; this lets them reach repo-level files (Dockerfile) -->

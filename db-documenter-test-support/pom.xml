@@ -16,9 +16,12 @@
   <properties>
     <!-- Must not exceed the library's release: its tests consume this jar on a release-21 classpath -->
     <java.version>21</java.version>
-    <!-- Never published: skip deploy now, and the Central publishing plugin once it is added (Phase 6) -->
+    <!-- Never published: skip deploy now, and the Central publishing plugin once it is added (Phase 5;
+         verify that skipPublishing is honoured as a property, or set it in the plugin config) -->
     <maven.deploy.skip>true</maven.deploy.skip>
     <skipPublishing>true</skipPublishing>
+    <!-- Test infrastructure, not product code: keep it out of Sonar's coverage and issue analysis -->
+    <sonar.skip>true</sonar.skip>
   </properties>
 
   <dependencies>
