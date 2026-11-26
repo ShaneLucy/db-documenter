@@ -145,13 +145,7 @@ public final class ColumnMapper {
                 }
               }
 
-              return Column.builder()
-                  .name(column.name())
-                  .dataType(dataType)
-                  .maximumLength(column.maximumLength())
-                  .constraints(column.constraints())
-                  .compositeUniqueConstraintName(column.compositeUniqueConstraintName())
-                  .build();
+              return column.withDataType(dataType);
             })
         .toList();
   }
@@ -180,13 +174,7 @@ public final class ColumnMapper {
               updatedConstraints.add(Constraint.FK);
               updatedConstraints.addAll(column.constraints());
 
-              return Column.builder()
-                  .name(column.name())
-                  .dataType(column.dataType())
-                  .maximumLength(column.maximumLength())
-                  .constraints(updatedConstraints)
-                  .compositeUniqueConstraintName(column.compositeUniqueConstraintName())
-                  .build();
+              return column.withConstraints(updatedConstraints);
             })
         .toList();
   }

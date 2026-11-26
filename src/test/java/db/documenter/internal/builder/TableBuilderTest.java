@@ -70,14 +70,34 @@ class TableBuilderTest {
           Table.builder().name("orders").columns(List.of()).foreignKeys(List.of()).build();
 
       final Column rawColumn1 =
-          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("id")
+              .dataType("uuid")
+              .constraints(List.of())
+              .build();
       final Column rawColumn2 =
-          Column.builder().name("name").dataType("varchar").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("name")
+              .dataType("varchar")
+              .constraints(List.of())
+              .build();
 
       final Column mappedColumn1 =
-          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("id")
+              .dataType("uuid")
+              .constraints(List.of())
+              .build();
       final Column mappedColumn2 =
-          Column.builder().name("name").dataType("varchar").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("name")
+              .dataType("varchar")
+              .constraints(List.of())
+              .build();
 
       final PrimaryKey primaryKey =
           PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();
@@ -180,9 +200,19 @@ class TableBuilderTest {
               .build();
 
       final Column rawColumn =
-          Column.builder().name("status").dataType("USER-DEFINED").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("status")
+              .dataType("USER-DEFINED")
+              .constraints(List.of())
+              .build();
       final Column mappedColumn =
-          Column.builder().name("status").dataType("status").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("status")
+              .dataType("status")
+              .constraints(List.of())
+              .build();
 
       final PrimaryKey primaryKey =
           PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();

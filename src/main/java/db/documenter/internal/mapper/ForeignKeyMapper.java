@@ -35,8 +35,6 @@ public final class ForeignKeyMapper {
                               .targetColumn(foreignKey.targetColumn())
                               .referencedSchema(foreignKey.referencedSchema())
                               .isNullable(column.isNullable())
-                              .onDeleteAction(foreignKey.onDeleteAction())
-                              .onUpdateAction(foreignKey.onUpdateAction())
                               .build())
                   .orElse(foreignKey);
             })

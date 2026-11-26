@@ -16,6 +16,8 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class ColumnMapperTest {
 
@@ -40,9 +42,19 @@ class ColumnMapperTest {
     @Test
     void returnsColumnsUnchangedWhenNoUserDefinedTypes() {
       final Column column1 =
-          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("id")
+              .dataType("uuid")
+              .constraints(List.of())
+              .build();
       final Column column2 =
-          Column.builder().name("name").dataType("varchar").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("name")
+              .dataType("varchar")
+              .constraints(List.of())
+              .build();
 
       final var context = createContext(Map.of(), Map.of(), "test_table", "core");
 
@@ -64,7 +76,12 @@ class ColumnMapperTest {
               .build();
 
       final Column column =
-          Column.builder().name("status").dataType("USER-DEFINED").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("status")
+              .dataType("USER-DEFINED")
+              .constraints(List.of())
+              .build();
 
       final var columnKey = new ColumnKey("orders", "status");
       final var udtReference = new UdtReference("core", "order_status");
@@ -80,13 +97,42 @@ class ColumnMapperTest {
       assertEquals("status", result.getFirst().name());
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void itPreservesNullabilityWhenResolvingUserDefinedType(final boolean isNullable) {
+      final DbEnum dbEnum =
+          DbEnum.builder()
+              .schemaName("core")
+              .enumName("order_status")
+              .enumValues(List.of())
+              .build();
+      final Column column =
+          Column.builder().isNullable(isNullable).name("status").dataType("USER-DEFINED").build();
+      final var context =
+          createContext(
+              Map.of(new ColumnKey("orders", "status"), new UdtReference("core", "order_status")),
+              Map.of(new EnumKey("core", "order_status"), dbEnum),
+              "orders",
+              "core");
+
+      final List<Column> result = columnMapper.mapUserDefinedTypes(List.of(column), context);
+
+      assertEquals("order_status", result.getFirst().dataType());
+      assertEquals(isNullable, result.getFirst().isNullable());
+    }
+
     @Test
     void keepsUserDefinedTypeWhenNoMatchingEnum() {
       final DbEnum dbEnum =
           DbEnum.builder().schemaName("core").enumName("other_enum").enumValues(List.of()).build();
 
       final Column column =
-          Column.builder().name("status").dataType("USER-DEFINED").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("status")
+              .dataType("USER-DEFINED")
+              .constraints(List.of())
+              .build();
 
       final var enumKey = new EnumKey("core", "other_enum");
       final var context = createContext(Map.of(), Map.of(enumKey, dbEnum), "orders", "core");
@@ -108,10 +154,11 @@ class ColumnMapperTest {
 
       final Column column =
           Column.builder()
+              .isNullable(true)
               .name("status")
               .dataType("USER-DEFINED")
               .maximumLength(50)
-              .constraints(List.of(Constraint.DEFAULT, Constraint.NULLABLE))
+              .constraints(List.of(Constraint.UNIQUE))
               .build();
 
       final var columnKey = new ColumnKey("orders", "status");
@@ -129,7 +176,7 @@ class ColumnMapperTest {
       assertTrue(mapped.isNullable());
       assertEquals("order_status", mapped.dataType());
       assertEquals(50, mapped.maximumLength());
-      assertEquals(List.of(Constraint.DEFAULT, Constraint.NULLABLE), mapped.constraints());
+      assertEquals(List.of(Constraint.UNIQUE), mapped.constraints());
     }
 
     @Test
@@ -149,7 +196,12 @@ class ColumnMapperTest {
               .build();
 
       final Column column =
-          Column.builder().name("status").dataType("USER-DEFINED").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("status")
+              .dataType("USER-DEFINED")
+              .constraints(List.of())
+              .build();
 
       final var columnKey = new ColumnKey("projects", "status");
       final var udtReference = new UdtReference("core", "project_status");
@@ -183,6 +235,7 @@ class ColumnMapperTest {
 
       final Column column =
           Column.builder()
+              .isNullable(false)
               .name("account_status")
               .dataType("USER-DEFINED")
               .constraints(List.of())
@@ -212,9 +265,19 @@ class ColumnMapperTest {
     @Test
     void returnsColumnsUnchangedWhenNoForeignKeys() {
       final Column column1 =
-          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("id")
+              .dataType("uuid")
+              .constraints(List.of())
+              .build();
       final Column column2 =
-          Column.builder().name("name").dataType("varchar").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("name")
+              .dataType("varchar")
+              .constraints(List.of())
+              .build();
 
       final List<Column> result =
           columnMapper.enrichWithForeignKeyConstraints(List.of(column1, column2), List.of());
@@ -230,7 +293,12 @@ class ColumnMapperTest {
     @Test
     void addsFKConstraintToForeignKeyColumn() {
       final Column column =
-          Column.builder().name("user_id").dataType("uuid").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("user_id")
+              .dataType("uuid")
+              .constraints(List.of())
+              .build();
 
       final ForeignKey foreignKey =
           ForeignKey.builder()
@@ -255,9 +323,10 @@ class ColumnMapperTest {
     void addsFKConstraintBeforeExistingConstraints() {
       final Column column =
           Column.builder()
+              .isNullable(false)
               .name("user_id")
               .dataType("uuid")
-              .constraints(List.of(Constraint.UNIQUE, Constraint.DEFAULT))
+              .constraints(List.of(Constraint.UNIQUE))
               .build();
 
       final ForeignKey foreignKey =
@@ -274,20 +343,34 @@ class ColumnMapperTest {
           columnMapper.enrichWithForeignKeyConstraints(List.of(column), List.of(foreignKey));
 
       assertEquals(1, result.size());
-      assertEquals(3, result.getFirst().constraints().size());
+      assertEquals(2, result.getFirst().constraints().size());
       assertEquals(Constraint.FK, result.getFirst().constraints().getFirst());
       assertEquals(Constraint.UNIQUE, result.getFirst().constraints().get(1));
-      assertEquals(Constraint.DEFAULT, result.getFirst().constraints().get(2));
     }
 
     @Test
     void handlesMultipleForeignKeyColumns() {
       final Column column1 =
-          Column.builder().name("user_id").dataType("uuid").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("user_id")
+              .dataType("uuid")
+              .constraints(List.of())
+              .build();
       final Column column2 =
-          Column.builder().name("product_id").dataType("bigint").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("product_id")
+              .dataType("bigint")
+              .constraints(List.of())
+              .build();
       final Column column3 =
-          Column.builder().name("name").dataType("varchar").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("name")
+              .dataType("varchar")
+              .constraints(List.of())
+              .build();
 
       final ForeignKey foreignKey1 =
           ForeignKey.builder()
@@ -333,7 +416,12 @@ class ColumnMapperTest {
     @Test
     void isCaseInsensitiveWhenMatchingColumnNames() {
       final Column column =
-          Column.builder().name("USER_ID").dataType("uuid").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("USER_ID")
+              .dataType("uuid")
+              .constraints(List.of())
+              .build();
 
       final ForeignKey foreignKey =
           ForeignKey.builder()
@@ -354,14 +442,37 @@ class ColumnMapperTest {
       assertEquals(Constraint.FK, result.getFirst().constraints().getFirst());
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void itPreservesNullabilityWhenAddingFKConstraint(final boolean isNullable) {
+      final Column column =
+          Column.builder().isNullable(isNullable).name("user_id").dataType("uuid").build();
+      final ForeignKey foreignKey =
+          ForeignKey.builder()
+              .name("fk_user")
+              .sourceTable("orders")
+              .sourceColumn("user_id")
+              .targetTable("users")
+              .targetColumn("id")
+              .referencedSchema("public")
+              .build();
+
+      final List<Column> result =
+          columnMapper.enrichWithForeignKeyConstraints(List.of(column), List.of(foreignKey));
+
+      assertEquals(List.of(Constraint.FK), result.getFirst().constraints());
+      assertEquals(isNullable, result.getFirst().isNullable());
+    }
+
     @Test
     void preservesOtherColumnPropertiesWhenAddingFKConstraint() {
       final Column column =
           Column.builder()
+              .isNullable(true)
               .name("user_id")
               .dataType("uuid")
               .maximumLength(36)
-              .constraints(List.of(Constraint.NULLABLE))
+              .constraints(List.of(Constraint.UNIQUE))
               .build();
 
       final ForeignKey foreignKey =
@@ -383,7 +494,7 @@ class ColumnMapperTest {
       assertTrue(enriched.isNullable());
       assertEquals("uuid", enriched.dataType());
       assertEquals(36, enriched.maximumLength());
-      assertEquals(List.of(Constraint.FK, Constraint.NULLABLE), enriched.constraints());
+      assertEquals(List.of(Constraint.FK, Constraint.UNIQUE), enriched.constraints());
     }
   }
 }

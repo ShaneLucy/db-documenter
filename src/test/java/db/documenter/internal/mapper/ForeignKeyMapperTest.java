@@ -4,14 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import db.documenter.internal.formatter.impl.multiplicity.CardinalityFormatter;
 import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.Constraint;
 import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.ReferentialAction;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class ForeignKeyMapperTest {
 
@@ -28,7 +30,12 @@ class ForeignKeyMapperTest {
     @Test
     void returnsEmptyListWhenNoForeignKeys() {
       final Column column =
-          Column.builder().name("id").dataType("varchar").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("id")
+              .dataType("varchar")
+              .constraints(List.of())
+              .build();
 
       final List<ForeignKey> result =
           foreignKeyMapper.enrichWithNullability(List.of(), List.of(column));
@@ -50,9 +57,10 @@ class ForeignKeyMapperTest {
 
       final Column column =
           Column.builder()
+              .isNullable(true)
               .name("user_id")
               .dataType("varchar")
-              .constraints(List.of(Constraint.NULLABLE))
+              .constraints(List.of(Constraint.UNIQUE))
               .build();
 
       final List<ForeignKey> result =
@@ -75,7 +83,12 @@ class ForeignKeyMapperTest {
               .build();
 
       final Column column =
-          Column.builder().name("user_id").dataType("varchar").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("user_id")
+              .dataType("varchar")
+              .constraints(List.of())
+              .build();
 
       final List<ForeignKey> result =
           foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
@@ -97,7 +110,12 @@ class ForeignKeyMapperTest {
               .build();
 
       final Column column =
-          Column.builder().name("other_column").dataType("varchar").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("other_column")
+              .dataType("varchar")
+              .constraints(List.of())
+              .build();
 
       final List<ForeignKey> result =
           foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
@@ -130,12 +148,18 @@ class ForeignKeyMapperTest {
 
       final Column column1 =
           Column.builder()
+              .isNullable(true)
               .name("user_id")
               .dataType("varchar")
-              .constraints(List.of(Constraint.NULLABLE))
+              .constraints(List.of(Constraint.UNIQUE))
               .build();
       final Column column2 =
-          Column.builder().name("product_id").dataType("varchar").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("product_id")
+              .dataType("varchar")
+              .constraints(List.of())
+              .build();
 
       final List<ForeignKey> result =
           foreignKeyMapper.enrichWithNullability(
@@ -160,9 +184,10 @@ class ForeignKeyMapperTest {
 
       final Column column =
           Column.builder()
+              .isNullable(true)
               .name("user_id")
               .dataType("varchar")
-              .constraints(List.of(Constraint.NULLABLE))
+              .constraints(List.of(Constraint.UNIQUE))
               .build();
 
       final List<ForeignKey> result =
@@ -176,8 +201,6 @@ class ForeignKeyMapperTest {
       assertEquals("users", enriched.targetTable());
       assertEquals("id", enriched.targetColumn());
       assertTrue(enriched.isNullable());
-      assertEquals(ReferentialAction.NO_ACTION, enriched.onDeleteAction());
-      assertEquals(ReferentialAction.NO_ACTION, enriched.onUpdateAction());
     }
 
     @Test
@@ -193,15 +216,26 @@ class ForeignKeyMapperTest {
               .build();
 
       final Column column1 =
-          Column.builder().name("id").dataType("varchar").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("id")
+              .dataType("varchar")
+              .constraints(List.of())
+              .build();
       final Column column2 =
           Column.builder()
+              .isNullable(true)
               .name("user_id")
               .dataType("varchar")
-              .constraints(List.of(Constraint.NULLABLE))
+              .constraints(List.of(Constraint.UNIQUE))
               .build();
       final Column column3 =
-          Column.builder().name("product_id").dataType("varchar").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("product_id")
+              .dataType("varchar")
+              .constraints(List.of())
+              .build();
 
       final List<ForeignKey> result =
           foreignKeyMapper.enrichWithNullability(
@@ -210,10 +244,18 @@ class ForeignKeyMapperTest {
       assertEquals(1, result.size());
       assertTrue(result.getFirst().isNullable());
     }
+  }
 
-    @Test
-    void itPreservesOnDeleteActionWhenEnrichingNullability() {
-      final var foreignKey =
+  @Nested
+  class NullabilityToCardinalityTests {
+
+    @ParameterizedTest
+    @CsvSource({"true,orders ||--o{ users", "false,orders ||--|{ users"})
+    void itCarriesColumnNullabilityThroughColumnEnrichmentIntoCardinality(
+        final boolean isNullable, final String expectedLine) {
+      final Column column =
+          Column.builder().isNullable(isNullable).name("user_id").dataType("uuid").build();
+      final ForeignKey foreignKey =
           ForeignKey.builder()
               .name("fk_user")
               .sourceTable("orders")
@@ -221,71 +263,17 @@ class ForeignKeyMapperTest {
               .targetTable("users")
               .targetColumn("id")
               .referencedSchema("public")
-              .onDeleteAction(ReferentialAction.CASCADE)
               .build();
 
-      final var column =
-          Column.builder()
-              .name("user_id")
-              .dataType("varchar")
-              .constraints(List.of(Constraint.NULLABLE))
-              .build();
+      final var enrichedColumns =
+          new ColumnMapper().enrichWithForeignKeyConstraints(List.of(column), List.of(foreignKey));
+      final var enrichedForeignKeys =
+          foreignKeyMapper.enrichWithNullability(List.of(foreignKey), enrichedColumns);
 
-      final var result =
-          foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
-
-      assertEquals(ReferentialAction.CASCADE, result.getFirst().onDeleteAction());
-    }
-
-    @Test
-    void itPreservesOnUpdateActionWhenEnrichingNullability() {
-      final var foreignKey =
-          ForeignKey.builder()
-              .name("fk_user")
-              .sourceTable("orders")
-              .sourceColumn("user_id")
-              .targetTable("users")
-              .targetColumn("id")
-              .referencedSchema("public")
-              .onUpdateAction(ReferentialAction.RESTRICT)
-              .build();
-
-      final var column =
-          Column.builder()
-              .name("user_id")
-              .dataType("varchar")
-              .constraints(List.of(Constraint.NULLABLE))
-              .build();
-
-      final var result =
-          foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
-
-      assertEquals(ReferentialAction.RESTRICT, result.getFirst().onUpdateAction());
-    }
-
-    @Test
-    void itPreservesReferentialActionsWhenColumnNotFound() {
-      final var foreignKey =
-          ForeignKey.builder()
-              .name("fk_user")
-              .sourceTable("orders")
-              .sourceColumn("user_id")
-              .targetTable("users")
-              .targetColumn("id")
-              .referencedSchema("public")
-              .onDeleteAction(ReferentialAction.CASCADE)
-              .onUpdateAction(ReferentialAction.SET_NULL)
-              .build();
-
-      final var column =
-          Column.builder().name("other_column").dataType("varchar").constraints(List.of()).build();
-
-      final var result =
-          foreignKeyMapper.enrichWithNullability(List.of(foreignKey), List.of(column));
-
-      final var preserved = result.getFirst();
-      assertEquals(ReferentialAction.CASCADE, preserved.onDeleteAction());
-      assertEquals(ReferentialAction.SET_NULL, preserved.onUpdateAction());
+      assertEquals(
+          expectedLine,
+          new CardinalityFormatter()
+              .format(enrichedForeignKeys.getFirst(), "public", "orders -- users"));
     }
   }
 }

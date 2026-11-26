@@ -20,7 +20,8 @@ class PrimaryKeyEntityLineFormatterTest {
   @BeforeEach
   void setUp() {
     primaryKeyEntityLineFormatter = new PrimaryKeyEntityLineFormatter();
-    columnBuilder = Column.builder().name("col").dataType("varchar").constraints(List.of());
+    columnBuilder =
+        Column.builder().isNullable(false).name("col").dataType("varchar").constraints(List.of());
     tableBuilder = Table.builder().name("test_table").columns(List.of()).foreignKeys(List.of());
   }
 

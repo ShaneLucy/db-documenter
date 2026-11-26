@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import db.documenter.internal.formatter.api.EntityLineFormatter;
 import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.Constraint;
 import db.documenter.internal.models.db.PrimaryKey;
 import db.documenter.internal.models.db.Table;
 import java.util.List;
@@ -75,6 +74,7 @@ class EntityRendererTest {
     void itRendersPartitionedTableWithColumnsAndPkAndPartitions() {
       final var idColumn =
           Column.builder()
+              .isNullable(false)
               .name("id")
               .dataType("uuid")
               .maximumLength(0)
@@ -82,10 +82,11 @@ class EntityRendererTest {
               .build();
       final var statDateColumn =
           Column.builder()
+              .isNullable(true)
               .name("stat_date")
               .dataType("date")
               .maximumLength(0)
-              .constraints(List.of(Constraint.NULLABLE))
+              .constraints(List.of())
               .build();
       final var primaryKey =
           PrimaryKey.builder()
@@ -104,7 +105,7 @@ class EntityRendererTest {
 
       when(lineFormatter.format(any(Table.class), any(Column.class), isNull()))
           .thenReturn("id: uuid")
-          .thenReturn("stat_date: date <<NULLABLE>>");
+          .thenReturn("stat_date: date");
 
       final var result = entityRenderer.render(table);
 
@@ -115,8 +116,7 @@ class EntityRendererTest {
       assertTrue(
           result.contains("\t\t--\n"), "Separator must appear between PK and non-PK columns");
       assertTrue(
-          result.contains("\t\tstat_date: date <<NULLABLE>>"),
-          "Non-PK column must appear after separator");
+          result.contains("\t\tstat_date: date"), "Non-PK column must appear after separator");
       assertTrue(result.contains("\t}\n"), "Closing brace must be present");
       assertTrue(
           result.contains(
@@ -172,6 +172,7 @@ class EntityRendererTest {
     void itRendersPrimaryKeyColumnAboveSeparatorAndNonPkColumnBelow() {
       final var idColumn =
           Column.builder()
+              .isNullable(false)
               .name("id")
               .dataType("uuid")
               .maximumLength(0)
@@ -179,6 +180,7 @@ class EntityRendererTest {
               .build();
       final var nameColumn =
           Column.builder()
+              .isNullable(false)
               .name("name")
               .dataType("varchar")
               .maximumLength(100)
@@ -212,6 +214,7 @@ class EntityRendererTest {
     void itDoesNotRenderSeparatorWhenAllColumnsAreInPrimaryKey() {
       final var idColumn =
           Column.builder()
+              .isNullable(false)
               .name("id")
               .dataType("uuid")
               .maximumLength(0)
@@ -240,6 +243,7 @@ class EntityRendererTest {
     void itDoesNotRenderSeparatorWhenNoPrimaryKeyIsSet() {
       final var nameColumn =
           Column.builder()
+              .isNullable(false)
               .name("name")
               .dataType("varchar")
               .maximumLength(100)

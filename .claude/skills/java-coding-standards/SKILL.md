@@ -34,8 +34,8 @@ All models MUST provide a builder:
 - Builder class MUST be `static final class Builder`
 - Static factory method `builder()` returns new Builder instance
 - All setter methods return `this` for method chaining
-- Setter method signature: `public Builder fieldName(final @NonNull Type fieldName)`
-- Defensively copy collections in builder setters using `List.copyOf()`
+- Setter method signature: `public Builder fieldName(final Type fieldName)` (non-null by default via `@NullMarked`; use `final @Nullable Type` only for optional fields)
+- Defensive copying happens once, in the record's compact constructor — builder setters just assign
 - NO default values - all fields must be explicitly set - except for public api facing objects
 - `build()` method constructs the record (validation happens in compact constructor)
 - Document with Javadoc including `@return this builder instance for method chaining`
@@ -238,11 +238,16 @@ ALL resources implementing AutoCloseable MUST be properly closed:
 
 ### Connection Management
 
+db-documenter is a short-lived CLI that runs a fixed set of read-only metadata queries, so it uses a
+**single connection per run** rather than a pool.
+
 **Connection Rules:**
-- Connections MUST be obtained from a connection manager/pool (never direct DriverManager in business logic)
-- Connections MUST be closed in try-with-resources or explicit finally blocks
+- Connections MUST be obtained through a `ConnectionManager` implementation (`DriverManager` is only
+  allowed inside `internal.connection.impl.*`)
+- The code that opens the connection owns it and MUST close it with try-with-resources
+- Query runners receive the connection via their constructor and may hold it in a `private final`
+  field for the duration of one run; they MUST NOT close it (the owner does)
 - Document connection lifecycle and ownership in javadoc
-- NEVER store connections as instance fields (use per-operation pattern)
 - Connection configuration (SSL, ports) belongs in configuration objects
 
 
@@ -253,7 +258,6 @@ ALL resources implementing AutoCloseable MUST be properly closed:
 - Use parameterized preparedStatements with ? placeholders (prevents SQL injection)
 - NEVER concatenate user input into SQL strings
 - Close PreparedStatements in try-with-resources
-- Reuse PreparedStatement instances when executing same query multiple times
 
 
 ### ResultSet Handling
@@ -301,17 +305,22 @@ Use the `Validators` utility class for all validation:
 
 ### Compile-time null safety
 
-Use JSpecify annotations with NullAway for compile-time null safety:
+Use JSpecify annotations, enforced at compile time by Error Prone + NullAway:
 
-**Annotation Placement:**
-- Place @NonNull AFTER final keyword: `final @NonNull String name`
-- Place @NonNull BEFORE type for fields: `@NonNull String name`
-- Return types: `public @NonNull List<Table> getTables()
-
+**Rules:**
+- `module-info.java` is annotated `@NullMarked`, which makes every package in the module non-null by
+  default — do NOT repeat `@NullMarked` on packages or classes
+- Do NOT write `@NonNull`; it is redundant inside `@NullMarked` code
+- Annotate only the exceptions with `@Nullable` (fields, parameters, return types that may be null)
+- Placement: after modifiers, directly before the type — `final @Nullable String name`,
+  `private @Nullable String name`, `public @Nullable Table findTable(...)`
+- Prefer empty collections / `Optional` returns over `@Nullable` where it reads naturally
+- A NullAway error is a build failure; fix the code rather than suppressing
 
 ### Run-time
 
-Use `Validators` for run-time null safety
+Use `Validators` in compact constructors and public entry points — NullAway cannot see values
+arriving from JDBC, the CLI, or external callers of the public API.
 
 
 ## Summary Checklist
@@ -320,12 +329,12 @@ When writing non-test Java code, ensure:
 
 - ✅ Records for all immutable models
 - ✅ Defensive copying with `List.copyOf()`
-- ✅ `@NonNull` annotations on all reference types
+- ✅ Non-null by default (module-level `@NullMarked`); `@Nullable` only where null is allowed
+- ✅ `package-info.java` with Javadoc for every package
 - ✅ Validation in compact constructors using `Validators`
 - ✅ Builder pattern with fluent API
 - ✅ `final` keyword on parameters and local variables
-- ✅ Comprehensive Javadoc with examples
-- ✅ Package-info.java for each package
+- ✅ Javadoc per the `javadoc-standards` skill (examples only where they add clarity)
 - ✅ Modern Java features (text blocks, var, getFirst(), List.of())
 - ✅ Proper package organization (api/impl separation)
 - ✅ Logger with `isLoggable()` guards
@@ -341,10 +350,9 @@ When writing non-test Java code, ensure:
 
 ❌ **Mutable models** - All models must be immutable records
 ❌ **Direct collection exposure** - Always defensively copy with `List.copyOf()`
-❌ **Missing @NonNull** - All reference types need annotations
+❌ **Redundant @NonNull / @NullMarked** - Module-level `@NullMarked` already applies; annotate only `@Nullable`
 ❌ **Validation in wrong place** - Validate in compact constructors, not elsewhere
-❌ **Missing Javadoc** - All public types and methods need documentation
-❌ **No usage examples** - Include `<pre>{@code ... }</pre>` examples
+❌ **Missing Javadoc** - All public types and non-obvious public methods need documentation
 ❌ **Logging without guards** - Always check `isLoggable()` first
 ❌ **Non-final parameters** - Use `final` on all method parameters
 ❌ **String concatenation in SQL** - Use parameterized preparedStatements with `?`

@@ -25,8 +25,7 @@
  * <h2>Supporting Types</h2>
  *
  * <ul>
- *   <li>{@link db.documenter.internal.models.db.Constraint} - Column-level constraints (FK, UNIQUE,
- *       AUTO_INCREMENT, etc.)
+ *   <li>{@link db.documenter.internal.models.db.Constraint} - Column-level constraints (FK, UNIQUE)
  * </ul>
  *
  * <h2>Design Principles</h2>
@@ -48,7 +47,8 @@
  *     .name("email")
  *     .dataType("varchar")
  *     .maximumLength(255)
- *     .constraints(List.of(Constraint.UNIQUE, Constraint.NULLABLE))
+ *     .isNullable(true)
+ *     .constraints(List.of(Constraint.UNIQUE))
  *     .build();
  *
  * // Build a foreign key

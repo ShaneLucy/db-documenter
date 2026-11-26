@@ -6,19 +6,19 @@ import db.documenter.internal.validation.Validators;
 /**
  * Represents a foreign key relationship between database tables.
  *
- * <p>This record captures the metadata of a foreign key constraint, including source and target
- * table/column information, the referenced schema, nullability, and the referential actions applied
- * on delete and update.
+ * <p>Captures the structural metadata needed to render an ERD relationship line: which tables and
+ * columns are involved, which schema owns the referenced table, and whether the FK column is
+ * nullable (which drives cardinality notation).
  *
  * <p><b>Immutability:</b> This record is immutable and thread-safe.
  *
- * <p><b>Validation:</b> All string parameters are validated as non-blank, and both referential
- * action parameters are validated as non-null, in the compact constructor.
+ * <p><b>Validation:</b> All string parameters are validated as non-blank in the compact
+ * constructor.
  *
  * <p><b>Usage Example:</b>
  *
  * <pre>{@code
- * // orders.user_id -> users.id (nullable, cascade delete)
+ * // orders.user_id -> users.id (optional/nullable relationship)
  * ForeignKey fk = ForeignKey.builder()
  *     .name("fk_orders_user")
  *     .sourceTable("orders")
@@ -27,8 +27,6 @@ import db.documenter.internal.validation.Validators;
  *     .targetColumn("id")
  *     .referencedSchema("public")
  *     .isNullable(true)
- *     .onDeleteAction(ReferentialAction.CASCADE)
- *     .onUpdateAction(ReferentialAction.NO_ACTION)
  *     .build();
  * }</pre>
  *
@@ -40,12 +38,7 @@ import db.documenter.internal.validation.Validators;
  * @param referencedSchema the schema of the referenced table
  * @param isNullable true if the FK column permits NULL (indicating optional relationship); false
  *     for required relationships. Builder defaults to false if not set
- * @param onDeleteAction the referential action applied to dependent rows when the referenced row is
- *     deleted; defaults to {@link ReferentialAction#NO_ACTION} if not set via the builder
- * @param onUpdateAction the referential action applied to dependent rows when the referenced row is
- *     updated; defaults to {@link ReferentialAction#NO_ACTION} if not set via the builder
  * @see Table
- * @see ReferentialAction
  */
 public record ForeignKey(
     String name,
@@ -54,9 +47,7 @@ public record ForeignKey(
     String targetTable,
     String targetColumn,
     String referencedSchema,
-    boolean isNullable,
-    ReferentialAction onDeleteAction,
-    ReferentialAction onUpdateAction) {
+    boolean isNullable) {
 
   public ForeignKey {
     Validators.isNotBlank(name, "name");
@@ -65,8 +56,6 @@ public record ForeignKey(
     Validators.isNotBlank(targetTable, "targetTable");
     Validators.isNotBlank(targetColumn, "targetColumn");
     Validators.isNotBlank(referencedSchema, "referencedSchema");
-    Validators.isNotNull(onDeleteAction, "onDeleteAction");
-    Validators.isNotNull(onUpdateAction, "onUpdateAction");
   }
 
   /**
@@ -81,10 +70,6 @@ public record ForeignKey(
   /**
    * Builder for constructing {@link ForeignKey} instances using a fluent API.
    *
-   * <p>Both {@code onDeleteAction} and {@code onUpdateAction} default to {@link
-   * ReferentialAction#NO_ACTION} when not explicitly set, ensuring backwards-compatible
-   * construction from code that predates referential action support.
-   *
    * <p><b>Usage Example:</b>
    *
    * <pre>{@code
@@ -96,7 +81,6 @@ public record ForeignKey(
    *     .targetColumn("id")
    *     .referencedSchema("public")
    *     .isNullable(false)
-   *     .onDeleteAction(ReferentialAction.CASCADE)
    *     .build();
    * }</pre>
    *
@@ -110,8 +94,6 @@ public record ForeignKey(
     private String targetColumn;
     private String referencedSchema;
     private boolean isNullable;
-    private ReferentialAction onDeleteAction = ReferentialAction.NO_ACTION;
-    private ReferentialAction onUpdateAction = ReferentialAction.NO_ACTION;
 
     /**
      * @return this builder for method chaining
@@ -173,45 +155,14 @@ public record ForeignKey(
     }
 
     /**
-     * Sets the referential action applied when the referenced row is deleted.
-     *
-     * @param onDeleteAction must not be null; defaults to {@link ReferentialAction#NO_ACTION}
-     * @return this builder for method chaining
-     */
-    public Builder onDeleteAction(final ReferentialAction onDeleteAction) {
-      this.onDeleteAction = onDeleteAction;
-      return this;
-    }
-
-    /**
-     * Sets the referential action applied when the referenced row is updated.
-     *
-     * @param onUpdateAction must not be null; defaults to {@link ReferentialAction#NO_ACTION}
-     * @return this builder for method chaining
-     */
-    public Builder onUpdateAction(final ReferentialAction onUpdateAction) {
-      this.onUpdateAction = onUpdateAction;
-      return this;
-    }
-
-    /**
      * Builds and returns a new {@link ForeignKey} instance.
      *
      * @return a new immutable {@link ForeignKey} instance
-     * @throws ValidationException if any required string field is blank or either referential
-     *     action field is null
+     * @throws ValidationException if any required string field is blank
      */
     public ForeignKey build() {
       return new ForeignKey(
-          name,
-          sourceTable,
-          sourceColumn,
-          targetTable,
-          targetColumn,
-          referencedSchema,
-          isNullable,
-          onDeleteAction,
-          onUpdateAction);
+          name, sourceTable, sourceColumn, targetTable, targetColumn, referencedSchema, isNullable);
     }
   }
 }

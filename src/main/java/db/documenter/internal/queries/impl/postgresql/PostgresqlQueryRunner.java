@@ -1,10 +1,7 @@
 package db.documenter.internal.queries.impl.postgresql;
 
-import db.documenter.internal.models.db.Column;
 import db.documenter.internal.models.db.ColumnKey;
-import db.documenter.internal.models.db.DbCompositeType;
 import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.models.db.MaterializedView;
 import db.documenter.internal.models.db.postgresql.UdtReference;
 import db.documenter.internal.queries.AbstractQueryRunner;
 import db.documenter.internal.queries.impl.postgresql.preparedstatements.PostgresqlPreparedStatementMapper;
@@ -26,10 +23,9 @@ import java.util.logging.Logger;
  * parameters, executes the query, and delegates result-set mapping to the injected {@link
  * PostgresqlResultSetMapper}.
  *
- * <p>The five generic methods ({@code getTableInfo}, {@code getColumnInfo}, {@code
- * getPrimaryKeyInfo}, {@code getForeignKeyInfo}, {@code getViewInfo}) are inherited from {@link
- * AbstractQueryRunner}. This class contributes the seven PostgreSQL-specific operations for enums,
- * UDT mappings, composite types, materialized views, materialized view columns, and partitions.
+ * <p>The four generic methods ({@code getTableInfo}, {@code getColumnInfo}, {@code
+ * getPrimaryKeyInfo}, {@code getForeignKeyInfo}) are inherited from {@link AbstractQueryRunner}.
+ * This class contributes PostgreSQL-specific operations for enums, UDT mappings, and partitions.
  *
  * <p><b>Resource Management:</b> All {@link java.sql.PreparedStatement} and {@link
  * java.sql.ResultSet} instances are managed with try-with-resources to guarantee closure even on
@@ -161,98 +157,6 @@ public final class PostgresqlQueryRunner extends AbstractQueryRunner {
         }
 
         return columnUdtMappings;
-      }
-    }
-  }
-
-  /**
-   * Retrieves all composite type definitions and their attributes for the specified schema.
-   *
-   * @param schema the schema to query for composite types
-   * @return list of composite types with their fields; never null, may be empty
-   * @throws SQLException if the database query fails
-   */
-  public List<DbCompositeType> getCompositeTypeInfo(final String schema) throws SQLException {
-    try (final var preparedStatement =
-        postgresqlQueries.compositeTypeInfoPreparedStatement(postgresqlConnection)) {
-      postgresqlPreparedStatementMapper.prepareCompositeTypeInfoStatement(
-          preparedStatement, schema);
-
-      try (final var resultSet = preparedStatement.executeQuery()) {
-        final List<DbCompositeType> compositeTypes =
-            postgresqlResultSetMapper.mapToDbCompositeTypeInfo(resultSet);
-
-        if (LOGGER.isLoggable(Level.INFO)) {
-          LOGGER.log(
-              Level.INFO,
-              "Discovered: {0} composite types in schema: {1}",
-              new Object[] {compositeTypes.size(), LogUtils.sanitizeForLog(schema)});
-        }
-
-        return compositeTypes;
-      }
-    }
-  }
-
-  /**
-   * Retrieves all materialized view names in the specified schema.
-   *
-   * @param schema the schema to query for materialized views
-   * @return list of materialized views (name only, columns empty); never null, may be empty
-   * @throws SQLException if the database query fails
-   */
-  public List<MaterializedView> getMaterializedViewInfo(final String schema) throws SQLException {
-    try (final var preparedStatement =
-        postgresqlQueries.materializedViewInfoPreparedStatement(postgresqlConnection)) {
-      postgresqlPreparedStatementMapper.prepareMaterializedViewInfoStatement(
-          preparedStatement, schema);
-
-      try (final var resultSet = preparedStatement.executeQuery()) {
-        final List<MaterializedView> materializedViews =
-            postgresqlResultSetMapper.mapToMaterializedViews(resultSet);
-
-        if (LOGGER.isLoggable(Level.INFO)) {
-          LOGGER.log(
-              Level.INFO,
-              "Discovered: {0} materialized views in schema: {1}",
-              new Object[] {materializedViews.size(), LogUtils.sanitizeForLog(schema)});
-        }
-
-        return materializedViews;
-      }
-    }
-  }
-
-  /**
-   * Retrieves all column definitions for a specific materialized view.
-   *
-   * @param schema the schema containing the materialized view
-   * @param matViewName the name of the materialized view
-   * @return list of columns; never null, may be empty
-   * @throws SQLException if the database query fails
-   */
-  public List<Column> getMaterializedViewColumnInfo(final String schema, final String matViewName)
-      throws SQLException {
-    try (final var preparedStatement =
-        postgresqlQueries.materializedViewColumnInfoPreparedStatement(postgresqlConnection)) {
-      postgresqlPreparedStatementMapper.prepareMaterializedViewColumnInfoStatement(
-          preparedStatement, schema, matViewName);
-
-      try (final var resultSet = preparedStatement.executeQuery()) {
-        final List<Column> columns =
-            postgresqlResultSetMapper.mapToMaterializedViewColumns(resultSet);
-
-        if (LOGGER.isLoggable(Level.INFO)) {
-          LOGGER.log(
-              Level.INFO,
-              "Discovered: {0} columns for materialized view: {1} in schema: {2}",
-              new Object[] {
-                columns.size(),
-                LogUtils.sanitizeForLog(matViewName),
-                LogUtils.sanitizeForLog(schema)
-              });
-        }
-        return columns;
       }
     }
   }

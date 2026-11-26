@@ -34,14 +34,7 @@ class RelationshipRendererTest {
     @Test
     void returnsEmptyStringWhenSchemaHasNoTables() {
       final var schema =
-          Schema.builder()
-              .name("public")
-              .tables(List.of())
-              .views(List.of())
-              .materializedViews(List.of())
-              .dbEnums(List.of())
-              .compositeTypes(List.of())
-              .build();
+          Schema.builder().name("public").tables(List.of()).dbEnums(List.of()).build();
 
       final var result = relationshipRenderer.render(schema);
 
@@ -59,10 +52,7 @@ class RelationshipRendererTest {
           Schema.builder()
               .name("public")
               .tables(List.of(table1, table2))
-              .views(List.of())
-              .materializedViews(List.of())
               .dbEnums(List.of())
-              .compositeTypes(List.of())
               .build();
 
       final var result = relationshipRenderer.render(schema);
@@ -91,14 +81,7 @@ class RelationshipRendererTest {
               .columns(List.of())
               .build();
       final var schema =
-          Schema.builder()
-              .name("public")
-              .tables(List.of(table))
-              .views(List.of())
-              .materializedViews(List.of())
-              .dbEnums(List.of())
-              .compositeTypes(List.of())
-              .build();
+          Schema.builder().name("public").tables(List.of(table)).dbEnums(List.of()).build();
 
       when(multiplicityFormatter.format(foreignKey, "public", null))
           .thenReturn("users ||--|{ orders");
@@ -140,14 +123,7 @@ class RelationshipRendererTest {
               .columns(List.of())
               .build();
       final var schema =
-          Schema.builder()
-              .name("public")
-              .tables(List.of(table))
-              .views(List.of())
-              .materializedViews(List.of())
-              .dbEnums(List.of())
-              .compositeTypes(List.of())
-              .build();
+          Schema.builder().name("public").tables(List.of(table)).dbEnums(List.of()).build();
 
       when(multiplicityFormatter.format(foreignKey1, "public", null))
           .thenReturn("users ||--|{ orders");
@@ -193,14 +169,7 @@ class RelationshipRendererTest {
               .columns(List.of())
               .build();
       final var schema =
-          Schema.builder()
-              .name("public")
-              .tables(List.of(table))
-              .views(List.of())
-              .materializedViews(List.of())
-              .dbEnums(List.of())
-              .compositeTypes(List.of())
-              .build();
+          Schema.builder().name("public").tables(List.of(table)).dbEnums(List.of()).build();
 
       when(multiplicityFormatter.format(foreignKey1, "public", null))
           .thenReturn("users ||--|{ orders");
@@ -257,10 +226,7 @@ class RelationshipRendererTest {
           Schema.builder()
               .name("public")
               .tables(List.of(table1, table2))
-              .views(List.of())
-              .materializedViews(List.of())
               .dbEnums(List.of())
-              .compositeTypes(List.of())
               .build();
 
       when(multiplicityFormatter.format(foreignKey1, "public", null))
@@ -304,14 +270,7 @@ class RelationshipRendererTest {
               .columns(List.of())
               .build();
       final var schema =
-          Schema.builder()
-              .name("public")
-              .tables(List.of(table))
-              .views(List.of())
-              .materializedViews(List.of())
-              .dbEnums(List.of())
-              .compositeTypes(List.of())
-              .build();
+          Schema.builder().name("public").tables(List.of(table)).dbEnums(List.of()).build();
 
       when(multiplicityFormatter.format(foreignKey1, "public", null))
           .thenReturn("users ||--|{ posts");

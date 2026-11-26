@@ -32,7 +32,12 @@ class TableMapperTest {
     @Test
     void combinesTableComponentsIntoTable() {
       final Column column =
-          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("id")
+              .dataType("uuid")
+              .constraints(List.of())
+              .build();
       final PrimaryKey primaryKey =
           PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();
       final ForeignKey foreignKey =
@@ -62,7 +67,12 @@ class TableMapperTest {
     @Test
     void handlesTableWithNoPrimaryKey() {
       final Column column =
-          Column.builder().name("tag_id").dataType("varchar").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("tag_id")
+              .dataType("varchar")
+              .constraints(List.of())
+              .build();
 
       final Table result =
           tableMapper.combineTableComponents(
@@ -78,7 +88,12 @@ class TableMapperTest {
     @Test
     void handlesTableWithNoForeignKeys() {
       final Column column =
-          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("id")
+              .dataType("uuid")
+              .constraints(List.of())
+              .build();
       final PrimaryKey primaryKey =
           PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();
 
@@ -96,11 +111,26 @@ class TableMapperTest {
     @Test
     void handlesTableWithMultipleColumns() {
       final Column column1 =
-          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("id")
+              .dataType("uuid")
+              .constraints(List.of())
+              .build();
       final Column column2 =
-          Column.builder().name("name").dataType("varchar").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("name")
+              .dataType("varchar")
+              .constraints(List.of())
+              .build();
       final Column column3 =
-          Column.builder().name("email").dataType("varchar").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("email")
+              .dataType("varchar")
+              .constraints(List.of())
+              .build();
 
       final PrimaryKey primaryKey =
           PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();
@@ -118,7 +148,12 @@ class TableMapperTest {
     @Test
     void handlesTableWithMultipleForeignKeys() {
       final Column column =
-          Column.builder().name("id").dataType("uuid").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("id")
+              .dataType("uuid")
+              .constraints(List.of())
+              .build();
       final PrimaryKey primaryKey =
           PrimaryKey.builder().constraintName("pk_test").columnNames(List.of("id")).build();
 
@@ -159,9 +194,19 @@ class TableMapperTest {
     @Test
     void handlesTableWithCompositePrimaryKey() {
       final Column column1 =
-          Column.builder().name("user_id").dataType("uuid").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("user_id")
+              .dataType("uuid")
+              .constraints(List.of())
+              .build();
       final Column column2 =
-          Column.builder().name("role_id").dataType("smallint").constraints(List.of()).build();
+          Column.builder()
+              .isNullable(false)
+              .name("role_id")
+              .dataType("smallint")
+              .constraints(List.of())
+              .build();
 
       final PrimaryKey primaryKey =
           PrimaryKey.builder()

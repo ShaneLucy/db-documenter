@@ -3,6 +3,7 @@ package db.documenter.internal.builder;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 
+import db.documenter.internal.formatter.FormatterConfigurer;
 import db.documenter.internal.formatter.api.EntityLineFormatter;
 import db.documenter.internal.formatter.api.MultiplicityFormatter;
 import org.junit.jupiter.api.BeforeEach;

@@ -20,7 +20,11 @@ class DefaultEntityLineFormatterTest {
     defaultEntityLineFormatter = new DefaultEntityLineFormatter();
     table = Table.builder().name("test_table").columns(List.of()).foreignKeys(List.of()).build();
     columnBuilder =
-        Column.builder().name("column_name").dataType("column_data_type").constraints(List.of());
+        Column.builder()
+            .isNullable(false)
+            .name("column_name")
+            .dataType("column_data_type")
+            .constraints(List.of());
   }
 
   @Nested
@@ -33,7 +37,12 @@ class DefaultEntityLineFormatterTest {
       final var result =
           defaultEntityLineFormatter.format(
               table,
-              Column.builder().name("col").dataType("type").constraints(List.of()).build(),
+              Column.builder()
+                  .isNullable(false)
+                  .name("col")
+                  .dataType("type")
+                  .constraints(List.of())
+                  .build(),
               currentValue);
 
       assertEquals(currentValue, result);
@@ -88,20 +97,33 @@ class DefaultEntityLineFormatterTest {
     void ifColumnNameIsNullThrowsValidationException() {
       assertThrows(
           db.documenter.internal.exceptions.ValidationException.class,
-          () -> Column.builder().name(null).dataType("type").maximumLength(10).build());
+          () ->
+              Column.builder()
+                  .isNullable(false)
+                  .name(null)
+                  .dataType("type")
+                  .maximumLength(10)
+                  .build());
     }
 
     @Test
     void ifColumnDataTypeIsNullThrowsValidationException() {
       assertThrows(
           db.documenter.internal.exceptions.ValidationException.class,
-          () -> Column.builder().name("col").dataType(null).maximumLength(10).build());
+          () ->
+              Column.builder()
+                  .isNullable(false)
+                  .name("col")
+                  .dataType(null)
+                  .maximumLength(10)
+                  .build());
     }
 
     @Test
     void ifColumnMaximumLengthIsNegativeTreatsAsZero() {
       final var column =
           Column.builder()
+              .isNullable(false)
               .name("col")
               .dataType("type")
               .maximumLength(-1)
@@ -117,6 +139,7 @@ class DefaultEntityLineFormatterTest {
     void ifColumnMaximumLengthIsVeryLargeFormatsCorrectly() {
       final var column =
           Column.builder()
+              .isNullable(false)
               .name("col")
               .dataType("type")
               .maximumLength(Integer.MAX_VALUE)

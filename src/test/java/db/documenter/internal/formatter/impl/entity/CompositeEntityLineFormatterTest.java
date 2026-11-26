@@ -28,7 +28,13 @@ class CompositeEntityLineFormatterTest {
   void setUp() {
     Mockito.reset(lineFormatter1, lineFormatter2, lineFormatter3);
     table = Table.builder().name("test_table").columns(List.of()).foreignKeys(List.of()).build();
-    column = Column.builder().name("col").dataType("varchar").constraints(List.of()).build();
+    column =
+        Column.builder()
+            .isNullable(false)
+            .name("col")
+            .dataType("varchar")
+            .constraints(List.of())
+            .build();
   }
 
   @Nested

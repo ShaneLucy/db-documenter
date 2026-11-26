@@ -67,7 +67,7 @@ void whenSingleConstraintAppendsInBrackets() { ... }
 ### Assertion Style
 
 **Assertion Rules:**
-- Static import ALL assertions: `import static org.junit.jupiter.api.Assertions.*`
+- Static import each assertion individually: `import static org.junit.jupiter.api.Assertions.assertEquals;` (no wildcard, consistent with the import rules)
 - Use `assertEquals(expected, actual)` for equality checks
 - Use `assertTrue()` / `assertFalse()` for boolean conditions
 - Use `assertNotNull()` for null checks
@@ -182,7 +182,7 @@ class DatabaseIntegrationTests {
 **Import Rules (same as production):**
 - Use explicit imports, NEVER wildcards
 - Organize imports in groups:
-  1. Static imports (`import static org.junit.jupiter.api.Assertions.*`)
+  1. Static imports (`import static org.junit.jupiter.api.Assertions.assertEquals;` — one per line)
   2. `java.*` and `javax.*` packages
   3. Third-party libraries (JUnit, Mockito, etc.)
   4. Project packages (`db.documenter.*`)
@@ -276,7 +276,7 @@ class ValidatorsTest {
 When writing Java test code, ensure:
 
 - ✅ Test class name is `{ClassUnderTest}Test`
-- ✅ Static import JUnit assertions
+- ✅ Static import JUnit assertions individually (no `Assertions.*`)
 - ✅ Use `@Nested` classes to group related tests
 - ✅ Test method names start with `it` or `when` and describe behavior
 - ✅ Use `final var` for local variables
@@ -297,7 +297,7 @@ When writing Java test code, ensure:
 ❌ **Generic test names** - Use descriptive names starting with `it` or `when`
 ❌ **Missing exception message checks** - Always verify the exception message
 ❌ **Container per test** - Share expensive resources with `@BeforeAll`
-❌ **Test data in separate files** - Keep data close to test (inline)
+❌ **Unit test data in separate files** - Keep data close to test (inline); SQL schema fixtures for integration tests are the exception
 ❌ **Not using builders** - Use builder pattern for complex objects
 ❌ **Underscores in test names** - Use camelCase only
 

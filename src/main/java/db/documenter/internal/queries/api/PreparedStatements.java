@@ -2,7 +2,6 @@ package db.documenter.internal.queries.api;
 
 import db.documenter.internal.queries.SqlAgnosticPreparedStatements;
 import db.documenter.internal.queries.impl.postgresql.PostgresqlPreparedStatements;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -22,6 +21,4 @@ public sealed interface PreparedStatements permits SqlAgnosticPreparedStatements
   PreparedStatement primaryKeyInfoPreparedStatement(Connection connection) throws SQLException;
 
   PreparedStatement foreignKeyInfoPreparedStatement(Connection connection) throws SQLException;
-
-  PreparedStatement viewInfoPreparedStatement(Connection connection) throws SQLException;
 }

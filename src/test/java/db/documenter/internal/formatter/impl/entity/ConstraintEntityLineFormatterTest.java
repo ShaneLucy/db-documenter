@@ -20,7 +20,7 @@ class ConstraintEntityLineFormatterTest {
   void setUp() {
     constraintEntityLineFormatter = new ConstraintEntityLineFormatter();
     table = Table.builder().name("test_table").columns(List.of()).foreignKeys(List.of()).build();
-    columnBuilder = Column.builder().name("col").dataType("varchar");
+    columnBuilder = Column.builder().name("col").dataType("varchar").isNullable(false);
   }
 
   @Nested
@@ -41,62 +41,11 @@ class ConstraintEntityLineFormatterTest {
     }
 
     @Test
-    void whenMultipleConstraintsAppendsCommaSeparated() {
+    void whenMultipleConstraintsAppendsCommaSeparatedInPriorityOrder() {
       final var column =
-          columnBuilder
-              .constraints(List.of(Constraint.UNIQUE, Constraint.CHECK, Constraint.DEFAULT))
-              .build();
+          columnBuilder.constraints(List.of(Constraint.UNIQUE, Constraint.FK)).build();
       final var result = constraintEntityLineFormatter.format(table, column, "value");
-      assertEquals("value <<UNIQUE,DEFAULT,CHECK>>", result);
-    }
-
-    @Test
-    void whenAllConstraintsAppendsAll() {
-      final var column =
-          columnBuilder
-              .constraints(
-                  List.of(
-                      Constraint.UNIQUE,
-                      Constraint.CHECK,
-                      Constraint.DEFAULT,
-                      Constraint.AUTO_INCREMENT))
-              .build();
-      final var result = constraintEntityLineFormatter.format(table, column, "value");
-      assertEquals("value <<UNIQUE,AUTO_INCREMENT,DEFAULT,CHECK>>", result);
-    }
-
-    @Test
-    void whenNullableConstraintAppendsNullable() {
-      final var column = columnBuilder.constraints(List.of(Constraint.NULLABLE)).build();
-      final var result = constraintEntityLineFormatter.format(table, column, "value");
-      assertEquals("value <<NULLABLE>>", result);
-    }
-
-    @Test
-    void whenMultipleConstraintsIncludingNullableAppendsAllInCorrectOrder() {
-      final var column =
-          columnBuilder
-              .constraints(List.of(Constraint.UNIQUE, Constraint.NULLABLE, Constraint.DEFAULT))
-              .build();
-      final var result = constraintEntityLineFormatter.format(table, column, "value");
-      assertEquals("value <<UNIQUE,DEFAULT,NULLABLE>>", result);
-    }
-
-    @Test
-    void whenAllConstraintsAppendsAllInCorrectOrder() {
-      final var column =
-          columnBuilder
-              .constraints(
-                  List.of(
-                      Constraint.UNIQUE,
-                      Constraint.NULLABLE,
-                      Constraint.DEFAULT,
-                      Constraint.FK,
-                      Constraint.CHECK,
-                      Constraint.AUTO_INCREMENT))
-              .build();
-      final var result = constraintEntityLineFormatter.format(table, column, "value");
-      assertEquals("value <<FK,UNIQUE,AUTO_INCREMENT,DEFAULT,CHECK,NULLABLE>>", result);
+      assertEquals("value <<FK,UNIQUE>>", result);
     }
 
     @Test
@@ -131,39 +80,6 @@ class ConstraintEntityLineFormatterTest {
     void whenTableIsNullDoesNotThrow() {
       final var column = columnBuilder.constraints(List.of(Constraint.UNIQUE)).build();
       assertDoesNotThrow(() -> constraintEntityLineFormatter.format(null, column, "value"));
-    }
-
-    @Test
-    void whenUniqueConstraintWithCompositeNameRendersWithConstraintName() {
-      final var column =
-          Column.builder()
-              .name("col")
-              .dataType("varchar")
-              .constraints(List.of(Constraint.UNIQUE))
-              .compositeUniqueConstraintName("uq_composite_key")
-              .build();
-      final var result = constraintEntityLineFormatter.format(table, column, "value");
-      assertEquals("value <<UNIQUE:uq_composite_key>>", result);
-    }
-
-    @Test
-    void whenUniqueConstraintWithNullCompositeNameRendersPlainUnique() {
-      final var column = columnBuilder.constraints(List.of(Constraint.UNIQUE)).build();
-      final var result = constraintEntityLineFormatter.format(table, column, "value");
-      assertEquals("value <<UNIQUE>>", result);
-    }
-
-    @Test
-    void whenCompositeUniqueWithOtherConstraintsRendersCorrectly() {
-      final var column =
-          Column.builder()
-              .name("col")
-              .dataType("varchar")
-              .constraints(List.of(Constraint.FK, Constraint.UNIQUE, Constraint.NULLABLE))
-              .compositeUniqueConstraintName("uq_multi_col")
-              .build();
-      final var result = constraintEntityLineFormatter.format(table, column, "value");
-      assertEquals("value <<FK,UNIQUE:uq_multi_col,NULLABLE>>", result);
     }
   }
 }

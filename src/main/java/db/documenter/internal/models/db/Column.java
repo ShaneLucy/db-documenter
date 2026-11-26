@@ -3,52 +3,43 @@ package db.documenter.internal.models.db;
 import db.documenter.internal.exceptions.ValidationException;
 import db.documenter.internal.validation.Validators;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
- * Represents a database column with metadata for PlantUML entity-relationship diagram generation.
+ * Represents a database column with metadata for PlantUML ERD generation.
  *
- * <p>This record encapsulates all column-level information including name, data type, maximum
- * length, and associated constraints (e.g., UNIQUE, CHECK, DEFAULT, AUTO_INCREMENT, NULLABLE).
+ * <p>Encapsulates column-level information relevant to an ERD: name, data type, maximum length,
+ * nullability, and structural constraints ({@link Constraint#FK}, {@link Constraint#UNIQUE}).
  *
  * <p><b>Immutability:</b> This record is immutable and thread-safe.
  *
- * <p><b>Validation:</b> All parameters are validated as non-null in the compact constructor. The
- * constraints list is defensively copied to prevent external modification.
+ * <p><b>Validation:</b> All parameters are validated in the compact constructor. The constraints
+ * list is defensively copied to prevent external modification.
  *
  * <p><b>Usage Example:</b>
  *
  * <pre>{@code
- * // Create a column with constraints using the builder
  * Column emailColumn = Column.builder()
  *     .name("email")
  *     .dataType("varchar")
  *     .maximumLength(255)
- *     .constraints(List.of(Constraint.UNIQUE, Constraint.NULLABLE))
+ *     .isNullable(true)
+ *     .constraints(List.of(Constraint.UNIQUE))
  *     .build();
  *
- * // Create a simple column without constraints
  * Column idColumn = Column.builder()
  *     .name("id")
  *     .dataType("uuid")
- *     .build();
- *
- * // Create a column that participates in a composite UNIQUE constraint
- * Column firstNameColumn = Column.builder()
- *     .name("first_name")
- *     .dataType("varchar")
- *     .maximumLength(100)
- *     .constraints(List.of(Constraint.UNIQUE, Constraint.NULLABLE))
- *     .compositeUniqueConstraintName("uq_person_full_name")
+ *     .isNullable(false)
  *     .build();
  * }</pre>
  *
  * @param name identifier used in the database schema
  * @param dataType the SQL data type (e.g., "varchar", "integer", "uuid")
  * @param maximumLength character limit for varchar/char types; 0 for fixed-size types
- * @param constraints the {@link List} of {@link Constraint} values applied to this column - never
+ * @param isNullable true if the column permits NULL values; false otherwise
+ * @param constraints the {@link List} of {@link Constraint} values applied to this column — never
  *     null, may be empty
- * @param compositeUniqueConstraintName the name(s) of any composite UNIQUE constraints covering
- *     this column; {@code null} if none or if the UNIQUE is single-column
  * @see Constraint
  * @see Table
  */
@@ -56,8 +47,8 @@ public record Column(
     String name,
     String dataType,
     int maximumLength,
-    List<Constraint> constraints,
-    String compositeUniqueConstraintName) {
+    boolean isNullable,
+    List<Constraint> constraints) {
 
   public Column {
     Validators.isNotBlank(name, "name");
@@ -67,30 +58,10 @@ public record Column(
   }
 
   /**
-   * Checks if this column allows null values.
-   *
-   * <p><b>Usage Example:</b>
-   *
-   * <pre>{@code
-   * Column column = Column.builder()
-   *     .name("email")
-   *     .constraints(List.of(Constraint.NULLABLE))
-   *     .build();
-   *
-   * boolean nullable = column.isNullable(); // Returns true
-   * }</pre>
-   *
-   * @return true if the column has the NULLABLE constraint, false otherwise
-   */
-  public boolean isNullable() {
-    return constraints.contains(Constraint.NULLABLE);
-  }
-
-  /**
    * Creates a new Column with a different data type, preserving all other properties.
    *
-   * <p>This method follows the "wither" pattern common in immutable objects, returning a new
-   * instance rather than modifying the existing one.
+   * <p>Follows the "wither" pattern common in immutable objects, returning a new instance rather
+   * than modifying the existing one.
    *
    * <p><b>Usage Example:</b>
    *
@@ -98,7 +69,7 @@ public record Column(
    * Column original = Column.builder()
    *     .name("status")
    *     .dataType("USER-DEFINED")
-   *     .constraints(List.of(Constraint.NULLABLE))
+   *     .isNullable(true)
    *     .build();
    *
    * Column resolved = original.withDataType("order_status");
@@ -110,24 +81,22 @@ public record Column(
    */
   public Column withDataType(final String newDataType) {
     return new Column(
-        this.name,
-        newDataType,
-        this.maximumLength,
-        this.constraints,
-        this.compositeUniqueConstraintName);
+        this.name, newDataType, this.maximumLength, this.isNullable, this.constraints);
+  }
+
+  /**
+   * Creates a new Column with different constraints, preserving all other properties.
+   *
+   * @param newConstraints the replacement constraints (defensively copied)
+   * @return a new Column instance with the updated constraints
+   */
+  public Column withConstraints(final List<Constraint> newConstraints) {
+    return new Column(
+        this.name, this.dataType, this.maximumLength, this.isNullable, newConstraints);
   }
 
   /**
    * Creates a new builder for constructing Column instances.
-   *
-   * <p><b>Usage Example:</b>
-   *
-   * <pre>{@code
-   * Column column = Column.builder()
-   *     .name("user_id")
-   *     .dataType("integer")
-   *     .build();
-   * }</pre>
    *
    * @return a new {@link Builder} instance
    */
@@ -138,16 +107,14 @@ public record Column(
   /**
    * Builder for constructing {@link Column} instances using a fluent API.
    *
-   * <p><b>Design Pattern:</b> Builder pattern for flexible object construction.
-   *
    * <p><b>Usage Example:</b>
    *
    * <pre>{@code
    * Column column = Column.builder()
    *     .name("user_id")
    *     .dataType("bigint")
-   *     .maximumLength(0)
-   *     .constraints(List.of(Constraint.FK, Constraint.NULLABLE))
+   *     .isNullable(false)
+   *     .constraints(List.of(Constraint.FK))
    *     .build();
    * }</pre>
    *
@@ -157,8 +124,8 @@ public record Column(
     private String name;
     private String dataType;
     private int maximumLength;
-    private List<Constraint> constraints;
-    private String compositeUniqueConstraintName;
+    private @Nullable Boolean isNullable;
+    private List<Constraint> constraints = List.of();
 
     /**
      * Sets the column name.
@@ -188,8 +155,8 @@ public record Column(
     /**
      * Sets the maximum length for character-based data types.
      *
-     * <p><b>Note:</b> This is only relevant for character types like VARCHAR. For other types, this
-     * value is typically 0.
+     * <p><b>Note:</b> Only relevant for character types like VARCHAR. For other types this value is
+     * typically 0.
      *
      * @param maximumLength the maximum length (0 for non-character types)
      * @return this builder instance for method chaining
@@ -200,9 +167,18 @@ public record Column(
     }
 
     /**
-     * Sets the constraints for this column.
+     * Sets whether the column permits NULL values.
      *
-     * <p><b>Defensive Copying:</b> The provided list is defensively copied to ensure immutability.
+     * @param isNullable true if the column is nullable
+     * @return this builder instance for method chaining
+     */
+    public Builder isNullable(final boolean isNullable) {
+      this.isNullable = isNullable;
+      return this;
+    }
+
+    /**
+     * Sets the constraints for this column.
      *
      * @param constraints the {@link List} of {@link Constraint} values to apply (defensively
      *     copied)
@@ -214,28 +190,16 @@ public record Column(
     }
 
     /**
-     * Sets the composite UNIQUE constraint name for this column.
-     *
-     * <p>Only set when the column participates in a multi-column UNIQUE constraint. A single-column
-     * UNIQUE constraint should leave this as {@code null} so the renderer uses the plain {@code
-     * <<UNIQUE>>} stereotype rather than {@code <<UNIQUE:constraint_name>>}.
-     *
-     * @param name the constraint name, or {@code null} if the column has no composite UNIQUE
-     * @return this builder instance for method chaining
-     */
-    public Builder compositeUniqueConstraintName(final String name) {
-      this.compositeUniqueConstraintName = name;
-      return this;
-    }
-
-    /**
      * Builds and returns a new {@link Column} instance.
      *
      * @return a new immutable {@link Column} instance
-     * @throws ValidationException if any required field is null
+     * @throws ValidationException if any required field is null or blank, including {@code
+     *     isNullable}, which has no default so a forgotten call cannot silently change FK
+     *     cardinality
      */
     public Column build() {
-      return new Column(name, dataType, maximumLength, constraints, compositeUniqueConstraintName);
+      Validators.isNotNull(isNullable, "isNullable");
+      return new Column(name, dataType, maximumLength, isNullable, constraints);
     }
   }
 }

@@ -200,27 +200,28 @@ Skills must be invoked at the start of code writing tasks to ensure standards ar
 ## Code Quality Standards Summary
 
 ### Production Java Code Must Have:
--  Immutable records with defensive copying
--  Builders for all models (`static final class Builder`)
--  `@NonNull` annotations on all reference types
--  Validation in compact constructors using `Validators` utility
--  `final` on all parameters and local variables
--  Comprehensive Javadoc (class-level and public methods)
--  Proper package organization (`internal.*` for implementation details)
--  Logger with `isLoggable()` guards
--  Try-with-resources for all `AutoCloseable` types
--  Parameterized SQL preparedStatements (never string concatenation)
--  Modern Java features (text blocks, `var`, `List.of()`, `.getFirst()`)
+- Immutable records with defensive copying
+- Builders for all models (`static final class Builder`)
+- Non-null by default via `@NullMarked` on `module-info.java`; `@Nullable` only where null is allowed — enforced by NullAway
+- Validation in compact constructors using `Validators` utility
+- `final` on all parameters and local variables
+- Javadoc per `javadoc-standards` (class-level and non-obvious public methods; "why" over "what")
+- Proper package organization (`internal.*` for implementation details)
+- Logger with `isLoggable()` guards
+- Try-with-resources for all `AutoCloseable` types
+- Parameterized SQL preparedStatements (never string concatenation)
+- Modern Java features (text blocks, `var`, `List.of()`, `.getFirst()`)
 
 ### Test Code Must Have:
--  Test class name: `{ClassUnderTest}Test`
--  Descriptive test names starting with `it` or `when`
--  `@Nested` classes for grouping related tests
--  `final var` for local variables
--  Builders for creating test objects
--  `@ParameterizedTest` for multiple scenarios
--  Exception type AND message verification
--  Testcontainers for integration tests
+- Test class name: `{ClassUnderTest}Test`
+- Descriptive test names starting with `it` or `when`
+- `@Nested` classes for grouping related tests
+- `final var` for local variables
+- Builders for creating test objects
+- `@ParameterizedTest` for multiple scenarios
+- Exception type AND message verification
+- Individual static assertion imports (no `Assertions.*`)
+- Testcontainers for integration tests
 
 ---
 
@@ -272,7 +273,7 @@ For other Maven operations, use the `maven-architect` agent.
 - **Target Java Version:** Java 25 for both application code and test
 - **Build Tool:** Maven
 - **Logging:** `java.util.logging.Logger` (not SLF4J)
-- **Null Safety:** JSpecify annotations with NullAway
+- **Null Safety:** JSpecify `@NullMarked`/`@Nullable`, enforced by Error Prone + NullAway
 - **Code Style:** Enforced by SpotBugs, Checkstyle, and Spotless
 - **Immutability:** All models are immutable records
 - **Database Support:** Currently PostgreSQL (designed for multi-database extension)
