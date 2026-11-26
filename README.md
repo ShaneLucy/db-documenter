@@ -355,8 +355,13 @@ rejected, so databases that use them are still documented.
 Requirements: JDK 25, Maven 3.8+, and Docker for the integration tests.
 
 ```bash
-mvn clean verify
+./mvnw clean verify
 ```
+
+The repository is a Maven reactor: the root `pom.xml` is the parent (`db-documenter-parent`) and the
+code lives in the `db-documenter/` module. The runnable fat JAR is built to
+`db-documenter/target/db-documenter-<version>-jar-with-dependencies.jar`. Run `./mvnw -Pdocs -DskipTests verify`
+to also generate the public and contributor Javadoc sites under `db-documenter/target/site/`.
 
 The `verify` build runs:
 - unit tests and Testcontainers integration tests, including one that runs the Docker image

@@ -1,5 +1,6 @@
 # Dockerfile for db-documenter CLI tool
-# Requires the fat JAR to be built first: mvn clean package -DskipTests
+# Requires the fat JAR to be built first: ./mvnw clean package -DskipTests
+# Build context is the repo root; the JAR is produced by the db-documenter module.
 FROM eclipse-temurin:25-jre-alpine
 
 LABEL org.opencontainers.image.source="https://github.com/ShaneLucy/db-documenter"
@@ -10,7 +11,7 @@ RUN addgroup --system appuser && \
 
 WORKDIR /app
 
-COPY --chown=appuser:appuser target/*-jar-with-dependencies.jar app.jar
+COPY --chown=appuser:appuser db-documenter/target/*-jar-with-dependencies.jar app.jar
 
 USER appuser
 

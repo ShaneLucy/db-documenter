@@ -52,7 +52,7 @@ jobs:
         id: version
         run: |
           TAG_VERSION="${GITHUB_REF_NAME#v}"
-          POM_VERSION="$(mvn -B -q help:evaluate -Dexpression=project.version -DforceStdout)"
+          POM_VERSION="$(./mvnw -B -q -N help:evaluate -Dexpression=project.version -DforceStdout)"
           if [[ "${TAG_VERSION}" != "${POM_VERSION}" ]]; then
             echo "::error::Tag ${GITHUB_REF_NAME} (version '${TAG_VERSION}') does not match pom version '${POM_VERSION}'"
             exit 1
@@ -63,14 +63,14 @@ jobs:
       # Full gate: unit tests, Testcontainers ITs (ubuntu runners ship Docker),
       # and all static analysis. Never trust that CI passed for the tagged commit.
       - name: Build and verify
-        run: mvn -B clean verify
+        run: ./mvnw -B clean verify
 
       - name: Smoke test fat JAR
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           shopt -s nullglob
-          jars=(target/*-jar-with-dependencies.jar)
+          jars=(db-documenter/target/*-jar-with-dependencies.jar)
           if (( ${#jars[@]} != 1 )); then
             echo "::error::Expected exactly one fat JAR, found ${#jars[@]}: ${jars[*]}"
             exit 1
@@ -90,7 +90,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: fat-jar
-          path: target/*-jar-with-dependencies.jar
+          path: db-documenter/target/*-jar-with-dependencies.jar
           retention-days: 1
           if-no-files-found: error
 
@@ -113,12 +113,12 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: fat-jar
-          path: target
+          path: db-documenter/target
 
       - name: Verify fat JAR exists
         run: |
-          ls -lh target/
-          compgen -G 'target/*-jar-with-dependencies.jar' > /dev/null \
+          ls -lh db-documenter/target/
+          compgen -G 'db-documenter/target/*-jar-with-dependencies.jar' > /dev/null \
             || { echo "::error::Fat JAR not found"; exit 1; }
 
       - name: Log in to GitHub Container Registry

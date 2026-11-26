@@ -24,6 +24,10 @@ import org.testcontainers.images.builder.ImageFromDockerfile;
 
 class ApplicationDockerIT {
 
+  /** Failsafe runs with the module as working directory; the Dockerfile lives at the repo root. */
+  private static final Path DOCKERFILE =
+      Path.of(System.getProperty("dbdocumenter.repoRoot", ".."), "Dockerfile");
+
   @Nested
   class PostgresqlTest {
     private static final Network NETWORK = Network.newNetwork();
@@ -62,8 +66,8 @@ class ApplicationDockerIT {
 
       final var appImage =
           new ImageFromDockerfile()
-              .withFileFromPath("Dockerfile", Path.of("Dockerfile"))
-              .withFileFromPath("target/" + fatJar.getFileName(), fatJar);
+              .withFileFromPath("Dockerfile", DOCKERFILE)
+              .withFileFromPath("db-documenter/target/" + fatJar.getFileName(), fatJar);
 
       final var stdoutCapture = new StringBuilder();
 
@@ -117,8 +121,8 @@ class ApplicationDockerIT {
         final var fatJar = findFatJar();
         final var appImage =
             new ImageFromDockerfile()
-                .withFileFromPath("Dockerfile", Path.of("Dockerfile"))
-                .withFileFromPath("target/" + fatJar.getFileName(), fatJar);
+                .withFileFromPath("Dockerfile", DOCKERFILE)
+                .withFileFromPath("db-documenter/target/" + fatJar.getFileName(), fatJar);
 
         // The image runs as non-root 'appuser', which cannot write to a host-owned bind mount.
         // Run the container as the host uid:gid so the mount is writable and the files are

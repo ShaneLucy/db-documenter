@@ -3,11 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>dev.shanelucy</groupId>
-  <artifactId>db-documenter</artifactId>
+  <artifactId>db-documenter-parent</artifactId>
   <version>0.2.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-  <name>db-documenter</name>
-  <description>Generates PlantUML entity-relationship diagrams from live PostgreSQL schemas</description>
+  <name>db-documenter-parent</name>
+  <description>Parent POM for db-documenter, which generates PlantUML entity-relationship diagrams from live PostgreSQL schemas</description>
   <url>https://github.com/ShaneLucy/db-documenter</url>
 
   <licenses>
@@ -17,6 +18,10 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+
+  <modules>
+    <module>db-documenter</module>
+  </modules>
 
   <scm>
     <connection>scm:git:https://github.com/ShaneLucy/db-documenter.git</connection>
@@ -32,6 +37,14 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!-- Repo-level config files shared by every module; anchored on the directory holding .mvn/ -->
+    <config.dir>${maven.multiModuleProjectDirectory}</config.dir>
+
+    <!-- SonarCloud: root-level `sonar:sonar` aggregates every module's reports -->
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.organization>shanelucy</sonar.organization>
+    <sonar.projectKey>ShaneLucy_db-documenter</sonar.projectKey>
 
     <!-- Runtime & Test -->
     <postgresql.version>42.7.15</postgresql.version>
@@ -68,90 +81,170 @@
     <versions-plugin.version>2.20.1</versions-plugin.version>
   </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>info.picocli</groupId>
-      <artifactId>picocli</artifactId>
-      <version>${picocli.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.spotbugs</groupId>
-      <artifactId>spotbugs-annotations</artifactId>
-      <version>${spotbugs-annotations.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <!-- Annotations -->
-    <dependency>
-      <groupId>org.jspecify</groupId>
-      <artifactId>jspecify</artifactId>
-      <version>${jspecify.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>${postgresql.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <!-- Test -->
-      <groupId>org.gaul</groupId>
-      <artifactId>modernizer-maven-annotations</artifactId>
-      <version>${modernizer.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-params</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>${mockito.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-junit-jupiter</artifactId>
-      <version>${mockito.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>testcontainers</artifactId>
-      <version>${test-containers.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>testcontainers-junit-jupiter</artifactId>
-      <version>${test-containers.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>testcontainers-postgresql</artifactId>
-      <version>${test-containers.version}</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+  <!-- Versions only: each module declares the dependencies it uses and their scopes -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-annotations</artifactId>
+        <version>${spotbugs-annotations.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>info.picocli</groupId>
+        <artifactId>picocli</artifactId>
+        <version>${picocli.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gaul</groupId>
+        <artifactId>modernizer-maven-annotations</artifactId>
+        <version>${modernizer.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jspecify</groupId>
+        <artifactId>jspecify</artifactId>
+        <version>${jspecify.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>${junit.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-params</artifactId>
+        <version>${junit.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${postgresql.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers</artifactId>
+        <version>${test-containers.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-junit-jupiter</artifactId>
+        <version>${test-containers.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-postgresql</artifactId>
+        <version>${test-containers.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
+    <!--
+      Plugin versions, shared config and execution bindings live here. A module opts in by declaring
+      the plugin (groupId and artifactId only) in its own build/plugins, which keeps pom-packaging
+      parents free of no-op analysis runs and lets future modules (cli, test-support) pick a subset.
+    -->
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>com.github.spotbugs</groupId>
+          <artifactId>spotbugs-maven-plugin</artifactId>
+          <version>${spotbugs.version}</version>
+          <configuration>
+            <effort>Max</effort>
+            <threshold>Low</threshold>
+            <failOnError>true</failOnError>
+            <excludeFilterFile>${config.dir}/spotbugs-exclude.xml</excludeFilterFile>
+            <plugins>
+              <plugin>
+                <groupId>com.h3xstream.findsecbugs</groupId>
+                <artifactId>findsecbugs-plugin</artifactId>
+                <version>${findsecbugs.version}</version>
+              </plugin>
+            </plugins>
+          </configuration>
+          <executions>
+            <execution>
+              <id>spotbugs</id>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              <phase>verify</phase>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>${checkstyle.version}</version>
+          <configuration>
+            <failOnViolation>true</failOnViolation>
+            <configLocation>${config.dir}/checkstyle.xml</configLocation>
+            <excludes>**/module-info.java</excludes>
+          </configuration>
+          <executions>
+            <execution>
+              <id>checkstyle</id>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              <phase>verify</phase>
+            </execution>
+          </executions>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-clean-plugin</artifactId>
           <version>3.4.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven-compiler.version}</version>
+          <configuration>
+            <release>${java.version}</release>
+            <compilerArgs>
+              <arg>-XDcompilePolicy=simple</arg>
+              <arg>--should-stop=ifError=FLOW</arg>
+              <!-- OnlyNullMarked: module-info.java is @NullMarked; no duplicate package list to maintain -->
+              <arg>-Xplugin:ErrorProne -XepOpt:NullAway:OnlyNullMarked=true -Xep:NullAway:ERROR</arg>
+              <!-- Forked javac needs these as -J flags (Error Prone on JDK 17+) -->
+              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+              <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+              <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+              <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+            </compilerArgs>
+            <annotationProcessorPaths>
+              <path>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_core</artifactId>
+                <version>${error-prone.version}</version>
+              </path>
+              <path>
+                <groupId>com.uber.nullaway</groupId>
+                <artifactId>nullaway</artifactId>
+                <version>${nullaway.version}</version>
+              </path>
+            </annotationProcessorPaths>
+            <fork>true</fork>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -162,6 +255,20 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>${failsafe.version}</version>
+          <configuration>
+            <systemPropertyVariables>
+              <!-- Tests run with the module as basedir; this lets them reach repo-level files (Dockerfile) -->
+              <dbdocumenter.repoRoot>${maven.multiModuleProjectDirectory}</dbdocumenter.repoRoot>
+            </systemPropertyVariables>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -170,8 +277,67 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${maven-jar.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>${maven-javadoc.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>com.github.spotbugs</groupId>
+              <artifactId>spotbugs-annotations</artifactId>
+              <version>${spotbugs-annotations.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-pmd-plugin</artifactId>
+          <version>${pmd.version}</version>
+          <configuration>
+            <linkXRef>false</linkXRef>
+            <failOnViolation>true</failOnViolation>
+            <printFailingErrors>true</printFailingErrors>
+            <skipEmptyReport>false</skipEmptyReport>
+            <rulesets>
+              <ruleset>${config.dir}/pmd-ruleset.xml</ruleset>
+            </rulesets>
+            <minimumTokens>75</minimumTokens>
+            <includeTests>false</includeTests>
+            <excludes>
+              <exclude>**/module-info.java</exclude>
+              <exclude>**/package-info.java</exclude>
+            </excludes>
+          </configuration>
+          <executions>
+            <execution>
+              <id>pmd</id>
+              <goals>
+                <goal>pmd</goal>
+                <goal>check</goal>
+              </goals>
+              <phase>verify</phase>
+            </execution>
+            <execution>
+              <id>cpd-check</id>
+              <goals>
+                <goal>cpd-check</goal>
+              </goals>
+              <phase>verify</phase>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
           <version>3.3.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${maven-shade.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -189,10 +355,80 @@
             <trimStackTrace>false</trimStackTrace>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>${versions-plugin.version}</version>
+          <configuration>
+            <generateBackupPoms>false</generateBackupPoms>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.gaul</groupId>
+          <artifactId>modernizer-maven-plugin</artifactId>
+          <version>${modernizer.version}</version>
+          <configuration>
+            <javaVersion>${java.version}</javaVersion>
+          </configuration>
+          <executions>
+            <execution>
+              <id>modernizer</id>
+              <goals>
+                <goal>modernizer</goal>
+              </goals>
+              <phase>verify</phase>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${jacoco.version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>prepare-agent</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>report</id>
+              <goals>
+                <goal>report</goal>
+              </goals>
+              <phase>verify</phase>
+            </execution>
+            <execution>
+              <id>check</id>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              <phase>verify</phase>
+              <configuration>
+                <rules>
+                  <rule>
+                    <element>BUNDLE</element>
+                    <limits>
+                      <limit>
+                        <counter>INSTRUCTION</counter>
+                        <value>COVEREDRATIO</value>
+                        <minimum>0.80</minimum>
+                      </limit>
+                      <limit>
+                        <counter>BRANCH</counter>
+                        <value>COVEREDRATIO</value>
+                        <minimum>0.80</minimum>
+                      </limit>
+                    </limits>
+                  </rule>
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
-      <!-- Spotless -->
+      <!-- Applies to the parent and every module: formats Java (where present) and sorts each pom -->
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
@@ -219,112 +455,6 @@
           </execution>
         </executions>
       </plugin>
-      <!-- Spotbugs -->
-      <plugin>
-        <groupId>com.github.spotbugs</groupId>
-        <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>${spotbugs.version}</version>
-        <configuration>
-          <effort>Max</effort>
-          <threshold>Low</threshold>
-          <failOnError>true</failOnError>
-          <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
-          <plugins>
-            <plugin>
-              <groupId>com.h3xstream.findsecbugs</groupId>
-              <artifactId>findsecbugs-plugin</artifactId>
-              <version>${findsecbugs.version}</version>
-            </plugin>
-          </plugins>
-        </configuration>
-        <executions>
-          <execution>
-            <id>spotbugs</id>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Static analysis -->
-      <!-- Checkstyle -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>${checkstyle.version}</version>
-        <configuration>
-          <failOnViolation>true</failOnViolation>
-          <configLocation>checkstyle.xml</configLocation>
-          <excludes>**/module-info.java</excludes>
-        </configuration>
-        <executions>
-          <execution>
-            <id>checkstyle</id>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <!-- Compiler -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler.version}</version>
-        <configuration>
-          <release>${java.version}</release>
-          <compilerArgs>
-            <arg>-XDcompilePolicy=simple</arg>
-            <arg>--should-stop=ifError=FLOW</arg>
-            <!-- OnlyNullMarked: module-info.java is @NullMarked; no duplicate package list to maintain -->
-            <arg>-Xplugin:ErrorProne -XepOpt:NullAway:OnlyNullMarked=true -Xep:NullAway:ERROR</arg>
-            <!-- Forked javac needs these as -J flags (Error Prone on JDK 17+) -->
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
-            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-          </compilerArgs>
-          <annotationProcessorPaths>
-            <path>
-              <groupId>com.google.errorprone</groupId>
-              <artifactId>error_prone_core</artifactId>
-              <version>${error-prone.version}</version>
-            </path>
-            <path>
-              <groupId>com.uber.nullaway</groupId>
-              <artifactId>nullaway</artifactId>
-              <version>${nullaway.version}</version>
-            </path>
-          </annotationProcessorPaths>
-          <fork>true</fork>
-        </configuration>
-        <executions>
-          <execution>
-            <!-- Mockito/fixtures are noise for Error Prone/NullAway; main code only -->
-            <id>default-testCompile</id>
-            <configuration>
-              <annotationProcessorPaths combine.self="override"/>
-              <compilerArgs combine.self="override">
-                <arg>--add-reads</arg>
-                <arg>dev.shanelucy.dbdocumenter=ALL-UNNAMED</arg>
-              </compilerArgs>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Enforcer -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
@@ -349,290 +479,6 @@
                   <banSnapshots>false</banSnapshots>
                 </requirePluginVersions>
                 <banDuplicatePomDependencyVersions/>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Integration Tests -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>${failsafe.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Packaging -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>${maven-jar.version}</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <mainClass>dev.shanelucy.dbdocumenter.cli.Main</mainClass>
-            </manifest>
-            <manifestEntries>
-              <Implementation-Title>${project.name}</Implementation-Title>
-              <Implementation-Version>${project.version}</Implementation-Version>
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${maven-javadoc.version}</version>
-        <dependencies>
-          <dependency>
-            <groupId>com.github.spotbugs</groupId>
-            <artifactId>spotbugs-annotations</artifactId>
-            <version>${spotbugs-annotations.version}</version>
-          </dependency>
-        </dependencies>
-        <executions>
-          <!-- Public API Documentation -->
-          <execution>
-            <id>public-api-docs</id>
-            <goals>
-              <goal>javadoc</goal>
-            </goals>
-            <phase>verify</phase>
-            <configuration>
-              <outputDirectory>${project.build.directory}/site/apidocs</outputDirectory>
-              <excludePackageNames>dev.shanelucy.dbdocumenter.internal.*</excludePackageNames>
-            </configuration>
-          </execution>
-          <!-- Internal/Contributor Documentation -->
-          <execution>
-            <id>internal-docs</id>
-            <goals>
-              <goal>javadoc</goal>
-            </goals>
-            <phase>verify</phase>
-            <configuration>
-              <outputDirectory>${project.build.directory}/site/internal-apidocs</outputDirectory>
-              <show>private</show>
-              <sourcepath>${project.build.sourceDirectory}</sourcepath>
-              <subpackages>dev.shanelucy.dbdocumenter</subpackages>
-              <additionalOptions>
-                <additionalOption>--add-modules</additionalOption>
-                <additionalOption>com.github.spotbugs.annotations</additionalOption>
-                <additionalOption>--add-reads</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter=com.github.spotbugs.annotations</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.api=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.builder=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.connection=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.connection.api=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.connection.impl=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.connection.impl.postgresql=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.exceptions=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.impl=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.mapper=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.models.db=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.models.doc=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.queries=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.queries.api=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.preparedstatements=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.resultsets=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.renderer.api=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.renderer.impl=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.utils=ALL-UNNAMED</additionalOption>
-                <additionalOption>--add-exports</additionalOption>
-                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.validation=ALL-UNNAMED</additionalOption>
-              </additionalOptions>
-            </configuration>
-          </execution>
-          <!-- Javadoc JAR for Maven Central -->
-          <execution>
-            <id>attach-javadoc-jar</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-            <phase>package</phase>
-            <configuration>
-              <excludePackageNames>dev.shanelucy.dbdocumenter.internal.*</excludePackageNames>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <!--  PMD -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <version>${pmd.version}</version>
-        <configuration>
-          <linkXRef>false</linkXRef>
-          <failOnViolation>true</failOnViolation>
-          <printFailingErrors>true</printFailingErrors>
-          <skipEmptyReport>false</skipEmptyReport>
-          <rulesets>
-            <ruleset>pmd-ruleset.xml</ruleset>
-          </rulesets>
-          <minimumTokens>75</minimumTokens>
-          <includeTests>false</includeTests>
-          <excludes>
-            <exclude>**/module-info.java</exclude>
-            <exclude>**/package-info.java</exclude>
-          </excludes>
-        </configuration>
-        <executions>
-          <execution>
-            <id>pmd</id>
-            <goals>
-              <goal>pmd</goal>
-              <goal>check</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-          <execution>
-            <id>cpd-check</id>
-            <goals>
-              <goal>cpd-check</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Fat JAR for CLI/Docker distribution -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>${maven-shade.version}</version>
-        <executions>
-          <execution>
-            <id>shade-cli</id>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <phase>package</phase>
-            <configuration>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <shadedClassifierName>jar-with-dependencies</shadedClassifierName>
-              <minimizeJar>false</minimizeJar>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>dev.shanelucy.dbdocumenter.cli.Main</mainClass>
-                  <manifestEntries>
-                    <Implementation-Title>${project.name}</Implementation-Title>
-                    <Implementation-Version>${project.version}</Implementation-Version>
-                  </manifestEntries>
-                </transformer>
-              </transformers>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>module-info.class</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Versions Management -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>versions-maven-plugin</artifactId>
-        <version>${versions-plugin.version}</version>
-        <configuration>
-          <generateBackupPoms>false</generateBackupPoms>
-        </configuration>
-      </plugin>
-
-      <!-- Legacy Java API management -->
-      <plugin>
-        <groupId>org.gaul</groupId>
-        <artifactId>modernizer-maven-plugin</artifactId>
-        <version>${modernizer.version}</version>
-        <configuration>
-          <javaVersion>${java.version}</javaVersion>
-        </configuration>
-        <executions>
-          <execution>
-            <id>modernizer</id>
-            <goals>
-              <goal>modernizer</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Reporting -->
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>${jacoco.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>report</id>
-            <goals>
-              <goal>report</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-          <execution>
-            <id>check</id>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <phase>verify</phase>
-            <configuration>
-              <rules>
-                <rule>
-                  <element>BUNDLE</element>
-                  <limits>
-                    <limit>
-                      <counter>INSTRUCTION</counter>
-                      <value>COVEREDRATIO</value>
-                      <minimum>0.80</minimum>
-                    </limit>
-                    <limit>
-                      <counter>BRANCH</counter>
-                      <value>COVEREDRATIO</value>
-                      <minimum>0.80</minimum>
-                    </limit>
-                  </limits>
-                </rule>
               </rules>
             </configuration>
           </execution>

@@ -4,6 +4,7 @@
 
 # Source code (image uses pre-built fat JAR only)
 src/
+*/src/
 
 # IDE
 .idea/
@@ -26,6 +27,7 @@ src/
 mvnw
 mvnw.cmd
 
-# Exclude everything in target/ except the fat JAR
-target/*
-!target/*-jar-with-dependencies.jar
+# Exclude every module's target/ except the fat JAR built by the db-documenter module
+target/
+*/target/*
+!db-documenter/target/*-jar-with-dependencies.jar

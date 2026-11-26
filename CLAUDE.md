@@ -271,7 +271,7 @@ For other Maven operations, use the `maven-architect` agent.
 ## Key Project Characteristics
 
 - **Target Java Version:** Java 25 for both application code and test
-- **Build Tool:** Maven
+- **Build Tool:** Maven (use `./mvnw`). Multi-module: the root `pom.xml` is the parent `db-documenter-parent`; code lives in `db-documenter/` (`src/` is under it). `checkstyle.xml`, `pmd-ruleset.xml` and `spotbugs-exclude.xml` stay at the repo root.
 - **Logging:** `java.util.logging.Logger` (not SLF4J)
 - **Null Safety:** JSpecify `@NullMarked`/`@Nullable`, enforced by Error Prone + NullAway
 - **Code Style:** Enforced by SpotBugs, Checkstyle, and Spotless
