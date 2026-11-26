@@ -1,7 +1,7 @@
-package db.documenter.internal.renderer.impl;
+package dev.shanelucy.dbdocumenter.internal.renderer.impl;
 
-import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.renderer.api.PumlRenderer;
+import dev.shanelucy.dbdocumenter.internal.models.db.DbEnum;
+import dev.shanelucy.dbdocumenter.internal.renderer.api.PumlRenderer;
 
 /**
  * Renders database enum types as PlantUML entity definitions.

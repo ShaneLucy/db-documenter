@@ -1,4 +1,4 @@
-package db.documenter.cli;
+package dev.shanelucy.dbdocumenter.cli;
 
 import org.jspecify.annotations.Nullable;
 import picocli.CommandLine.IVersionProvider;

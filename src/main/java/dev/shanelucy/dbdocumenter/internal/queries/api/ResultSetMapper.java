@@ -1,9 +1,9 @@
-package db.documenter.internal.queries.api;
+package dev.shanelucy.dbdocumenter.internal.queries.api;
 
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.PrimaryKey;
-import db.documenter.internal.models.db.Table;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.PrimaryKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.Table;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -25,8 +25,9 @@ import java.util.Optional;
  * and an empty column list. Columns are enriched in a subsequent query by the builder layer,
  * following the two-phase construction pattern.
  *
- * @see db.documenter.internal.queries.AbstractResultSetMapper
- * @see db.documenter.internal.queries.impl.postgresql.resultsets.PostgresqlResultSetMapper
+ * @see dev.shanelucy.dbdocumenter.internal.queries.AbstractResultSetMapper
+ * @see
+ *     dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.resultsets.PostgresqlResultSetMapper
  */
 public interface ResultSetMapper {
 

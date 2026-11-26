@@ -1,6 +1,6 @@
-package db.documenter.internal.builder;
+package dev.shanelucy.dbdocumenter.internal.builder;
 
-import db.documenter.internal.models.db.Schema;
+import dev.shanelucy.dbdocumenter.internal.models.db.Schema;
 import java.sql.SQLException;
 import java.util.List;
 

@@ -1,15 +1,15 @@
-package db.documenter.internal.mapper;
+package dev.shanelucy.dbdocumenter.internal.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.ColumnKey;
-import db.documenter.internal.models.db.Constraint;
-import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.postgresql.EnumKey;
-import db.documenter.internal.models.db.postgresql.UdtReference;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.ColumnKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.Constraint;
+import dev.shanelucy.dbdocumenter.internal.models.db.DbEnum;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.EnumKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.UdtReference;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;

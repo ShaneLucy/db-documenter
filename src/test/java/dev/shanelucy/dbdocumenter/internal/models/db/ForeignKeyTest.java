@@ -1,9 +1,9 @@
-package db.documenter.internal.models.db;
+package dev.shanelucy.dbdocumenter.internal.models.db;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import db.documenter.internal.exceptions.ValidationException;
+import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;

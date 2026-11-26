@@ -1,7 +1,7 @@
-package db.documenter.internal.queries;
+package dev.shanelucy.dbdocumenter.internal.queries;
 
-import db.documenter.internal.queries.api.PreparedStatements;
-import db.documenter.internal.queries.impl.postgresql.PostgresqlPreparedStatements;
+import dev.shanelucy.dbdocumenter.internal.queries.api.PreparedStatements;
+import dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.PostgresqlPreparedStatements;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

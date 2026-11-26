@@ -1,6 +1,6 @@
-package db.documenter.cli;
+package dev.shanelucy.dbdocumenter.cli;
 
-import db.documenter.internal.exceptions.ValidationException;
+import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
 import java.nio.file.Path;
 
 /**

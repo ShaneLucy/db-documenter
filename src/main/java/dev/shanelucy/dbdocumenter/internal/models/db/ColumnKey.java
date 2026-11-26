@@ -1,6 +1,6 @@
-package db.documenter.internal.models.db;
+package dev.shanelucy.dbdocumenter.internal.models.db;
 
-import db.documenter.internal.validation.Validators;
+import dev.shanelucy.dbdocumenter.internal.validation.Validators;
 
 /**
  * Composite key uniquely identifying a column within a table.

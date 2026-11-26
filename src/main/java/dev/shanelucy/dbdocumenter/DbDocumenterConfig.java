@@ -1,6 +1,6 @@
-package db.documenter;
+package dev.shanelucy.dbdocumenter;
 
-import db.documenter.internal.validation.Validators;
+import dev.shanelucy.dbdocumenter.internal.validation.Validators;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
 

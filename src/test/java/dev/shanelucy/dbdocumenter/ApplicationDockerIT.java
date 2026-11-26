@@ -1,8 +1,8 @@
-package db.documenter;
+package dev.shanelucy.dbdocumenter;
 
-import static db.documenter.testhelpers.PumlComparison.comparePumlLineByLine;
+import static dev.shanelucy.dbdocumenter.testhelpers.PumlComparison.comparePumlLineByLine;
 
-import db.documenter.testhelpers.PostgresTestEnvironment;
+import dev.shanelucy.dbdocumenter.testhelpers.PostgresTestEnvironment;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

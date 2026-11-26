@@ -1,9 +1,9 @@
-package db.documenter.internal.mapper;
+package dev.shanelucy.dbdocumenter.internal.mapper;
 
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.PrimaryKey;
-import db.documenter.internal.models.db.Table;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.PrimaryKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.Table;
 import java.util.List;
 import java.util.Optional;
 

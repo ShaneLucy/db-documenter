@@ -1,9 +1,9 @@
-package db.documenter.internal.formatter.impl.entity;
+package dev.shanelucy.dbdocumenter.internal.formatter.impl.entity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.Table;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.Table;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -96,7 +96,7 @@ class DefaultEntityLineFormatterTest {
     @Test
     void ifColumnNameIsNullThrowsValidationException() {
       assertThrows(
-          db.documenter.internal.exceptions.ValidationException.class,
+          dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException.class,
           () ->
               Column.builder()
                   .isNullable(false)
@@ -109,7 +109,7 @@ class DefaultEntityLineFormatterTest {
     @Test
     void ifColumnDataTypeIsNullThrowsValidationException() {
       assertThrows(
-          db.documenter.internal.exceptions.ValidationException.class,
+          dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException.class,
           () ->
               Column.builder()
                   .isNullable(false)

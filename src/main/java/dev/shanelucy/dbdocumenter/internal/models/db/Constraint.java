@@ -1,6 +1,6 @@
-package db.documenter.internal.models.db;
+package dev.shanelucy.dbdocumenter.internal.models.db;
 
-import db.documenter.internal.formatter.impl.entity.ConstraintEntityLineFormatter;
+import dev.shanelucy.dbdocumenter.internal.formatter.impl.entity.ConstraintEntityLineFormatter;
 
 /**
  * Structural column-level constraints surfaced in a PlantUML ERD.

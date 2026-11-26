@@ -1,14 +1,14 @@
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-module db.documenter {
+module dev.shanelucy.dbdocumenter {
   requires java.sql;
   requires java.logging;
   requires static org.jspecify;
   requires info.picocli;
 
-  exports db.documenter;
+  exports dev.shanelucy.dbdocumenter;
 
-  opens db.documenter.cli to
+  opens dev.shanelucy.dbdocumenter.cli to
       info.picocli;
 }

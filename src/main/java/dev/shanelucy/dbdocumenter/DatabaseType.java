@@ -1,4 +1,4 @@
-package db.documenter;
+package dev.shanelucy.dbdocumenter;
 
 /**
  * Defines supported database systems and their JDBC connection characteristics.
@@ -19,7 +19,7 @@ package db.documenter;
  *   <li>Implement a QueryRunner for database-specific metadata queries
  * </ul>
  *
- * @see db.documenter.DbDocumenterConfig
+ * @see dev.shanelucy.dbdocumenter.DbDocumenterConfig
  */
 public enum DatabaseType {
 

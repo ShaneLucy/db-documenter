@@ -1,13 +1,13 @@
-package db.documenter.cli;
+package dev.shanelucy.dbdocumenter.cli;
 
-import static db.documenter.testhelpers.PumlComparison.comparePumlLineByLine;
+import static dev.shanelucy.dbdocumenter.testhelpers.PumlComparison.comparePumlLineByLine;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import db.documenter.DiagramResult;
-import db.documenter.internal.exceptions.ValidationException;
-import db.documenter.testhelpers.PostgresTestEnvironment;
+import dev.shanelucy.dbdocumenter.DiagramResult;
+import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
+import dev.shanelucy.dbdocumenter.testhelpers.PostgresTestEnvironment;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;

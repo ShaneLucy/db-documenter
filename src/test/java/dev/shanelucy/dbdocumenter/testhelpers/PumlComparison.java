@@ -1,4 +1,4 @@
-package db.documenter.testhelpers;
+package dev.shanelucy.dbdocumenter.testhelpers;
 
 import static org.junit.jupiter.api.Assertions.fail;
 

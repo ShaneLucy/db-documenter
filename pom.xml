@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>db.documenter</groupId>
+  <groupId>dev.shanelucy</groupId>
   <artifactId>db-documenter</artifactId>
   <version>0.2.0-SNAPSHOT</version>
 
@@ -276,7 +276,7 @@
           <release>${java.version}</release>
           <compilerArgs>
             <arg>--add-reads</arg>
-            <arg>db.documenter=ALL-UNNAMED</arg>
+            <arg>dev.shanelucy.dbdocumenter=ALL-UNNAMED</arg>
             <arg>-XDcompilePolicy=simple</arg>
             <arg>--should-stop=ifError=FLOW</arg>
             <!-- OnlyNullMarked: module-info.java is @NullMarked; no duplicate package list to maintain -->
@@ -317,7 +317,7 @@
               <annotationProcessorPaths combine.self="override"/>
               <compilerArgs combine.self="override">
                 <arg>--add-reads</arg>
-                <arg>db.documenter=ALL-UNNAMED</arg>
+                <arg>dev.shanelucy.dbdocumenter=ALL-UNNAMED</arg>
               </compilerArgs>
             </configuration>
           </execution>
@@ -379,7 +379,7 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>db.documenter.cli.Main</mainClass>
+              <mainClass>dev.shanelucy.dbdocumenter.cli.Main</mainClass>
             </manifest>
             <manifestEntries>
               <Implementation-Title>${project.name}</Implementation-Title>
@@ -395,7 +395,7 @@
         <configuration>
           <additionalOptions>
             <additionalOption>--add-reads</additionalOption>
-            <additionalOption>db.documenter=ALL-UNNAMED</additionalOption>
+            <additionalOption>dev.shanelucy.dbdocumenter=ALL-UNNAMED</additionalOption>
           </additionalOptions>
         </configuration>
         <dependencies>
@@ -415,10 +415,10 @@
             <phase>verify</phase>
             <configuration>
               <outputDirectory>${project.build.directory}/site/apidocs</outputDirectory>
-              <excludePackageNames>db.documenter.internal.*</excludePackageNames>
+              <excludePackageNames>dev.shanelucy.dbdocumenter.internal.*</excludePackageNames>
               <additionalOptions>
                 <additionalOption>--add-reads</additionalOption>
-                <additionalOption>db.documenter=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter=ALL-UNNAMED</additionalOption>
               </additionalOptions>
             </configuration>
           </execution>
@@ -433,54 +433,54 @@
               <outputDirectory>${project.build.directory}/site/internal-apidocs</outputDirectory>
               <show>private</show>
               <sourcepath>${project.build.sourceDirectory}</sourcepath>
-              <subpackages>db.documenter</subpackages>
+              <subpackages>dev.shanelucy.dbdocumenter</subpackages>
               <additionalOptions>
                 <additionalOption>--add-modules</additionalOption>
                 <additionalOption>com.github.spotbugs.annotations</additionalOption>
                 <additionalOption>--add-reads</additionalOption>
-                <additionalOption>db.documenter=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-reads</additionalOption>
-                <additionalOption>db.documenter=com.github.spotbugs.annotations</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter=com.github.spotbugs.annotations</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.api=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.api=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.builder=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.builder=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.connection=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.connection=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.connection.api=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.connection.api=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.connection.impl=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.connection.impl=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.connection.impl.postgresql=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.connection.impl.postgresql=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.exceptions=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.exceptions=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.impl=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.impl=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.mapper=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.mapper=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.models.db=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.models.db=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.models.doc=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.models.doc=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.queries=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.queries=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.queries.api=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.queries.api=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.queries.impl.postgresql=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.queries.impl.postgresql.preparedstatements=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.preparedstatements=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.queries.impl.postgresql.resultsets=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.resultsets=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.renderer.api=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.renderer.api=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.renderer.impl=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.renderer.impl=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.utils=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.utils=ALL-UNNAMED</additionalOption>
                 <additionalOption>--add-exports</additionalOption>
-                <additionalOption>db.documenter/db.documenter.internal.validation=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter/dev.shanelucy.dbdocumenter.internal.validation=ALL-UNNAMED</additionalOption>
               </additionalOptions>
             </configuration>
           </execution>
@@ -492,10 +492,10 @@
             </goals>
             <phase>package</phase>
             <configuration>
-              <excludePackageNames>db.documenter.internal.*</excludePackageNames>
+              <excludePackageNames>dev.shanelucy.dbdocumenter.internal.*</excludePackageNames>
               <additionalOptions>
                 <additionalOption>--add-reads</additionalOption>
-                <additionalOption>db.documenter=ALL-UNNAMED</additionalOption>
+                <additionalOption>dev.shanelucy.dbdocumenter=ALL-UNNAMED</additionalOption>
               </additionalOptions>
             </configuration>
           </execution>
@@ -559,7 +559,7 @@
               <createDependencyReducedPom>false</createDependencyReducedPom>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>db.documenter.cli.Main</mainClass>
+                  <mainClass>dev.shanelucy.dbdocumenter.cli.Main</mainClass>
                   <manifestEntries>
                     <Implementation-Title>${project.name}</Implementation-Title>
                     <Implementation-Version>${project.version}</Implementation-Version>

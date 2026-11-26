@@ -1,10 +1,10 @@
-package db.documenter.internal.mapper;
+package dev.shanelucy.dbdocumenter.internal.mapper;
 
-import db.documenter.internal.models.db.ColumnKey;
-import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.models.db.postgresql.EnumKey;
-import db.documenter.internal.models.db.postgresql.UdtReference;
-import db.documenter.internal.validation.Validators;
+import dev.shanelucy.dbdocumenter.internal.models.db.ColumnKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.DbEnum;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.EnumKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.UdtReference;
+import dev.shanelucy.dbdocumenter.internal.validation.Validators;
 import java.util.Map;
 
 /**

@@ -1,13 +1,13 @@
-package db.documenter.internal.mapper;
+package dev.shanelucy.dbdocumenter.internal.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import db.documenter.internal.formatter.impl.multiplicity.CardinalityFormatter;
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.Constraint;
-import db.documenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.formatter.impl.multiplicity.CardinalityFormatter;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.Constraint;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

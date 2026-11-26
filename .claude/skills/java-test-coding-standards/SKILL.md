@@ -185,7 +185,7 @@ class DatabaseIntegrationTests {
   1. Static imports (`import static org.junit.jupiter.api.Assertions.assertEquals;` — one per line)
   2. `java.*` and `javax.*` packages
   3. Third-party libraries (JUnit, Mockito, etc.)
-  4. Project packages (`db.documenter.*`)
+  4. Project packages (`dev.shanelucy.dbdocumenter.*`)
 - Within each group, sort alphabetically
 - Remove all unused imports
 

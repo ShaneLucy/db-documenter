@@ -1,9 +1,9 @@
-package db.documenter.internal.queries.impl.postgresql.resultsets;
+package dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.resultsets;
 
-import db.documenter.internal.models.db.ColumnKey;
-import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.models.db.postgresql.UdtReference;
-import db.documenter.internal.queries.AbstractResultSetMapper;
+import dev.shanelucy.dbdocumenter.internal.models.db.ColumnKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.DbEnum;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.UdtReference;
+import dev.shanelucy.dbdocumenter.internal.queries.AbstractResultSetMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * PostgreSQL-specific implementation of {@link db.documenter.internal.queries.api.ResultSetMapper}.
+ * PostgreSQL-specific implementation of {@link
+ * dev.shanelucy.dbdocumenter.internal.queries.api.ResultSetMapper}.
  *
  * <p>Extracts column values from PostgreSQL metadata result sets and constructs immutable domain
  * records. Table stub objects populate only the name; columns are enriched by the builder layer in

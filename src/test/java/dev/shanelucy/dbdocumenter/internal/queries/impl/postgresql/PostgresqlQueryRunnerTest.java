@@ -1,11 +1,11 @@
-package db.documenter.internal.queries.impl.postgresql;
+package dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import db.documenter.internal.models.db.*;
-import db.documenter.internal.queries.impl.postgresql.preparedstatements.PostgresqlPreparedStatementMapper;
-import db.documenter.internal.queries.impl.postgresql.resultsets.PostgresqlResultSetMapper;
-import db.documenter.testhelpers.PostgresTestEnvironment;
+import dev.shanelucy.dbdocumenter.internal.models.db.*;
+import dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.preparedstatements.PostgresqlPreparedStatementMapper;
+import dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.resultsets.PostgresqlResultSetMapper;
+import dev.shanelucy.dbdocumenter.testhelpers.PostgresTestEnvironment;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;

@@ -1,4 +1,4 @@
-package db.documenter.internal.connection.api;
+package dev.shanelucy.dbdocumenter.internal.connection.api;
 
 import java.sql.Connection;
 import java.sql.SQLException;

@@ -1,8 +1,8 @@
-package db.documenter.internal.connection;
+package dev.shanelucy.dbdocumenter.internal.connection;
 
-import db.documenter.DbDocumenterConfig;
-import db.documenter.internal.connection.api.ConnectionManager;
-import db.documenter.internal.connection.impl.postgresql.PostgresConnectionManager;
+import dev.shanelucy.dbdocumenter.DbDocumenterConfig;
+import dev.shanelucy.dbdocumenter.internal.connection.api.ConnectionManager;
+import dev.shanelucy.dbdocumenter.internal.connection.impl.postgresql.PostgresConnectionManager;
 
 public final class ConnectionManagerFactory {
 

@@ -1,7 +1,7 @@
-package db.documenter.internal.mapper;
+package dev.shanelucy.dbdocumenter.internal.mapper;
 
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
 import java.util.List;
 
 /** Maps raw foreign key metadata to enriched foreign key instances. */

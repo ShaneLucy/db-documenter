@@ -1,12 +1,12 @@
-package db.documenter.internal.queries.impl.postgresql;
+package dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql;
 
-import db.documenter.internal.models.db.ColumnKey;
-import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.models.db.postgresql.UdtReference;
-import db.documenter.internal.queries.AbstractQueryRunner;
-import db.documenter.internal.queries.impl.postgresql.preparedstatements.PostgresqlPreparedStatementMapper;
-import db.documenter.internal.queries.impl.postgresql.resultsets.PostgresqlResultSetMapper;
-import db.documenter.internal.utils.LogUtils;
+import dev.shanelucy.dbdocumenter.internal.models.db.ColumnKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.DbEnum;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.UdtReference;
+import dev.shanelucy.dbdocumenter.internal.queries.AbstractQueryRunner;
+import dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.preparedstatements.PostgresqlPreparedStatementMapper;
+import dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.resultsets.PostgresqlResultSetMapper;
+import dev.shanelucy.dbdocumenter.internal.utils.LogUtils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -16,7 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * PostgreSQL-specific implementation of {@link db.documenter.internal.queries.api.QueryRunner}.
+ * PostgreSQL-specific implementation of {@link
+ * dev.shanelucy.dbdocumenter.internal.queries.api.QueryRunner}.
  *
  * <p>Executes parameterized SQL queries against PostgreSQL {@code information_schema} and {@code
  * pg_catalog} views to retrieve schema metadata. Each method opens a prepared statement, binds
@@ -30,7 +31,7 @@ import java.util.logging.Logger;
  * <p><b>Resource Management:</b> All {@link java.sql.PreparedStatement} and {@link
  * java.sql.ResultSet} instances are managed with try-with-resources to guarantee closure even on
  * exceptions. The {@link Connection} lifecycle is owned by the caller (typically {@link
- * db.documenter.internal.builder.PostgresqlSchemaBuilder}).
+ * dev.shanelucy.dbdocumenter.internal.builder.PostgresqlSchemaBuilder}).
  */
 public final class PostgresqlQueryRunner extends AbstractQueryRunner {
 

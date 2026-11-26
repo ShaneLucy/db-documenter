@@ -1,12 +1,12 @@
-package db.documenter.internal.queries;
+package dev.shanelucy.dbdocumenter.internal.queries;
 
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.Constraint;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.PrimaryKey;
-import db.documenter.internal.models.db.Table;
-import db.documenter.internal.queries.api.ResultSetMapper;
-import db.documenter.internal.queries.impl.postgresql.resultsets.PostgresqlResultSetMapper;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.Constraint;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.PrimaryKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.Table;
+import dev.shanelucy.dbdocumenter.internal.queries.api.ResultSetMapper;
+import dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.resultsets.PostgresqlResultSetMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;

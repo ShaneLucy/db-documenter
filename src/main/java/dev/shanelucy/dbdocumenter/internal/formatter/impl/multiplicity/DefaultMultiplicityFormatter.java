@@ -1,7 +1,7 @@
-package db.documenter.internal.formatter.impl.multiplicity;
+package dev.shanelucy.dbdocumenter.internal.formatter.impl.multiplicity;
 
-import db.documenter.internal.formatter.api.MultiplicityFormatter;
-import db.documenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.formatter.api.MultiplicityFormatter;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
 import org.jspecify.annotations.Nullable;
 
 /**

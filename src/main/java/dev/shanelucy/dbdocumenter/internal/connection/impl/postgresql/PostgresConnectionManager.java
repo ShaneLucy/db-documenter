@@ -1,7 +1,7 @@
-package db.documenter.internal.connection.impl.postgresql;
+package dev.shanelucy.dbdocumenter.internal.connection.impl.postgresql;
 
-import db.documenter.DbDocumenterConfig;
-import db.documenter.internal.connection.api.ConnectionManager;
+import dev.shanelucy.dbdocumenter.DbDocumenterConfig;
+import dev.shanelucy.dbdocumenter.internal.connection.api.ConnectionManager;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;

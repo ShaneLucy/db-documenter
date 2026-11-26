@@ -89,7 +89,7 @@ Use clear, descriptive names:
 Follow this package organization pattern:
 
 **Package Rules:**
-- Public API at root (`db.documenter`)
+- Public API at root (`dev.shanelucy.dbdocumenter`)
 - ALL implementation details in `internal.*`
 - Separate interfaces (`*.api`) from implementations (`*.impl`)
 - Group by feature/responsibility, not by pattern
@@ -282,7 +282,7 @@ Keep imports clean and explicit:
 - Organize imports in groups separated by blank lines:
     1. `java.*` and `javax.*` packages
     2. Third-party libraries
-    3. Project packages (`db.documenter.*`)
+    3. Project packages (`dev.shanelucy.dbdocumenter.*`)
 - Within each group, sort alphabetically
 - Remove all unused imports
 - One import per line (no comma-separated imports)

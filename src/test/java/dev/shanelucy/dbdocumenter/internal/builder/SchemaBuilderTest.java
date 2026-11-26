@@ -1,4 +1,4 @@
-package db.documenter.internal.builder;
+package dev.shanelucy.dbdocumenter.internal.builder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -10,15 +10,15 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import db.documenter.DatabaseType;
-import db.documenter.DbDocumenterConfig;
-import db.documenter.internal.connection.api.ConnectionManager;
-import db.documenter.internal.models.db.ColumnKey;
-import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.models.db.Schema;
-import db.documenter.internal.models.db.Table;
-import db.documenter.internal.models.db.postgresql.UdtReference;
-import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
+import dev.shanelucy.dbdocumenter.DatabaseType;
+import dev.shanelucy.dbdocumenter.DbDocumenterConfig;
+import dev.shanelucy.dbdocumenter.internal.connection.api.ConnectionManager;
+import dev.shanelucy.dbdocumenter.internal.models.db.ColumnKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.DbEnum;
+import dev.shanelucy.dbdocumenter.internal.models.db.Schema;
+import dev.shanelucy.dbdocumenter.internal.models.db.Table;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.UdtReference;
+import dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

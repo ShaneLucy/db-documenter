@@ -1,9 +1,9 @@
-package db.documenter.internal.models.db;
+package dev.shanelucy.dbdocumenter.internal.models.db;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import db.documenter.internal.exceptions.ValidationException;
-import db.documenter.internal.models.db.postgresql.EnumKey;
+import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.EnumKey;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

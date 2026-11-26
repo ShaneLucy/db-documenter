@@ -1,11 +1,11 @@
-package db.documenter.cli;
+package dev.shanelucy.dbdocumenter.cli;
 
-import db.documenter.DbDocumenter;
-import db.documenter.DbDocumenterConfig;
-import db.documenter.DiagramResult;
-import db.documenter.internal.exceptions.ValidationException;
-import db.documenter.internal.utils.LogUtils;
-import db.documenter.internal.validation.Validators;
+import dev.shanelucy.dbdocumenter.DbDocumenter;
+import dev.shanelucy.dbdocumenter.DbDocumenterConfig;
+import dev.shanelucy.dbdocumenter.DiagramResult;
+import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
+import dev.shanelucy.dbdocumenter.internal.utils.LogUtils;
+import dev.shanelucy.dbdocumenter.internal.validation.Validators;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;

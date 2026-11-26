@@ -1,6 +1,6 @@
-package db.documenter.internal.formatter.api;
+package dev.shanelucy.dbdocumenter.internal.formatter.api;
 
-import db.documenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
 import org.jspecify.annotations.Nullable;
 
 /**

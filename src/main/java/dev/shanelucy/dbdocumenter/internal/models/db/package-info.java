@@ -8,24 +8,25 @@
  * <h2>Core Models</h2>
  *
  * <ul>
- *   <li>{@link db.documenter.internal.models.db.Schema} - Top-level container grouping tables and
- *       enums within a database schema
- *   <li>{@link db.documenter.internal.models.db.Table} - Represents a database table with columns,
- *       primary key, and foreign keys
- *   <li>{@link db.documenter.internal.models.db.Column} - Represents a column with data type and
- *       constraints
- *   <li>{@link db.documenter.internal.models.db.PrimaryKey} - Primary key constraint (single or
- *       composite)
- *   <li>{@link db.documenter.internal.models.db.ForeignKey} - Foreign key relationship between
- *       tables
- *   <li>{@link db.documenter.internal.models.db.DbEnum} - Custom enum type definition (e.g.,
- *       PostgreSQL CREATE TYPE)
+ *   <li>{@link dev.shanelucy.dbdocumenter.internal.models.db.Schema} - Top-level container grouping
+ *       tables and enums within a database schema
+ *   <li>{@link dev.shanelucy.dbdocumenter.internal.models.db.Table} - Represents a database table
+ *       with columns, primary key, and foreign keys
+ *   <li>{@link dev.shanelucy.dbdocumenter.internal.models.db.Column} - Represents a column with
+ *       data type and constraints
+ *   <li>{@link dev.shanelucy.dbdocumenter.internal.models.db.PrimaryKey} - Primary key constraint
+ *       (single or composite)
+ *   <li>{@link dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey} - Foreign key relationship
+ *       between tables
+ *   <li>{@link dev.shanelucy.dbdocumenter.internal.models.db.DbEnum} - Custom enum type definition
+ *       (e.g., PostgreSQL CREATE TYPE)
  * </ul>
  *
  * <h2>Supporting Types</h2>
  *
  * <ul>
- *   <li>{@link db.documenter.internal.models.db.Constraint} - Column-level constraints (FK, UNIQUE)
+ *   <li>{@link dev.shanelucy.dbdocumenter.internal.models.db.Constraint} - Column-level constraints
+ *       (FK, UNIQUE)
  * </ul>
  *
  * <h2>Design Principles</h2>
@@ -78,8 +79,8 @@
  *     .build();
  * }</pre>
  *
- * @see db.documenter.internal.builder
- * @see db.documenter.internal.mapper
- * @see db.documenter.internal.validation.Validators
+ * @see dev.shanelucy.dbdocumenter.internal.builder
+ * @see dev.shanelucy.dbdocumenter.internal.mapper
+ * @see dev.shanelucy.dbdocumenter.internal.validation.Validators
  */
-package db.documenter.internal.models.db;
+package dev.shanelucy.dbdocumenter.internal.models.db;

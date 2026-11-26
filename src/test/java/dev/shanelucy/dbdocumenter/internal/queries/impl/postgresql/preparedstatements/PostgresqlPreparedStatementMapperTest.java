@@ -1,4 +1,4 @@
-package db.documenter.internal.queries.impl.postgresql.preparedstatements;
+package dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.preparedstatements;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;

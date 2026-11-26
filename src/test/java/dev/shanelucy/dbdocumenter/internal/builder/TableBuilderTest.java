@@ -1,4 +1,4 @@
-package db.documenter.internal.builder;
+package dev.shanelucy.dbdocumenter.internal.builder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -9,19 +9,19 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import db.documenter.internal.mapper.ColumnMapper;
-import db.documenter.internal.mapper.ColumnMappingContext;
-import db.documenter.internal.mapper.ForeignKeyMapper;
-import db.documenter.internal.mapper.TableMapper;
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.ColumnKey;
-import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.PrimaryKey;
-import db.documenter.internal.models.db.Table;
-import db.documenter.internal.models.db.postgresql.EnumKey;
-import db.documenter.internal.models.db.postgresql.UdtReference;
-import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
+import dev.shanelucy.dbdocumenter.internal.mapper.ColumnMapper;
+import dev.shanelucy.dbdocumenter.internal.mapper.ColumnMappingContext;
+import dev.shanelucy.dbdocumenter.internal.mapper.ForeignKeyMapper;
+import dev.shanelucy.dbdocumenter.internal.mapper.TableMapper;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.ColumnKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.DbEnum;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.PrimaryKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.Table;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.EnumKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.UdtReference;
+import dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;

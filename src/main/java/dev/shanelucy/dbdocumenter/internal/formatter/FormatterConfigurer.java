@@ -1,14 +1,14 @@
-package db.documenter.internal.formatter;
+package dev.shanelucy.dbdocumenter.internal.formatter;
 
-import db.documenter.internal.formatter.api.EntityLineFormatter;
-import db.documenter.internal.formatter.api.MultiplicityFormatter;
-import db.documenter.internal.formatter.impl.entity.CompositeEntityLineFormatter;
-import db.documenter.internal.formatter.impl.entity.ConstraintEntityLineFormatter;
-import db.documenter.internal.formatter.impl.entity.DefaultEntityLineFormatter;
-import db.documenter.internal.formatter.impl.entity.PrimaryKeyEntityLineFormatter;
-import db.documenter.internal.formatter.impl.multiplicity.CardinalityFormatter;
-import db.documenter.internal.formatter.impl.multiplicity.CompositeMultiplicityFormatter;
-import db.documenter.internal.formatter.impl.multiplicity.DefaultMultiplicityFormatter;
+import dev.shanelucy.dbdocumenter.internal.formatter.api.EntityLineFormatter;
+import dev.shanelucy.dbdocumenter.internal.formatter.api.MultiplicityFormatter;
+import dev.shanelucy.dbdocumenter.internal.formatter.impl.entity.CompositeEntityLineFormatter;
+import dev.shanelucy.dbdocumenter.internal.formatter.impl.entity.ConstraintEntityLineFormatter;
+import dev.shanelucy.dbdocumenter.internal.formatter.impl.entity.DefaultEntityLineFormatter;
+import dev.shanelucy.dbdocumenter.internal.formatter.impl.entity.PrimaryKeyEntityLineFormatter;
+import dev.shanelucy.dbdocumenter.internal.formatter.impl.multiplicity.CardinalityFormatter;
+import dev.shanelucy.dbdocumenter.internal.formatter.impl.multiplicity.CompositeMultiplicityFormatter;
+import dev.shanelucy.dbdocumenter.internal.formatter.impl.multiplicity.DefaultMultiplicityFormatter;
 
 /** Configures and creates formatter instances for PlantUML generation. */
 public final class FormatterConfigurer {

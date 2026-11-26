@@ -1,6 +1,6 @@
-package db.documenter.internal.models.db.postgresql;
+package dev.shanelucy.dbdocumenter.internal.models.db.postgresql;
 
-import db.documenter.internal.validation.Validators;
+import dev.shanelucy.dbdocumenter.internal.validation.Validators;
 
 /**
  * Reference to a PostgreSQL user-defined type (UDT) identified by schema and type name.

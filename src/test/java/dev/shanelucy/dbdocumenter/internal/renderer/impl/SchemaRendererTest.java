@@ -1,12 +1,12 @@
-package db.documenter.internal.renderer.impl;
+package dev.shanelucy.dbdocumenter.internal.renderer.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.Schema;
-import db.documenter.internal.models.db.Table;
+import dev.shanelucy.dbdocumenter.internal.models.db.DbEnum;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.Schema;
+import dev.shanelucy.dbdocumenter.internal.models.db.Table;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

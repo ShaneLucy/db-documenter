@@ -3,12 +3,12 @@
  *
  * <p>This package provides validation methods used by domain models to enforce invariants at
  * construction time. All validators throw {@link
- * db.documenter.internal.exceptions.ValidationException} with descriptive error messages when
- * validation fails.
+ * dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException} with descriptive error
+ * messages when validation fails.
  *
- * @see db.documenter.internal.validation.Validators
+ * @see dev.shanelucy.dbdocumenter.internal.validation.Validators
  */
 @NullMarked
-package db.documenter.internal.validation;
+package dev.shanelucy.dbdocumenter.internal.validation;
 
 import org.jspecify.annotations.NullMarked;

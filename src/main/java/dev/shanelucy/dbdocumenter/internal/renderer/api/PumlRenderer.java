@@ -1,4 +1,4 @@
-package db.documenter.internal.renderer.api;
+package dev.shanelucy.dbdocumenter.internal.renderer.api;
 
 @FunctionalInterface
 public interface PumlRenderer<T> {

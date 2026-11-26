@@ -1,4 +1,4 @@
-package db.documenter;
+package dev.shanelucy.dbdocumenter;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import db.documenter.internal.exceptions.ValidationException;
+import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;

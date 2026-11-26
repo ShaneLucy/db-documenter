@@ -1,7 +1,7 @@
-package db.documenter.internal.formatter.api;
+package dev.shanelucy.dbdocumenter.internal.formatter.api;
 
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.Table;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.Table;
 import org.jspecify.annotations.Nullable;
 
 /**

@@ -1,8 +1,8 @@
-package db.documenter.internal.renderer.impl;
+package dev.shanelucy.dbdocumenter.internal.renderer.impl;
 
-import db.documenter.DiagramResult;
-import db.documenter.internal.models.db.Schema;
-import db.documenter.internal.utils.LogUtils;
+import dev.shanelucy.dbdocumenter.DiagramResult;
+import dev.shanelucy.dbdocumenter.internal.models.db.Schema;
+import dev.shanelucy.dbdocumenter.internal.utils.LogUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;

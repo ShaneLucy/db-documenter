@@ -1,4 +1,4 @@
-package db.documenter.internal.renderer.impl;
+package dev.shanelucy.dbdocumenter.internal.renderer.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -7,10 +7,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
-import db.documenter.internal.formatter.api.EntityLineFormatter;
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.PrimaryKey;
-import db.documenter.internal.models.db.Table;
+import dev.shanelucy.dbdocumenter.internal.formatter.api.EntityLineFormatter;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.PrimaryKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.Table;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

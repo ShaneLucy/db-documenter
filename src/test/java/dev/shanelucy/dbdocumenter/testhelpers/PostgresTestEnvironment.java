@@ -1,4 +1,4 @@
-package db.documenter.testhelpers;
+package dev.shanelucy.dbdocumenter.testhelpers;
 
 import java.io.BufferedReader;
 import java.io.IOException;

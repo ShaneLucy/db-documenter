@@ -1,9 +1,9 @@
-package db.documenter.internal.renderer.impl;
+package dev.shanelucy.dbdocumenter.internal.renderer.impl;
 
-import db.documenter.internal.formatter.api.MultiplicityFormatter;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.Schema;
-import db.documenter.internal.renderer.api.PumlRenderer;
+import dev.shanelucy.dbdocumenter.internal.formatter.api.MultiplicityFormatter;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.Schema;
+import dev.shanelucy.dbdocumenter.internal.renderer.api.PumlRenderer;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;

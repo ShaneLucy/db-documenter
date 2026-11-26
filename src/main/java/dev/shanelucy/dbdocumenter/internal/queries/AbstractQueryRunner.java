@@ -1,15 +1,15 @@
-package db.documenter.internal.queries;
+package dev.shanelucy.dbdocumenter.internal.queries;
 
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.PrimaryKey;
-import db.documenter.internal.models.db.Table;
-import db.documenter.internal.queries.api.PreparedStatementMapper;
-import db.documenter.internal.queries.api.PreparedStatements;
-import db.documenter.internal.queries.api.QueryRunner;
-import db.documenter.internal.queries.api.ResultSetMapper;
-import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
-import db.documenter.internal.utils.LogUtils;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.PrimaryKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.Table;
+import dev.shanelucy.dbdocumenter.internal.queries.api.PreparedStatementMapper;
+import dev.shanelucy.dbdocumenter.internal.queries.api.PreparedStatements;
+import dev.shanelucy.dbdocumenter.internal.queries.api.QueryRunner;
+import dev.shanelucy.dbdocumenter.internal.queries.api.ResultSetMapper;
+import dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
+import dev.shanelucy.dbdocumenter.internal.utils.LogUtils;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.logging.Logger;
  * <p><b>Resource Management:</b> All {@link java.sql.PreparedStatement} and {@link
  * java.sql.ResultSet} instances are managed with try-with-resources to guarantee closure even on
  * exceptions. The {@link Connection} lifecycle is owned by the caller (typically {@link
- * db.documenter.internal.builder.PostgresqlSchemaBuilder}).
+ * dev.shanelucy.dbdocumenter.internal.builder.PostgresqlSchemaBuilder}).
  *
  * @see QueryRunner
  * @see PostgresqlQueryRunner

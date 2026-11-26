@@ -1,12 +1,12 @@
-package db.documenter.internal.formatter.impl.multiplicity;
+package dev.shanelucy.dbdocumenter.internal.formatter.impl.multiplicity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-import db.documenter.internal.exceptions.ValidationException;
-import db.documenter.internal.formatter.api.MultiplicityFormatter;
-import db.documenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
+import dev.shanelucy.dbdocumenter.internal.formatter.api.MultiplicityFormatter;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

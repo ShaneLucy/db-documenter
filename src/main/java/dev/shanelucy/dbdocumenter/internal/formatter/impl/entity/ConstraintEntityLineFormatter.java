@@ -1,10 +1,10 @@
-package db.documenter.internal.formatter.impl.entity;
+package dev.shanelucy.dbdocumenter.internal.formatter.impl.entity;
 
-import db.documenter.internal.formatter.api.EntityLineFormatter;
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.Constraint;
-import db.documenter.internal.models.db.Table;
-import db.documenter.internal.validation.Validators;
+import dev.shanelucy.dbdocumenter.internal.formatter.api.EntityLineFormatter;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.Constraint;
+import dev.shanelucy.dbdocumenter.internal.models.db.Table;
+import dev.shanelucy.dbdocumenter.internal.validation.Validators;
 import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 

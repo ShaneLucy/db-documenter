@@ -15,7 +15,7 @@
       Scoped to EI_EXPOSE_REP2 on nested Builder classes only; the records themselves stay checked.
     -->
     <Match>
-        <Class name="~db\.documenter\..*\$Builder" />
+        <Class name="~dev\.shanelucy\.dbdocumenter\..*\$Builder" />
         <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
 </FindBugsFilter>

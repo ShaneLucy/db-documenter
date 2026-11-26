@@ -1,13 +1,13 @@
-package db.documenter.internal.mapper;
+package dev.shanelucy.dbdocumenter.internal.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import db.documenter.internal.exceptions.ValidationException;
-import db.documenter.internal.models.db.ColumnKey;
-import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.models.db.postgresql.EnumKey;
-import db.documenter.internal.models.db.postgresql.UdtReference;
+import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
+import dev.shanelucy.dbdocumenter.internal.models.db.ColumnKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.DbEnum;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.EnumKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.UdtReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

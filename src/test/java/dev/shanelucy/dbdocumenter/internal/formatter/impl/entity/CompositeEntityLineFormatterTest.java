@@ -1,14 +1,14 @@
-package db.documenter.internal.formatter.impl.entity;
+package dev.shanelucy.dbdocumenter.internal.formatter.impl.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-import db.documenter.internal.exceptions.ValidationException;
-import db.documenter.internal.formatter.api.EntityLineFormatter;
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.Constraint;
-import db.documenter.internal.models.db.Table;
+import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
+import dev.shanelucy.dbdocumenter.internal.formatter.api.EntityLineFormatter;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.Constraint;
+import dev.shanelucy.dbdocumenter.internal.models.db.Table;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

@@ -1,7 +1,7 @@
-package db.documenter.internal.models.db;
+package dev.shanelucy.dbdocumenter.internal.models.db;
 
-import db.documenter.internal.exceptions.ValidationException;
-import db.documenter.internal.validation.Validators;
+import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
+import dev.shanelucy.dbdocumenter.internal.validation.Validators;
 import org.jspecify.annotations.Nullable;
 
 /**

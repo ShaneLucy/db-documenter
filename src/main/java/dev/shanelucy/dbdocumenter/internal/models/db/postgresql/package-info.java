@@ -7,6 +7,6 @@
  * <p>These models complement the database-agnostic models in the parent package and are used during
  * PostgreSQL schema introspection and cross-schema type resolution.
  *
- * @see db.documenter.internal.models.db
+ * @see dev.shanelucy.dbdocumenter.internal.models.db
  */
-package db.documenter.internal.models.db.postgresql;
+package dev.shanelucy.dbdocumenter.internal.models.db.postgresql;

@@ -1,11 +1,11 @@
-package db.documenter.internal.mapper;
+package dev.shanelucy.dbdocumenter.internal.mapper;
 
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.ColumnKey;
-import db.documenter.internal.models.db.Constraint;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.postgresql.EnumKey;
-import db.documenter.internal.utils.LogUtils;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.ColumnKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.Constraint;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.EnumKey;
+import dev.shanelucy.dbdocumenter.internal.utils.LogUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

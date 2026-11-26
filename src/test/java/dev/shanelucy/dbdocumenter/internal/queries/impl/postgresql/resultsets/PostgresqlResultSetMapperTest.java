@@ -1,12 +1,12 @@
-package db.documenter.internal.queries.impl.postgresql.resultsets;
+package dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.resultsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.PrimaryKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.DbEnum;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.PrimaryKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -233,7 +233,7 @@ class PostgresqlResultSetMapperTest {
           result
               .getFirst()
               .constraints()
-              .contains(db.documenter.internal.models.db.Constraint.UNIQUE));
+              .contains(dev.shanelucy.dbdocumenter.internal.models.db.Constraint.UNIQUE));
     }
 
     @Test
@@ -249,7 +249,9 @@ class PostgresqlResultSetMapperTest {
 
       assertEquals(1, result.size());
       final var col = result.getFirst();
-      assertTrue(col.constraints().contains(db.documenter.internal.models.db.Constraint.UNIQUE));
+      assertTrue(
+          col.constraints()
+              .contains(dev.shanelucy.dbdocumenter.internal.models.db.Constraint.UNIQUE));
     }
 
     @Nested
@@ -515,7 +517,7 @@ class PostgresqlResultSetMapperTest {
       when(resultSet.getString("udt_schema")).thenReturn(null);
 
       assertThrows(
-          db.documenter.internal.exceptions.ValidationException.class,
+          dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException.class,
           () -> postgresqlResultSetMapper.mapToDbEnumInfo(resultSet));
     }
 

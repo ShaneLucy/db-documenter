@@ -1,4 +1,4 @@
-package db.documenter.internal.builder;
+package dev.shanelucy.dbdocumenter.internal.builder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
-import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.models.db.postgresql.EnumKey;
-import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
+import dev.shanelucy.dbdocumenter.internal.models.db.DbEnum;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.EnumKey;
+import dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;

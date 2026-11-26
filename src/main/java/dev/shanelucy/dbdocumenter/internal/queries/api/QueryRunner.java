@@ -1,9 +1,9 @@
-package db.documenter.internal.queries.api;
+package dev.shanelucy.dbdocumenter.internal.queries.api;
 
-import db.documenter.internal.models.db.Column;
-import db.documenter.internal.models.db.ForeignKey;
-import db.documenter.internal.models.db.PrimaryKey;
-import db.documenter.internal.models.db.Table;
+import dev.shanelucy.dbdocumenter.internal.models.db.Column;
+import dev.shanelucy.dbdocumenter.internal.models.db.ForeignKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.PrimaryKey;
+import dev.shanelucy.dbdocumenter.internal.models.db.Table;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -19,8 +19,8 @@ import java.util.Optional;
  * object are intentional — the query layer should not depend on partially-constructed domain
  * objects. Table names are plain strings at query time.
  *
- * @see db.documenter.internal.queries.AbstractQueryRunner
- * @see db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner
+ * @see dev.shanelucy.dbdocumenter.internal.queries.AbstractQueryRunner
+ * @see dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.PostgresqlQueryRunner
  */
 public interface QueryRunner {
 

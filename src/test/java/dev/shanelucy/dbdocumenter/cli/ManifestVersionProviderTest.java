@@ -1,4 +1,4 @@
-package db.documenter.cli;
+package dev.shanelucy.dbdocumenter.cli;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;

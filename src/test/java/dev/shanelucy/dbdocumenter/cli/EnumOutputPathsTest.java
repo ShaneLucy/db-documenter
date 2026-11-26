@@ -1,10 +1,10 @@
-package db.documenter.cli;
+package dev.shanelucy.dbdocumenter.cli;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import db.documenter.internal.exceptions.ValidationException;
+import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

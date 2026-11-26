@@ -1,4 +1,4 @@
-package db.documenter.internal.exceptions;
+package dev.shanelucy.dbdocumenter.internal.exceptions;
 
 /**
  * Signals that a value failed validation.

@@ -1,9 +1,9 @@
-package db.documenter.internal.builder;
+package dev.shanelucy.dbdocumenter.internal.builder;
 
-import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.models.db.postgresql.EnumKey;
-import db.documenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
-import db.documenter.internal.utils.LogUtils;
+import dev.shanelucy.dbdocumenter.internal.models.db.DbEnum;
+import dev.shanelucy.dbdocumenter.internal.models.db.postgresql.EnumKey;
+import dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.PostgresqlQueryRunner;
+import dev.shanelucy.dbdocumenter.internal.utils.LogUtils;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;

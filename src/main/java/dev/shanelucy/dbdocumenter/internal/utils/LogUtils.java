@@ -1,4 +1,4 @@
-package db.documenter.internal.utils;
+package dev.shanelucy.dbdocumenter.internal.utils;
 
 /**
  * Utility methods for safe logging.

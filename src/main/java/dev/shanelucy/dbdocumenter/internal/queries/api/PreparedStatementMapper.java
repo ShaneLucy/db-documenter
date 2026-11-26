@@ -1,4 +1,4 @@
-package db.documenter.internal.queries.api;
+package dev.shanelucy.dbdocumenter.internal.queries.api;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -15,9 +15,9 @@ import java.sql.SQLException;
  * executed. The parameter binding is database-engine-specific (e.g., PostgreSQL uses {@code
  * information_schema} column names that differ from MySQL).
  *
- * @see db.documenter.internal.queries.AbstractPreparedStatementMapper
+ * @see dev.shanelucy.dbdocumenter.internal.queries.AbstractPreparedStatementMapper
  * @see
- *     db.documenter.internal.queries.impl.postgresql.preparedstatements.PostgresqlPreparedStatementMapper
+ *     dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.preparedstatements.PostgresqlPreparedStatementMapper
  */
 public interface PreparedStatementMapper {
 

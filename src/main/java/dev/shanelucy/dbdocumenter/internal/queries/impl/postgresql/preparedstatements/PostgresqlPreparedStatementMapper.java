@@ -1,12 +1,12 @@
-package db.documenter.internal.queries.impl.postgresql.preparedstatements;
+package dev.shanelucy.dbdocumenter.internal.queries.impl.postgresql.preparedstatements;
 
-import db.documenter.internal.queries.AbstractPreparedStatementMapper;
+import dev.shanelucy.dbdocumenter.internal.queries.AbstractPreparedStatementMapper;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
  * PostgreSQL-specific implementation of {@link
- * db.documenter.internal.queries.api.PreparedStatementMapper}.
+ * dev.shanelucy.dbdocumenter.internal.queries.api.PreparedStatementMapper}.
  *
  * <p>Provides parameter binding for the PostgreSQL-specific metadata queries (enums, enum values,
  * and column UDT mappings). The four generic bindings (table info, column info, primary key info,

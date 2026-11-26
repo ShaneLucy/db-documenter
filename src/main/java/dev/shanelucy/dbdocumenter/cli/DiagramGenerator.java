@@ -1,12 +1,12 @@
-package db.documenter.cli;
+package dev.shanelucy.dbdocumenter.cli;
 
-import db.documenter.DbDocumenterConfig;
-import db.documenter.DiagramResult;
+import dev.shanelucy.dbdocumenter.DbDocumenterConfig;
+import dev.shanelucy.dbdocumenter.DiagramResult;
 import java.sql.SQLException;
 
 /**
- * Seam between the CLI and {@link db.documenter.DbDocumenter} so exit-code mapping can be tested
- * without a database.
+ * Seam between the CLI and {@link dev.shanelucy.dbdocumenter.DbDocumenter} so exit-code mapping can
+ * be tested without a database.
  */
 @FunctionalInterface
 interface DiagramGenerator {

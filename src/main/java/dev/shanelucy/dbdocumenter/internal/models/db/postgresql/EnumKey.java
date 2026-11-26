@@ -1,7 +1,7 @@
-package db.documenter.internal.models.db.postgresql;
+package dev.shanelucy.dbdocumenter.internal.models.db.postgresql;
 
-import db.documenter.internal.models.db.DbEnum;
-import db.documenter.internal.validation.Validators;
+import dev.shanelucy.dbdocumenter.internal.models.db.DbEnum;
+import dev.shanelucy.dbdocumenter.internal.validation.Validators;
 
 /**
  * Composite key for uniquely identifying database enums by schema and name.
