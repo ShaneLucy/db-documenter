@@ -45,6 +45,10 @@ docker run --rm -v "$(pwd):/output" ghcr.io/shanelucy/db-documenter:latest \
   --output=/output/schema.puml
 ```
 
+This writes the ERD to `schema.puml`. If any schema defines enums they are written to a separate
+diagram next to it, `schema_enums.puml` (the name gets `_enums` before the extension). When there are
+no enums, a stale `schema_enums.puml` from a previous run is deleted.
+
 #### Write to stdout
 
 ```bash
@@ -55,6 +59,9 @@ docker run --rm ghcr.io/shanelucy/db-documenter:latest \
   --password=secret \
   --schemas=public > schema.puml
 ```
+
+Only the ERD is written to stdout. If the schemas define enums, a warning on stderr says the enum
+diagram was not written; use `--output` to get it.
 
 #### Linux (host network)
 

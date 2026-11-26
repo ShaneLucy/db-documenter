@@ -1,0 +1,14 @@
+@startuml
+
+package "public" {
+	entity "order_status" <<enum>> {
+		pending
+		paid
+		shipped
+		cancelled
+		refunded
+	}
+
+}
+
+@enduml

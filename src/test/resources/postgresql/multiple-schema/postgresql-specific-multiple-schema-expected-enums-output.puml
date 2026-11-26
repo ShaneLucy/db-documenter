@@ -1,0 +1,75 @@
+@startuml
+
+package "auth" {
+	entity "account_status" <<enum>> {
+		pending_verification
+		active
+		suspended
+		deactivated
+		locked
+	}
+
+	entity "mfa_method" <<enum>> {
+		totp
+		sms
+		email
+		hardware_key
+		backup_codes
+	}
+
+}
+
+package "core" {
+	entity "priority_level" <<enum>> {
+		critical
+		high
+		medium
+		low
+		none
+	}
+
+	entity "project_status" <<enum>> {
+		planning
+		active
+		on_hold
+		completed
+		archived
+		cancelled
+	}
+
+	entity "subscription_tier" <<enum>> {
+		free
+		starter
+		professional
+		enterprise
+		custom
+	}
+
+	entity "task_status" <<enum>> {
+		backlog
+		todo
+		in_progress
+		in_review
+		blocked
+		done
+		cancelled
+	}
+
+}
+
+package "audit" {
+	entity "action_type" <<enum>> {
+		create
+		read
+		update
+		delete
+		login
+		logout
+		permission_change
+		export
+		bulk_operation
+	}
+
+}
+
+@enduml

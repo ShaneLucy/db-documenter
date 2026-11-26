@@ -3,14 +3,6 @@ hide methods
 hide stereotypes
 
 package "public" {
-	entity "order_status" <<enum>> {
-		pending
-		paid
-		shipped
-		cancelled
-		refunded
-	}
-
 	entity "app_user" {
 		**id: uuid**
 		--

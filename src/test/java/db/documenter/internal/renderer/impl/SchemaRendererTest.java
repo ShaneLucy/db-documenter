@@ -35,7 +35,7 @@ class SchemaRendererTest {
 
     @Test
     void rendersEmptyPlantUmlWhenNoSchemas() {
-      final var result = schemaRenderer.render(List.of());
+      final var result = schemaRenderer.renderDiagrams(List.of()).erdDiagram();
 
       assertTrue(result.contains("@startuml"));
       assertTrue(result.contains("@enduml"));
@@ -49,7 +49,7 @@ class SchemaRendererTest {
       final var schema =
           Schema.builder().name("public").tables(List.of()).dbEnums(List.of()).build();
 
-      final var result = schemaRenderer.render(List.of(schema));
+      final var result = schemaRenderer.renderDiagrams(List.of(schema)).erdDiagram();
 
       assertTrue(result.contains("package \"public\" {"));
       assertTrue(result.contains("}"));
@@ -65,7 +65,7 @@ class SchemaRendererTest {
 
       when(entityRenderer.render(table)).thenReturn("entity users {");
 
-      final var result = schemaRenderer.render(List.of(schema));
+      final var result = schemaRenderer.renderDiagrams(List.of(schema)).erdDiagram();
 
       assertTrue(result.contains("entity users {"));
       verify(entityRenderer).render(table);
@@ -87,7 +87,7 @@ class SchemaRendererTest {
       when(entityRenderer.render(table1)).thenReturn("entity users {");
       when(entityRenderer.render(table2)).thenReturn("entity orders {");
 
-      final var result = schemaRenderer.render(List.of(schema));
+      final var result = schemaRenderer.renderDiagrams(List.of(schema)).erdDiagram();
 
       assertTrue(result.contains("entity users {"));
       assertTrue(result.contains("entity orders {"));
@@ -108,7 +108,7 @@ class SchemaRendererTest {
 
       when(enumRenderer.render(dbEnum)).thenReturn("enum status {");
 
-      final var result = schemaRenderer.render(List.of(schema));
+      final var result = schemaRenderer.renderDiagrams(List.of(schema)).enumDiagram().orElseThrow();
 
       assertTrue(result.contains("enum status {"));
       verify(enumRenderer).render(dbEnum);
@@ -138,7 +138,7 @@ class SchemaRendererTest {
       when(enumRenderer.render(dbEnum1)).thenReturn("enum status {");
       when(enumRenderer.render(dbEnum2)).thenReturn("enum role {");
 
-      final var result = schemaRenderer.render(List.of(schema));
+      final var result = schemaRenderer.renderDiagrams(List.of(schema)).enumDiagram().orElseThrow();
 
       assertTrue(result.contains("enum status {"));
       assertTrue(result.contains("enum role {"));
@@ -170,7 +170,7 @@ class SchemaRendererTest {
       when(entityRenderer.render(table)).thenReturn("entity orders {");
       when(relationshipRenderer.render(schema)).thenReturn("users ||--|{ orders\n");
 
-      final var result = schemaRenderer.render(List.of(schema));
+      final var result = schemaRenderer.renderDiagrams(List.of(schema)).erdDiagram();
 
       assertTrue(result.contains("users ||--|{ orders"));
       verify(relationshipRenderer).render(schema);
@@ -193,7 +193,7 @@ class SchemaRendererTest {
       when(relationshipRenderer.render(schema1)).thenReturn("");
       when(relationshipRenderer.render(schema2)).thenReturn("");
 
-      final var result = schemaRenderer.render(List.of(schema1, schema2));
+      final var result = schemaRenderer.renderDiagrams(List.of(schema1, schema2)).erdDiagram();
 
       assertTrue(result.contains("package \"public\" {"));
       assertTrue(result.contains("package \"inventory\" {"));
@@ -204,7 +204,7 @@ class SchemaRendererTest {
     }
 
     @Test
-    void rendersEnumsBeforeTables() {
+    void rendersEnumsOnlyInEnumDiagram() {
       final var dbEnum =
           DbEnum.builder()
               .schemaName("public")
@@ -220,12 +220,11 @@ class SchemaRendererTest {
       when(entityRenderer.render(table)).thenReturn("entity users {");
       when(relationshipRenderer.render(schema)).thenReturn("");
 
-      final var result = schemaRenderer.render(List.of(schema));
+      final var diagrams = schemaRenderer.renderDiagrams(List.of(schema));
 
-      final int enumIndex = result.indexOf("enum status {");
-      final int tableIndex = result.indexOf("entity users {");
-
-      assertTrue(enumIndex < tableIndex, "Enums should be rendered before tables");
+      assertTrue(diagrams.enumDiagram().orElseThrow().contains("enum status {"));
+      assertTrue(diagrams.erdDiagram().contains("entity users {"));
+      assertFalse(diagrams.erdDiagram().contains("enum status {"), "ERD must not contain enums");
     }
 
     @Test
@@ -252,7 +251,7 @@ class SchemaRendererTest {
       when(entityRenderer.render(table)).thenReturn("entity orders {");
       when(relationshipRenderer.render(schema)).thenReturn("users ||--|{ orders");
 
-      final var result = schemaRenderer.render(List.of(schema));
+      final var result = schemaRenderer.renderDiagrams(List.of(schema)).erdDiagram();
 
       final int tableIndex = result.indexOf("entity orders {");
       final int relationshipIndex = result.indexOf("users ||--|{ orders");
@@ -265,10 +264,36 @@ class SchemaRendererTest {
       final var schema =
           Schema.builder().name("public").tables(List.of()).dbEnums(List.of()).build();
 
-      final var result = schemaRenderer.render(List.of(schema));
+      final var result = schemaRenderer.renderDiagrams(List.of(schema)).erdDiagram();
 
       assertTrue(result.startsWith("@startuml"));
       assertTrue(result.trim().endsWith("@enduml"));
+    }
+
+    @Test
+    void omitsEnumDiagramWhenNoSchemaHasEnums() {
+      final var schema =
+          Schema.builder().name("public").tables(List.of()).dbEnums(List.of()).build();
+
+      assertTrue(schemaRenderer.renderDiagrams(List.of(schema)).enumDiagram().isEmpty());
+    }
+
+    @Test
+    void enumDiagramOnlyContainsSchemasWithEnumsAndShowsStereotypes() {
+      final var dbEnum =
+          DbEnum.builder().schemaName("a").enumName("status").enumValues(List.of("X")).build();
+      final var withEnums =
+          Schema.builder().name("a").dbEnums(List.of(dbEnum)).tables(List.of()).build();
+      final var without = Schema.builder().name("b").dbEnums(List.of()).tables(List.of()).build();
+      when(enumRenderer.render(dbEnum)).thenReturn("enum status {");
+
+      final var diagram =
+          schemaRenderer.renderDiagrams(List.of(withEnums, without)).enumDiagram().orElseThrow();
+
+      assertTrue(diagram.startsWith("@startuml"));
+      assertTrue(diagram.contains("package \"a\" {"));
+      assertFalse(diagram.contains("package \"b\" {"));
+      assertFalse(diagram.contains("hide stereotypes"));
     }
 
     @Test
@@ -276,7 +301,7 @@ class SchemaRendererTest {
       final var schema =
           Schema.builder().name("public").tables(List.of()).dbEnums(List.of()).build();
 
-      final var result = schemaRenderer.render(List.of(schema));
+      final var result = schemaRenderer.renderDiagrams(List.of(schema)).erdDiagram();
 
       assertTrue(result.contains("hide methods"));
       assertTrue(result.contains("hide stereotypes"));
@@ -323,13 +348,15 @@ class SchemaRendererTest {
       when(entityRenderer.render(table2)).thenReturn("entity orders {");
       when(relationshipRenderer.render(schema)).thenReturn("users ||--|{ orders");
 
-      final var result = schemaRenderer.render(List.of(schema));
+      final var diagrams = schemaRenderer.renderDiagrams(List.of(schema));
+      final var result = diagrams.erdDiagram();
 
       assertTrue(result.contains("@startuml"));
       assertTrue(result.contains("hide methods"));
       assertTrue(result.contains("hide stereotypes"));
       assertTrue(result.contains("package \"public\" {"));
-      assertTrue(result.contains("enum status {"));
+      assertFalse(result.contains("enum status {"));
+      assertTrue(diagrams.enumDiagram().orElseThrow().contains("enum status {"));
       assertTrue(result.contains("entity users {"));
       assertTrue(result.contains("entity orders {"));
       assertTrue(result.contains("users ||--|{ orders"));

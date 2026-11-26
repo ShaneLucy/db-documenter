@@ -48,12 +48,13 @@ public final class DbDocumenter {
   }
 
   /**
-   * Inspects the provided database schema(s) to generate a puml file.
+   * Inspects the provided database schema(s) and generates the PlantUML diagrams in a single pass
+   * over the database.
    *
-   * @return a formatted {@link String} representation of the database schema.
+   * @return the ERD and, when any schema defines enums, the enum diagram
    * @throws SQLException if database access fails
    */
-  public String generatePuml() throws SQLException {
+  public DiagramResult generate() throws SQLException {
     if (LOGGER.isLoggable(Level.INFO)) {
       LOGGER.log(
           Level.INFO,
@@ -72,7 +73,7 @@ public final class DbDocumenter {
 
     final List<Schema> schemas = schemaBuilder.buildSchemas(dbDocumenterConfig.schemas());
 
-    final String result = schemaRenderer.render(schemas);
+    final var result = schemaRenderer.renderDiagrams(schemas);
 
     if (LOGGER.isLoggable(Level.INFO)) {
       LOGGER.log(Level.INFO, "Successfully generated PlantUML output");

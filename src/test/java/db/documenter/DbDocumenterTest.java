@@ -1,6 +1,7 @@
 package db.documenter;
 
 import static db.documenter.testhelpers.PumlComparison.comparePumlLineByLine;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import db.documenter.testhelpers.PostgresTestEnvironment;
 import java.io.IOException;
@@ -63,8 +64,13 @@ class DbDocumenterTest {
                     "src/test/resources/postgresql/single-schema/postgresql-specific-single-schema-expected-output.puml"));
         final var expectedLines = expected.lines().toList();
 
-        final var result = dbDocumenter.generatePuml();
-        comparePumlLineByLine(result, expectedLines);
+        final var result = dbDocumenter.generate();
+        comparePumlLineByLine(result.erdDiagram(), expectedLines);
+        final var expectedEnums =
+            Files.readString(
+                Path.of(
+                    "src/test/resources/postgresql/single-schema/postgresql-specific-single-schema-expected-enums-output.puml"));
+        comparePumlLineByLine(result.enumDiagram().orElseThrow(), expectedEnums.lines().toList());
       }
     }
 
@@ -110,8 +116,9 @@ class DbDocumenterTest {
                     "src/test/resources/postgresql/sql-agnostic-multiple-schema-postgres-expected-output.puml"));
         final var expectedLines = expected.lines().toList();
 
-        final var result = dbDocumenter.generatePuml();
-        comparePumlLineByLine(result, expectedLines);
+        final var result = dbDocumenter.generate();
+        comparePumlLineByLine(result.erdDiagram(), expectedLines);
+        assertTrue(result.enumDiagram().isEmpty());
       }
     }
 
@@ -157,8 +164,13 @@ class DbDocumenterTest {
                     "src/test/resources/postgresql/multiple-schema/postgresql-specific-multiple-schema-expected-output.puml"));
         final var expectedLines = expected.lines().toList();
 
-        final var result = dbDocumenter.generatePuml();
-        comparePumlLineByLine(result, expectedLines);
+        final var result = dbDocumenter.generate();
+        comparePumlLineByLine(result.erdDiagram(), expectedLines);
+        final var expectedEnums =
+            Files.readString(
+                Path.of(
+                    "src/test/resources/postgresql/multiple-schema/postgresql-specific-multiple-schema-expected-enums-output.puml"));
+        comparePumlLineByLine(result.enumDiagram().orElseThrow(), expectedEnums.lines().toList());
       }
     }
   }

@@ -2,7 +2,9 @@ package db.documenter.cli;
 
 import db.documenter.DbDocumenter;
 import db.documenter.DbDocumenterConfig;
+import db.documenter.DiagramResult;
 import db.documenter.internal.exceptions.ValidationException;
+import db.documenter.internal.utils.LogUtils;
 import db.documenter.internal.validation.Validators;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,6 +12,8 @@ import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jspecify.annotations.Nullable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -19,8 +23,15 @@ import picocli.CommandLine.Option;
  * CLI entry point for the db-documenter tool.
  *
  * <p>Parses command-line arguments via picocli, constructs a {@link DbDocumenterConfig}, delegates
- * to {@link DbDocumenter#generatePuml()}, and routes the resulting PlantUML output either to a file
+ * to {@link DbDocumenter#generate()}, and routes the resulting PlantUML output either to files
  * (when {@code --output} is specified) or to stdout.
+ *
+ * <p><b>Output:</b> with {@code --output <path>} the ERD is written to {@code <path>} and the enum
+ * diagram, if any schema defines enums, to a sibling file with {@code _enums} appended to the file
+ * name before its extension (e.g. {@code schema.puml} and {@code schema_enums.puml}). When there
+ * are no enums, a stale enum file left by a previous run is deleted so the output never mixes runs.
+ * Without {@code --output} only the ERD goes to stdout and a warning on stderr notes that the enum
+ * diagram was not written.
  *
  * <p>Interactive password prompting is supported: omitting the {@code --password} value causes
  * picocli to prompt the user securely at runtime, keeping credentials out of shell history.
@@ -31,7 +42,8 @@ import picocli.CommandLine.Option;
  *   <li>{@code 0} - success
  *   <li>{@code 1} - configuration or validation error
  *   <li>{@code 2} - database connectivity error
- *   <li>{@code 3} - unexpected error (I/O or other)
+ *   <li>{@code 3} - unexpected error, including failure to write or delete either output file (if
+ *       the ERD was written before the enum file failed, the ERD file is left in place)
  * </ul>
  *
  * <p><b>Example usage:</b>
@@ -56,6 +68,8 @@ import picocli.CommandLine.Option;
     mixinStandardHelpOptions = true,
     version = "1.0.22")
 public final class Main implements Callable<Integer> {
+  private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
+
   private static final int EXIT_SUCCESS = 0;
 
   private static final int EXIT_VALIDATION_ERROR = 1;
@@ -109,16 +123,20 @@ public final class Main implements Callable<Integer> {
       defaultValue = "true")
   private boolean ssl;
 
-  @Option(names = "--output", description = "Output file path. Omit to write to stdout.")
+  @Option(
+      names = "--output",
+      description =
+          "ERD output file path. The enum diagram is written next to it with an _enums suffix"
+              + " before the extension. Omit to write the ERD to stdout.")
   private @Nullable String output;
 
   /**
    * Executes the documentation generation pipeline.
    *
    * <p>Builds a {@link DbDocumenterConfig} from the parsed CLI options, invokes {@link
-   * DbDocumenter#generatePuml()}, and writes the result to the configured output destination.
-   * Catches domain-specific exceptions and maps them to the appropriate integer exit codes so that
-   * callers and shell scripts can react to specific failure categories.
+   * DbDocumenter#generate()}, and writes the result to the configured output destination. Catches
+   * domain-specific exceptions and maps them to the appropriate integer exit codes so that callers
+   * and shell scripts can react to specific failure categories.
    *
    * @return {@code 0} on success; {@code 1} for validation errors; {@code 2} for database errors;
    *     {@code 3} for unexpected errors
@@ -140,13 +158,17 @@ public final class Main implements Callable<Integer> {
               .useSsl(ssl)
               .build();
 
-      final var puml = new DbDocumenter(config).generatePuml();
+      final var diagrams = new DbDocumenter(config).generate();
 
       final var outputPath = output;
       if (outputPath != null) {
-        Files.writeString(Path.of(outputPath), puml);
+        writeToFiles(Path.of(outputPath), diagrams);
       } else {
-        System.out.print(puml);
+        System.out.print(diagrams.erdDiagram());
+        if (diagrams.enumDiagram().isPresent()) {
+          System.err.println(
+              "Warning: enum diagram was not written; use --output to write it to a file.");
+        }
       }
 
       return EXIT_SUCCESS;
@@ -168,6 +190,40 @@ public final class Main implements Callable<Integer> {
     } catch (final Exception e) {
       System.err.println("Unexpected error: " + e.getMessage());
       return EXIT_UNEXPECTED_ERROR;
+    }
+  }
+
+  private static void writeToFiles(final Path erdPath, final DiagramResult diagrams)
+      throws IOException {
+    writeFile(erdPath, diagrams.erdDiagram());
+
+    final var enumPath = EnumOutputPaths.derive(erdPath);
+    final var enumDiagram = diagrams.enumDiagram();
+    if (enumDiagram.isPresent()) {
+      writeFile(enumPath, enumDiagram.orElseThrow());
+    } else {
+      deleteStaleFile(enumPath);
+    }
+  }
+
+  private static void writeFile(final Path path, final String content) throws IOException {
+    try {
+      Files.writeString(path, content);
+    } catch (final IOException e) {
+      throw new IOException("Failed to write " + path + ": " + e.getMessage(), e);
+    }
+  }
+
+  private static void deleteStaleFile(final Path path) throws IOException {
+    try {
+      if (Files.deleteIfExists(path) && LOGGER.isLoggable(Level.FINE)) {
+        LOGGER.log(
+            Level.FINE,
+            "No enums found; deleted stale enum diagram {0}",
+            LogUtils.sanitizeForLog(path));
+      }
+    } catch (final IOException e) {
+      throw new IOException("Failed to delete stale file " + path + ": " + e.getMessage(), e);
     }
   }
 

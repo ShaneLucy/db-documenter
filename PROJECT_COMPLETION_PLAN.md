@@ -44,8 +44,8 @@ Done when:
 | D | ERD Phase 3: remove partition info | DONE |
 | E | ERD Phase 4: Schema model cleanup verification | DONE |
 | G | Null safety: Error Prone + NullAway in build (before new API is written) | DONE |
-| F | ERD Phase 5: `DiagramResult`, enum diagram, CLI two-file output | NEXT |
-| H | Release readiness (workflow, version, manifest, README, LICENSE, git hygiene) | NOT STARTED |
+| F | ERD Phase 5: `DiagramResult`, enum diagram, CLI two-file output | DONE |
+| H | Release readiness (workflow, version, manifest, README, LICENSE, git hygiene) | NEXT |
 | I | Final `tech-lead-reviewer` review; fix findings; final `mvn clean verify` | NOT STARTED |
 
 ### C. ERD Phase 2 — corrections to ERD_REFACTORING_PLAN.md
@@ -98,7 +98,7 @@ Done when:
 - README: drop Maven install section; document ERD + `_enums.puml`, Docker `--output` volume mount
   (container runs as non-root `appuser` → document `--user "$(id -u):$(id -g)"` if needed), the stdout
   limitation for enums, and which object types are intentionally ignored.
-- Add IT: file output via Docker writes both ERD and enum files.
+- Add IT: file output via Docker writes both ERD and enum files. (DONE in phase F — runs as host uid:gid)
 
 ### I. Known follow-ups (from phase C test review)
 - `ForeignKeyMapper.enrichWithNullability` matches source column with case-sensitive `equals` while
@@ -109,6 +109,8 @@ Done when:
   let `Table.Builder.primaryKey` accept `Optional<PrimaryKey>` (or add an overload).
 - (from phase G verify) Clear the 7 Error Prone warnings: 6 `MissingSummary` on `ForeignKey.Builder`
   setter Javadoc, 1 `InlineFormatString` in `PostgresConnectionManager:15`.
+- (from phase F) Skill note: SpotBugs can't see that `Validators.*` returns non-null — don't chain
+  calls on its result (`isNotNull(x).toString()`); use an explicit null check for dereferences.
 
 ## Environment notes
 - Docker Desktop WSL integration enabled 2026-11-26 (server 28.3.2) → ITs run locally. Gate before

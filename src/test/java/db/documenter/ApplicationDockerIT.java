@@ -13,9 +13,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.OutputFrame;
+import org.testcontainers.containers.startupcheck.OneShotStartupCheckStrategy;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 
@@ -98,6 +101,91 @@ class ApplicationDockerIT {
 
         comparePumlLineByLine(stdoutCapture.toString(), expected.lines().toList());
       }
+    }
+
+    @Test
+    void itWritesErdAndEnumFilesToBindMountedDirectoryViaDockerImage(@TempDir final Path outputDir)
+        throws Exception {
+      final var enumNetwork = Network.newNetwork();
+      final var enumEnvironment = new PostgresTestEnvironment();
+      try {
+        enumEnvironment.startContainer(enumNetwork);
+        enumEnvironment.initialiseDatabase(
+            enumEnvironment.getConnection(),
+            "/postgresql/single-schema/postgresql-specific-single-schema.sql");
+
+        final var fatJar = findFatJar();
+        final var appImage =
+            new ImageFromDockerfile()
+                .withFileFromPath("Dockerfile", Path.of("Dockerfile"))
+                .withFileFromPath("target/" + fatJar.getFileName(), fatJar);
+
+        // The image runs as non-root 'appuser', which cannot write to a host-owned bind mount.
+        // Run the container as the host uid:gid so the mount is writable and the files are
+        // owned by the invoking user.
+        final var hostUser = hostUidGid();
+
+        try (final var appContainer =
+            new GenericContainer<>(appImage)
+                .withNetwork(enumNetwork)
+                .withCreateContainerCmdModifier(cmd -> cmd.withUser(hostUser))
+                .withFileSystemBind(outputDir.toString(), "/out", BindMode.READ_WRITE)
+                .withStartupCheckStrategy(new OneShotStartupCheckStrategy())
+                .withCommand(
+                    "--host",
+                    "db",
+                    "--port",
+                    "5432",
+                    "--database",
+                    "testdb",
+                    "--username",
+                    "test",
+                    "--password",
+                    "test",
+                    "--schemas",
+                    "public",
+                    "--ssl=false",
+                    "--output",
+                    "/out/diagram.puml")) {
+          appContainer.start();
+        }
+
+        comparePumlLineByLine(
+            Files.readString(outputDir.resolve("diagram.puml")),
+            Files.readString(
+                    Path.of(
+                        "src/test/resources/postgresql/single-schema/postgresql-specific-single-schema-expected-output.puml"))
+                .lines()
+                .toList());
+        comparePumlLineByLine(
+            Files.readString(outputDir.resolve("diagram_enums.puml")),
+            Files.readString(
+                    Path.of(
+                        "src/test/resources/postgresql/single-schema/postgresql-specific-single-schema-expected-enums-output.puml"))
+                .lines()
+                .toList());
+      } finally {
+        enumEnvironment.stop();
+        enumNetwork.close();
+      }
+    }
+
+    private static Path findFatJar() throws IOException {
+      try (final Stream<Path> files = Files.list(Path.of("target"))) {
+        return files
+            .filter(p -> p.getFileName().toString().endsWith("-jar-with-dependencies.jar"))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "Fat JAR not found in target/. Run 'mvn package' first."));
+      }
+    }
+
+    private static String hostUidGid() throws IOException {
+      final var uid = (Integer) Files.getAttribute(Path.of("target"), "unix:uid");
+      final var gid = (Integer) Files.getAttribute(Path.of("target"), "unix:gid");
+      return uid + ":" + gid;
     }
   }
 }

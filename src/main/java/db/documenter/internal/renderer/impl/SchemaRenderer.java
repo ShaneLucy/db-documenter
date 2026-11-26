@@ -1,19 +1,22 @@
 package db.documenter.internal.renderer.impl;
 
+import db.documenter.DiagramResult;
 import db.documenter.internal.models.db.Schema;
-import db.documenter.internal.renderer.api.PumlRenderer;
 import db.documenter.internal.utils.LogUtils;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Renders a list of database schemas as a complete PlantUML entity-relationship diagram.
+ * Renders database schemas as a PlantUML entity-relationship diagram plus a separate enum diagram.
  *
- * <p>Each schema is wrapped in a PlantUML {@code package} block. Within each package, enums are
- * rendered before tables. Foreign key relationships are rendered after all packages.
+ * <p>In the ERD each schema is wrapped in a {@code package} block containing its tables, followed
+ * by all foreign key relationships. Enums are deliberately excluded from the ERD. The enum diagram
+ * only contains {@code package} blocks for schemas that define enums, and does not hide stereotypes
+ * so that {@code <<enum>>} stays visible.
  */
-public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
+public final class SchemaRenderer {
   private static final Logger LOGGER = Logger.getLogger(SchemaRenderer.class.getName());
   private final EntityRenderer entityRenderer;
   private final RelationshipRenderer relationshipRenderer;
@@ -28,22 +31,30 @@ public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
     this.enumRenderer = enumRenderer;
   }
 
-  @Override
-  public String render(final List<Schema> schemas) {
+  /**
+   * Renders both diagrams for the given schemas.
+   *
+   * @param schemas schemas to render
+   * @return the ERD, and the enum diagram when at least one schema defines an enum
+   */
+  public DiagramResult renderDiagrams(final List<Schema> schemas) {
     if (LOGGER.isLoggable(Level.INFO)) {
       LOGGER.log(Level.INFO, "Rendering PlantUML output");
     }
 
+    return DiagramResult.builder()
+        .erdDiagram(renderErd(schemas))
+        .enumDiagram(renderEnums(schemas).orElse(null))
+        .build();
+  }
+
+  private String renderErd(final List<Schema> schemas) {
     final var stringBuilder = new StringBuilder(256);
     stringBuilder.append("@startuml\nhide methods\nhide stereotypes\n\n");
 
     schemas.forEach(
         schema -> {
           stringBuilder.append(String.format("package \"%s\" {%n", schema.name()));
-
-          schema
-              .dbEnums()
-              .forEach(dbEnum -> stringBuilder.append(enumRenderer.render(dbEnum)).append('\n'));
 
           schema
               .tables()
@@ -58,6 +69,26 @@ public final class SchemaRenderer implements PumlRenderer<List<Schema>> {
     stringBuilder.append("@enduml\n");
 
     return stringBuilder.toString();
+  }
+
+  private Optional<String> renderEnums(final List<Schema> schemas) {
+    final var schemasWithEnums =
+        schemas.stream().filter(schema -> !schema.dbEnums().isEmpty()).toList();
+    if (schemasWithEnums.isEmpty()) {
+      return Optional.empty();
+    }
+
+    final var stringBuilder = new StringBuilder(256);
+    stringBuilder.append("@startuml\n\n");
+    schemasWithEnums.forEach(
+        schema -> {
+          stringBuilder.append(String.format("package \"%s\" {%n", schema.name()));
+          schema
+              .dbEnums()
+              .forEach(dbEnum -> stringBuilder.append(enumRenderer.render(dbEnum)).append('\n'));
+          stringBuilder.append("}\n\n");
+        });
+    return Optional.of(stringBuilder.append("@enduml\n").toString());
   }
 
   private void logSchemaInfo(final Schema schema) {
