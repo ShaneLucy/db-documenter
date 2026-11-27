@@ -1,5 +1,6 @@
 package dev.shanelucy.dbdocumenter.internal.reader;
 
+import dev.shanelucy.dbdocumenter.internal.reader.postgresql.PgCatalogReader;
 import dev.shanelucy.dbdocumenter.internal.utils.LogUtils;
 import dev.shanelucy.dbdocumenter.internal.validation.Validators;
 import java.sql.Connection;
@@ -7,9 +8,11 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Selects the {@link MetadataReader} for a connection from its {@link
@@ -21,8 +24,10 @@ import java.util.logging.Logger;
  * for readers that need a minimum server version. Registrations are tried in order and the first
  * match wins.
  *
- * <p>The default registry is currently empty; vendor readers are registered as they are
- * implemented.
+ * <p>The default registry holds {@link PgCatalogReader} for PostgreSQL 15 and later. Older
+ * PostgreSQL servers, and products that report the name {@code PostgreSQL} with an older version
+ * (such as Amazon Redshift's {@code 8.0.2}), are rejected up front rather than failing on a catalog
+ * column they lack.
  *
  * <p><b>Thread Safety:</b> immutable and thread-safe.
  */
@@ -30,7 +35,14 @@ public final class MetadataReaders {
 
   private static final Logger LOGGER = Logger.getLogger(MetadataReaders.class.getName());
 
-  private static final MetadataReaders DEFAULT = new MetadataReaders(List.of());
+  /** The oldest PostgreSQL major version the PostgreSQL reader supports. */
+  static final int MINIMUM_POSTGRESQL_MAJOR_VERSION = 15;
+
+  private static final MetadataReaders DEFAULT =
+      new MetadataReaders(
+          List.of(
+              Registration.fromMajorVersion(
+                  "PostgreSQL", MINIMUM_POSTGRESQL_MAJOR_VERSION, new PgCatalogReader())));
 
   private final List<Registration> registrations;
 
@@ -126,8 +138,56 @@ public final class MetadataReaders {
       return new Registration(productName, version -> true, reader);
     }
 
+    /**
+     * Creates a registration that accepts versions whose {@linkplain #majorVersion major version}
+     * is at least {@code minimumMajorVersion}; a version without a leading number is rejected.
+     */
+    static Registration fromMajorVersion(
+        final String productName, final int minimumMajorVersion, final MetadataReader reader) {
+      return new Registration(
+          productName,
+          version -> {
+            final OptionalInt major = majorVersion(version);
+            return major.isPresent() && major.getAsInt() >= minimumMajorVersion;
+          },
+          reader);
+    }
+
     private boolean matches(final String name, final String version) {
       return productName.equals(name) && versionPredicate.test(version);
     }
+  }
+
+  /**
+   * Parses the leading major version number of a product version string, such as {@code 15} from
+   * {@code 15.3}, {@code 18} from {@code 18.1 (Debian 18.1-1.pgdg13+1)} or {@code 19} from {@code
+   * 19devel}.
+   *
+   * @param productVersion the version as the driver reports it; may be null for a misbehaving
+   *     driver
+   * @return the digits before the first non-digit, or empty if the string does not start with a
+   *     digit or the number does not fit in an {@code int}
+   */
+  static OptionalInt majorVersion(final @Nullable String productVersion) {
+    if (productVersion == null) {
+      return OptionalInt.empty();
+    }
+    final String trimmed = productVersion.strip();
+    int end = 0;
+    while (end < trimmed.length() && isAsciiDigit(trimmed.charAt(end))) {
+      end++;
+    }
+    if (end == 0) {
+      return OptionalInt.empty();
+    }
+    try {
+      return OptionalInt.of(Integer.parseInt(trimmed, 0, end, 10));
+    } catch (final NumberFormatException overflow) {
+      return OptionalInt.empty();
+    }
+  }
+
+  private static boolean isAsciiDigit(final char character) {
+    return character >= '0' && character <= '9';
   }
 }

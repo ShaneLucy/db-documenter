@@ -1,6 +1,7 @@
 package dev.shanelucy.dbdocumenter.internal.reader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -11,16 +12,22 @@ import static org.mockito.Mockito.when;
 import dev.shanelucy.dbdocumenter.catalog.CatalogSnapshot;
 import dev.shanelucy.dbdocumenter.internal.exceptions.ValidationException;
 import dev.shanelucy.dbdocumenter.internal.reader.MetadataReaders.Registration;
+import dev.shanelucy.dbdocumenter.internal.reader.postgresql.PgCatalogReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.OptionalInt;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class MetadataReadersTest {
@@ -53,8 +60,8 @@ class MetadataReadersTest {
   class ForConnectionTests {
 
     @Test
-    void itThrowsExceptionBecauseDefaultRegistryIsEmpty() throws SQLException {
-      givenProduct("PostgreSQL", "16.4");
+    void itThrowsExceptionForPostgresqlOlderThanMinimumVersion() throws SQLException {
+      givenProduct("PostgreSQL", "14.12");
 
       final var exception =
           assertThrows(
@@ -62,13 +69,51 @@ class MetadataReadersTest {
               () -> MetadataReaders.forConnection(connection));
 
       assertEquals(
-          "No metadata reader supports database product 'PostgreSQL' version '16.4'",
+          "No metadata reader supports database product 'PostgreSQL' version '14.12'",
+          exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"15.0", "15.3", "16.4", "18.1 (Debian 18.1-1.pgdg13+1)", "19devel"})
+    void itReturnsPgCatalogReaderForSupportedPostgresql(final String version) throws SQLException {
+      givenProduct("PostgreSQL", version);
+
+      assertInstanceOf(PgCatalogReader.class, MetadataReaders.forConnection(connection));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"8.0.2", "14.99", "", "unknown"})
+    void itThrowsExceptionForPostgresqlVersionBelowMinimumOrUnparseable(final String version)
+        throws SQLException {
+      givenProduct("PostgreSQL", version);
+
+      final var exception =
+          assertThrows(
+              SQLFeatureNotSupportedException.class,
+              () -> MetadataReaders.forConnection(connection));
+
+      assertEquals(
+          "No metadata reader supports database product 'PostgreSQL' version '" + version + "'",
+          exception.getMessage());
+    }
+
+    @Test
+    void itThrowsExceptionForOtherProductAtSupportedVersion() throws SQLException {
+      givenProduct("MySQL", "18.0");
+
+      final var exception =
+          assertThrows(
+              SQLFeatureNotSupportedException.class,
+              () -> MetadataReaders.forConnection(connection));
+
+      assertEquals(
+          "No metadata reader supports database product 'MySQL' version '18.0'",
           exception.getMessage());
     }
 
     @Test
     void itDoesNotCloseConnection() throws SQLException {
-      givenProduct("PostgreSQL", "16.4");
+      givenProduct("PostgreSQL", "14.12");
 
       assertThrows(
           SQLFeatureNotSupportedException.class, () -> MetadataReaders.forConnection(connection));
@@ -98,6 +143,21 @@ class MetadataReadersTest {
           new MetadataReaders(List.of(Registration.anyVersion("PostgreSQL", postgresReader)));
 
       assertSame(postgresReader, registry.find(connection));
+    }
+
+    @Test
+    void itReturnsReaderWhenFineLoggingIsEnabled() throws SQLException {
+      final var logger = Logger.getLogger(MetadataReaders.class.getName());
+      final var originalLevel = logger.getLevel();
+      logger.setLevel(Level.FINE);
+      try {
+        final var registry =
+            new MetadataReaders(List.of(Registration.anyVersion("PostgreSQL", postgresReader)));
+
+        assertSame(postgresReader, registry.find("PostgreSQL", "16.4"));
+      } finally {
+        logger.setLevel(originalLevel);
+      }
     }
 
     @Test
@@ -162,6 +222,78 @@ class MetadataReadersTest {
       assertEquals(
           "No metadata reader supports database product '" + productName + "' version '16.4'",
           exception.getMessage());
+    }
+  }
+
+  @Nested
+  class FromMajorVersionTests {
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = {"15", "15.0", "15.3", "16.4", "18.1 (Debian 18.1-1.pgdg13+1)", "19devel"})
+    void itAcceptsVersionAtOrAboveMinimumMajorVersion(final String version) throws SQLException {
+      final var registry =
+          new MetadataReaders(
+              List.of(Registration.fromMajorVersion("PostgreSQL", 15, postgresReader)));
+
+      assertSame(postgresReader, registry.find("PostgreSQL", version));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"14", "14.12", "9.6.24", "8.0.2", "", "abc", "v15", "99999999999"})
+    void itRejectsVersionBelowMinimumOrWithoutLeadingNumber(final String version) {
+      final var registry =
+          new MetadataReaders(
+              List.of(Registration.fromMajorVersion("PostgreSQL", 15, postgresReader)));
+
+      final var exception =
+          assertThrows(
+              SQLFeatureNotSupportedException.class, () -> registry.find("PostgreSQL", version));
+
+      assertEquals(
+          "No metadata reader supports database product 'PostgreSQL' version '" + version + "'",
+          exception.getMessage());
+    }
+
+    @Test
+    void itFallsThroughToOlderReaderWhenVersionIsBelowMinimum() throws SQLException {
+      final var registry =
+          new MetadataReaders(
+              List.of(
+                  Registration.fromMajorVersion("PostgreSQL", 15, postgresReader),
+                  Registration.anyVersion("PostgreSQL", otherReader)));
+
+      assertSame(otherReader, registry.find("PostgreSQL", "14.12"));
+      assertSame(postgresReader, registry.find("PostgreSQL", "15.0"));
+    }
+  }
+
+  @Nested
+  class MajorVersionTests {
+
+    @ParameterizedTest
+    @CsvSource(
+        delimiter = '|',
+        value = {
+          "15|15",
+          "15.3|15",
+          "18.1 (Debian 18.1-1.pgdg13+1)|18",
+          "19devel|19",
+          "19beta1|19",
+          "' 16.4 '|16",
+          "007.1|7",
+          "0|0",
+          "2147483647|2147483647"
+        })
+    void itParsesLeadingDigits(final String version, final int expected) {
+      assertEquals(OptionalInt.of(expected), MetadataReaders.majorVersion(version));
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {" ", "abc", "v15", "-15", ".15", "2147483648", "99999999999999999999"})
+    void itReturnsEmptyWhenVersionHasNoLeadingIntMajor(final String version) {
+      assertEquals(OptionalInt.empty(), MetadataReaders.majorVersion(version));
     }
   }
 
