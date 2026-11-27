@@ -1,0 +1,149 @@
+schema "Odd Names"
+table "Odd Names"."Mixed Case"
+column "Odd Names"."Mixed Case"."Id" type="integer" nullable=false
+column "Odd Names"."Mixed Case".ab type="text" nullable=true
+column "Odd Names"."Mixed Case".a_b type="text" nullable=true
+column "Odd Names"."Mixed Case"."aB" type="text" nullable=true
+column "Odd Names"."Mixed Case".a1 type="text" nullable=true
+column "Odd Names"."Mixed Case"."a-b" type="text" nullable=true
+column "Odd Names"."Mixed Case"."a$b" type="text" nullable=true
+column "Odd Names"."Mixed Case"."a\"b" type="text" nullable=true
+column "Odd Names"."Mixed Case"."a b" type="text" nullable=true
+column "Odd Names"."Mixed Case"."Int Array" type="integer[]" nullable=true
+column "Odd Names"."Mixed Case"."Codes" type="character varying(20)[]" nullable=true
+column "Odd Names"."Mixed Case"."Matrix" type="integer[]" nullable=true
+column "Odd Names"."Mixed Case"."Price (USD)" type="numeric(10,2)" nullable=false
+column "Odd Names"."Mixed Case"."Flag" type="\"char\"" nullable=true
+pk "Odd Names"."Mixed Case"("Id") name="Mixed Case_pkey"
+unique "Odd Names"."Mixed Case"("a b") name="Mixed Case_a b_key"
+unique "Odd Names"."Mixed Case"("a\"b") name="Mixed Case_a\"b_key"
+unique "Odd Names"."Mixed Case"("a$b") name="Mixed Case_a$b_key"
+unique "Odd Names"."Mixed Case"("a-b") name="Mixed Case_a-b_key"
+unique "Odd Names"."Mixed Case"(a1) name="Mixed Case_a1_key"
+unique "Odd Names"."Mixed Case"("aB") name="Mixed Case_aB_key"
+unique "Odd Names"."Mixed Case"(a_b) name="Mixed Case_a_b_key"
+unique "Odd Names"."Mixed Case"(ab) name="Mixed Case_ab_key"
+table "Odd Names"."no-pk$log"
+column "Odd Names"."no-pk$log".logged_at type="timestamp with time zone" nullable=false
+column "Odd Names"."no-pk$log".cust type="integer" nullable=true
+column "Odd Names"."no-pk$log"."Ref\nNo" type="integer" nullable=true
+column "Odd Names"."no-pk$log".message type="text" nullable=true
+fk "Odd Names"."no-pk$log"("Ref\nNo") -> "Odd Names"."quote\"d"("Line\nTwo") on_delete=no_action on_update=no_action name="log ref fk"
+fk "Odd Names"."no-pk$log"(cust) -> core.contacts(contact_id) on_delete=no_action on_update=no_action name=log_cust_contact_fk
+fk "Odd Names"."no-pk$log"(cust) -> core.customers(id) on_delete=no_action on_update=no_action name="no-pk$log_cust_fkey"
+fk "Odd Names"."no-pk$log"(cust) -> core.customers(id) on_delete=cascade on_update=no_action name=log_cust_cascade_fk
+fk "Odd Names"."no-pk$log"(cust) -> core.customers(id) on_delete=cascade on_update=no_action name=log_cust_dup_fk
+table "Odd Names"."quote\"d"
+column "Odd Names"."quote\"d"."Line\nTwo" type="integer" nullable=false
+column "Odd Names"."quote\"d"."a b" type="text" nullable=true
+pk "Odd Names"."quote\"d"("Line\nTwo") name="quote\"d pk"
+fk "Odd Names"."quote\"d"("a b") -> "Odd Names"."Mixed Case"("a b") on_delete=no_action on_update=set_null name="fk-to-mixed$case"
+schema core
+table core.contacts
+column core.contacts.contact_id type="integer" nullable=false
+column core.contacts.full_name type="text" nullable=false
+column core.contacts.email type="email_address" nullable=true user_type=core.email_address
+column core.contacts.customer_id type="integer" nullable=true
+column core.contacts.phone type="text" nullable=true
+pk core.contacts(contact_id) name=contacts_pkey
+unique core.contacts(email) name=contacts_email_key
+fk core.contacts(customer_id) -> core.customers(id) on_delete=no_action on_update=restrict name=contacts_customer_id_fkey
+table core.customers
+column core.customers.id type="integer" nullable=false
+column core.customers.email type="email_address" nullable=false user_type=core.email_address
+column core.customers.tax_ref type="text" nullable=true
+column core.customers.loyalty_code type="text" nullable=true
+column core.customers.is_vip type="boolean" nullable=false
+column core.customers.mood type="Mood" nullable=true user_type=core."Mood"
+column core.customers.home_address type="postal_address" nullable=true user_type=core.postal_address
+column core.customers.created_at type="timestamp with time zone" nullable=false
+pk core.customers(id) name=customers_pkey
+unique core.customers(email) name=customers_email_dup_uidx
+unique core.customers(email) name=customers_email_key
+unique core.customers(loyalty_code) name=customers_loyalty_code_uidx
+unique core.customers(tax_ref) name=customers_tax_ref_uidx
+table core.event_annotations
+column core.event_annotations.annotation_id type="integer" nullable=false
+column core.event_annotations.event_id type="bigint" nullable=false
+column core.event_annotations.occurred_at type="timestamp with time zone" nullable=false
+column core.event_annotations.note type="text" nullable=false
+pk core.event_annotations(annotation_id) name=event_annotations_pkey
+fk core.event_annotations(event_id, occurred_at) -> core.events(event_id, occurred_at) on_delete=cascade on_update=no_action name=event_annotations_event_id_occurred_at_fkey
+table core.events
+column core.events.event_id type="bigint" nullable=false
+column core.events.occurred_at type="timestamp with time zone" nullable=false
+column core.events.customer_id type="integer" nullable=true
+column core.events.external_ref type="uuid" nullable=true
+column core.events.payload type="jsonb" nullable=true
+pk core.events(event_id, occurred_at) name=events_pkey
+unique core.events(external_ref, occurred_at) name=events_external_ref_uidx
+fk core.events(customer_id) -> core.customers(id) on_delete=restrict on_update=no_action name=events_customer_id_fkey
+table core.stock_items
+column core.stock_items.stock_item_id type="bigint" nullable=false
+column core.stock_items.wh_no type="smallint" nullable=false
+column core.stock_items.wh_region type="character(2)" nullable=false
+column core.stock_items.bin type="character varying(20)" nullable=false
+column core.stock_items.sku type="character varying(40)" nullable=false
+column core.stock_items.barcode type="character varying(20)" nullable=true
+column core.stock_items.qty type="integer" nullable=false
+column core.stock_items.unit_price type="numeric(10,2)" nullable=false
+column core.stock_items.line_value type="numeric(12,2)" nullable=true
+column core.stock_items.reserved_for type="integer" nullable=true
+column core.stock_items.price_band type="price_band" nullable=true user_type=core.price_band
+pk core.stock_items(stock_item_id) name=stock_items_pkey
+unique core.stock_items(barcode) name=stock_items_barcode_key
+unique core.stock_items(sku) name=stock_items_sku_key
+unique core.stock_items(wh_region, wh_no, bin) name=stock_items_location_key
+fk core.stock_items(reserved_for) -> core.customers(id) on_delete=set_null on_update=no_action name=stock_items_reserved_for_fk
+fk core.stock_items(wh_no, wh_region) -> core.warehouses(warehouse_no, region_code) on_delete=set_default on_update=cascade name=stock_items_warehouse_fk
+table core.supplier_contacts
+column core.supplier_contacts.contact_id type="integer" nullable=false
+column core.supplier_contacts.full_name type="text" nullable=false
+column core.supplier_contacts.email type="email_address" nullable=true user_type=core.email_address
+column core.supplier_contacts.customer_id type="integer" nullable=true
+column core.supplier_contacts.supplier_code type="character varying(12)" nullable=false
+column core.supplier_contacts.phone type="text" nullable=true
+unique core.supplier_contacts(supplier_code) name=supplier_contacts_supplier_code_key
+table core.warehouses
+column core.warehouses.region_code type="character(2)" nullable=false
+column core.warehouses.warehouse_no type="smallint" nullable=false
+column core.warehouses.name type="text" nullable=false
+column core.warehouses.capacity type="numeric(10,2)" nullable=true
+pk core.warehouses(region_code, warehouse_no) name=warehouses_pkey
+enum core."Mood" values=("happy", "so-so", "say \"hi\"", "back\\slash", "Two Words", "")
+enum core.order_status values=("pending", "on_hold", "paid", "shipped", "cancelled")
+schema shop_east
+table shop_east.orders
+column shop_east.orders.order_id type="bigint" nullable=false
+column shop_east.orders.uid type="integer" nullable=false
+column shop_east.orders.customer_email type="email_address" nullable=true user_type=core.email_address
+column shop_east.orders.customer_tax_ref type="text" nullable=true
+column shop_east.orders.status type="order_status" nullable=false user_type=core.order_status
+column shop_east.orders.status_history type="order_status[]" nullable=false user_type=core.order_status
+column shop_east.orders.fulfilment type="active_status" nullable=true user_type=core.active_status
+column shop_east.orders.fulfilment_history type="active_status[]" nullable=true user_type=core.active_status
+column shop_east.orders.ordered_at type="timestamp(3) without time zone" nullable=false
+pk shop_east.orders(order_id) name=orders_pkey
+fk shop_east.orders(customer_email) -> core.customers(email) on_delete=set_default on_update=restrict name=orders_customer_email_fkey
+fk shop_east.orders(customer_tax_ref) -> core.customers(tax_ref) on_delete=no_action on_update=set_default name=orders_customer_tax_ref_fkey
+fk shop_east.orders(uid) -> shop_east.users(uid) on_delete=cascade on_update=no_action name=orders_uid_fkey
+table shop_east.users
+column shop_east.users.uid type="integer" nullable=false
+column shop_east.users.handle type="text" nullable=false
+pk shop_east.users(uid) name=users_pkey
+unique shop_east.users(handle) name=users_handle_key
+schema shop_west
+table shop_west.orders
+column shop_west.orders.order_id type="bigint" nullable=false
+column shop_west.orders.uid type="integer" nullable=true
+column shop_west.orders.currency type="character(3)" nullable=false
+column shop_west.orders.priority type="priority_level" nullable=true user_type=external_ref.priority_level
+column shop_west.orders.priority_history type="priority_level[]" nullable=true user_type=external_ref.priority_level
+column shop_west.orders.placed_on type="date" nullable=false
+pk shop_west.orders(order_id) name=orders_pkey
+fk shop_west.orders(currency) -> external_ref.currencies(code) on_delete=restrict on_update=cascade name=orders_currency_fkey
+fk shop_west.orders(uid) -> shop_west.users(uid) on_delete=set_null on_update=cascade name=orders_uid_fkey
+table shop_west.users
+column shop_west.users.uid type="integer" nullable=false
+column shop_west.users.handle type="text" nullable=false
+pk shop_west.users(uid) name=users_pkey

@@ -32,13 +32,13 @@ class CatalogDumpWriterTest {
       """
       schema auth
       table auth.user_mfa
-      column auth.user_mfa.user_id type="int4" nullable=false
+      column auth.user_mfa.user_id type="integer" nullable=false
       column auth.user_mfa.method type="mfa_method" nullable=false user_type=auth.mfa_method
       pk auth.user_mfa(user_id, method) name=user_mfa_pkey
       fk auth.user_mfa(user_id) -> auth.users(id) on_delete=cascade on_update=no_action name=user_mfa_user_id_fkey
       table auth.users
-      column auth.users.id type="int4" nullable=false
-      column auth.users."Display Name" type="varchar(100)" nullable=true
+      column auth.users.id type="integer" nullable=false
+      column auth.users."Display Name" type="character varying(100)" nullable=true
       pk auth.users(id) name=users_pkey
       unique auth.users("Display Name")
       enum auth.mfa_method values=("totp", "sms")
@@ -74,7 +74,7 @@ class CatalogDumpWriterTest {
             .name(QualifiedName.of("auth", "user_mfa"))
             .columns(
                 List.of(
-                    column("user_id", "int4", false),
+                    column("user_id", "integer", false),
                     Column.builder()
                         .name("method")
                         .nullable(false)
@@ -104,7 +104,9 @@ class CatalogDumpWriterTest {
         Table.builder()
             .name(QualifiedName.of("auth", "users"))
             .columns(
-                List.of(column("id", "int4", false), column("Display Name", "varchar(100)", true)))
+                List.of(
+                    column("id", "integer", false),
+                    column("Display Name", "character varying(100)", true)))
             .primaryKey(PrimaryKey.builder().name("users_pkey").columns(List.of("id")).build())
             .uniqueKeys(List.of(UniqueKey.builder().columns(List.of("Display Name")).build()))
             .build();

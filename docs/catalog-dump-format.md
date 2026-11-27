@@ -19,7 +19,7 @@ hand from this spec and the DDL, never generated**. Internal: not a public contr
 |---|---|
 | *ident* | bare when it matches `[a-z0-9_]+`, otherwise double-quoted (`"Mixed Case"`, `""` for empty) |
 | *qname* | *ident*`.`*ident* (`auth.users`, `main."Mixed Case"`) |
-| *string* | always double-quoted (`"int4"`, `"enum('a','b')"`, `""`) |
+| *string* | always double-quoted (`"integer"`, `"enum('a','b')"`, `""`) |
 | *cols* | `(`*ident*`, `*ident*…`)`, in key / list order, separated by comma + space |
 | *action* | `no_action`, `restrict`, `cascade`, `set_null`, `set_default` |
 
@@ -53,16 +53,18 @@ For each schema (by name):
 
 ## Example
 
+PostgreSQL built-in types appear as `format_type` prints them (`integer`, `character varying(100)`, `integer[]`); user types as their bare name (`mfa_method`, `mfa_method[]`).
+
 ```
 schema auth
 table auth.user_mfa
-column auth.user_mfa.user_id type="int4" nullable=false
+column auth.user_mfa.user_id type="integer" nullable=false
 column auth.user_mfa.method type="mfa_method" nullable=false user_type=auth.mfa_method
 pk auth.user_mfa(user_id, method) name=user_mfa_pkey
 fk auth.user_mfa(user_id) -> auth.users(id) on_delete=cascade on_update=no_action name=user_mfa_user_id_fkey
 table auth.users
-column auth.users.id type="int4" nullable=false
-column auth.users."Display Name" type="varchar(100)" nullable=true
+column auth.users.id type="integer" nullable=false
+column auth.users."Display Name" type="character varying(100)" nullable=true
 pk auth.users(id) name=users_pkey
 unique auth.users("Display Name")
 enum auth.mfa_method values=("totp", "sms")

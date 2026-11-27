@@ -1,1 +1,3 @@
 *.txt text eol=lf
+# Fixtures with LF inside quoted identifiers; older CRLF fixtures are left as committed
+db-documenter-test-support/src/main/resources/postgresql/catalog-edge-cases/*.sql text eol=lf
