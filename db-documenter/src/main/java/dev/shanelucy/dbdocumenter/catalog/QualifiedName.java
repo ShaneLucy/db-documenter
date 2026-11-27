@@ -1,5 +1,6 @@
 package dev.shanelucy.dbdocumenter.catalog;
 
+import dev.shanelucy.dbdocumenter.internal.catalog.Identifiers;
 import dev.shanelucy.dbdocumenter.internal.validation.Validators;
 import java.util.Comparator;
 import org.jspecify.annotations.Nullable;
@@ -53,6 +54,20 @@ public record QualifiedName(String schema, String name) implements Comparable<Qu
   @Override
   public int compareTo(final QualifiedName other) {
     return ORDER.compare(this, other);
+  }
+
+  /**
+   * Returns the name as {@code schema.name} for diagnostics, such as {@code app.users} or {@code
+   * main."Mixed Case"}.
+   *
+   * <p>Each part is bare when it matches {@code [a-z0-9_]+} and otherwise double-quoted with
+   * special characters escaped, so a dot or space inside a part stays unambiguous. This format is
+   * for messages and logs only and is not a contract; use {@link #schema()} and {@link #name()} to
+   * read the parts.
+   */
+  @Override
+  public String toString() {
+    return Identifiers.format(this);
   }
 
   /** Builder for constructing {@link QualifiedName} instances using a fluent API. */

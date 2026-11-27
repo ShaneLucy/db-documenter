@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import dev.shanelucy.dbdocumenter.internal.catalog.Identifiers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -150,6 +151,29 @@ class QualifiedNameTest {
           List.of(
               QualifiedName.of("a", "b"), QualifiedName.of("a", "z"), QualifiedName.of("b", "a")),
           names);
+    }
+  }
+
+  @Nested
+  class ToStringTests {
+
+    static Stream<Arguments> qualifiedNames() {
+      return Stream.of(
+          Arguments.of(QualifiedName.of("app", "users"), "app.users"),
+          Arguments.of(QualifiedName.of("main", "Mixed Case"), "main.\"Mixed Case\""));
+    }
+
+    @ParameterizedTest
+    @MethodSource("qualifiedNames")
+    void itFormatsBareAndQuotedParts(final QualifiedName qualifiedName, final String expected) {
+      assertEquals(expected, qualifiedName.toString());
+    }
+
+    @Test
+    void itDelegatesToIdentifiersFormat() {
+      final var qualifiedName = QualifiedName.of("a.b", "C");
+
+      assertEquals(Identifiers.format(qualifiedName), qualifiedName.toString());
     }
   }
 }

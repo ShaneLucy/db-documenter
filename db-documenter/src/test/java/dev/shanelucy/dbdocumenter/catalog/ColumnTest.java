@@ -69,12 +69,10 @@ class ColumnTest {
     }
 
     @Test
-    void itThrowsExceptionWhenNullableIsNotSet() {
-      final var builder = Column.builder().name("id").dataType(INT4);
+    void itDefaultsToNullableWhenNullableIsNotSet() {
+      final var column = Column.builder().name("id").dataType(INT4).build();
 
-      final var exception = assertThrows(IllegalArgumentException.class, builder::build);
-
-      assertEquals("nullable must not be null", exception.getMessage());
+      assertEquals(new Column("id", true, INT4), column);
     }
 
     @Test

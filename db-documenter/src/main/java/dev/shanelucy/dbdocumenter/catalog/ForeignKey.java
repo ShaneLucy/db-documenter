@@ -12,13 +12,17 @@ import org.jspecify.annotations.Nullable;
  * <p>{@code columns} and {@code referencedColumns} pair up by position, in key order: the first
  * local column references the first referenced column, and so on. Neither list is ever sorted.
  *
+ * <p>The model is deliberately permissive, because vendors are: {@code columns} may repeat a column
+ * (SQLite accepts {@code FOREIGN KEY (a, a)}), and {@code referencedColumns} need not form a
+ * primary or unique key of the referenced table (MySQL and MariaDB allow any indexed columns).
+ *
  * <p>The referenced table may be absent from the snapshot, for example when it is in a schema that
  * was not read, the user cannot see it, or the vendor allows dangling references.
  *
  * <p><b>Immutability:</b> This record is immutable and thread-safe.
  *
- * @param name the constraint name; empty when the vendor does not expose one. When present, not
- *     empty.
+ * @param name the constraint name; empty when the vendor exposes none (SQLite). When present, not
+ *     empty, and kept verbatim even when the vendor generated it.
  * @param columns the referencing column names in the owning table, in key order; at least one, no
  *     nulls; defensively copied
  * @param referencedTable the table the key references

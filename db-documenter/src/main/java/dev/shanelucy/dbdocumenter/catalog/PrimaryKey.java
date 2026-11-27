@@ -10,8 +10,9 @@ import org.jspecify.annotations.Nullable;
  *
  * <p><b>Immutability:</b> This record is immutable and thread-safe.
  *
- * @param name the constraint name; empty when the vendor does not expose one. When present, not
- *     empty.
+ * @param name the constraint name; empty when the vendor exposes none, or only a fixed placeholder
+ *     (SQLite, and MySQL's {@code PRIMARY}). When present, not empty, and kept verbatim even when
+ *     the vendor generated it.
  * @param columns the key's column names in key order (not table order); at least one, no nulls, no
  *     duplicates; defensively copied
  */

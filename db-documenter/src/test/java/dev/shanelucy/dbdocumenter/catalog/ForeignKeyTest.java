@@ -71,6 +71,22 @@ class ForeignKeyTest {
     }
 
     @Test
+    void itAcceptsDuplicateLocalColumnsAndKeepsTheirOrder() {
+      final var foreignKey = foreignKey(List.of("a", "a"), List.of("a", "b"));
+
+      assertEquals(List.of("a", "a"), foreignKey.columns());
+      assertEquals(List.of("a", "b"), foreignKey.referencedColumns());
+    }
+
+    @Test
+    void itAcceptsDuplicateReferencedColumnsAndKeepsTheirOrder() {
+      final var foreignKey = foreignKey(List.of("a", "b"), List.of("id", "id"));
+
+      assertEquals(List.of("a", "b"), foreignKey.columns());
+      assertEquals(List.of("id", "id"), foreignKey.referencedColumns());
+    }
+
+    @Test
     void itThrowsExceptionWhenNameOptionalIsNull() {
       final var columns = List.of("user_id");
       final var referencedColumns = List.of("id");

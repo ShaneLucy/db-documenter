@@ -12,7 +12,10 @@ import org.jspecify.annotations.Nullable;
  * <p><b>Immutability:</b> This record is immutable and thread-safe.
  *
  * @param name the column name as stored in the catalog; not empty
- * @param nullable whether the column accepts {@code NULL}
+ * @param nullable whether a stored value can be {@code NULL}. This can differ from the vendor's
+ *     declared flag (a SQLite rowid alias is reported NOT NULL), and it can be {@code true} for a
+ *     primary-key column (SQLite allows {@code NULL} in a non-integer primary key of a rowid
+ *     table), so do not assume that a primary-key column is NOT NULL.
  * @param dataType the column's data type
  */
 public record Column(String name, boolean nullable, DataType dataType) {
@@ -35,12 +38,12 @@ public record Column(String name, boolean nullable, DataType dataType) {
   /**
    * Builder for constructing {@link Column} instances using a fluent API.
    *
-   * <p>Every property is required, including {@code nullable}, so that a reader cannot silently
-   * report a column with the wrong nullability.
+   * <p>{@code nullable} defaults to {@code true}, the SQL DDL default; the name and data type are
+   * required.
    */
   public static final class Builder {
     private @Nullable String name;
-    private @Nullable Boolean nullable;
+    private boolean nullable = true;
     private @Nullable DataType dataType;
 
     /** Returns this builder for method chaining. */
@@ -62,15 +65,13 @@ public record Column(String name, boolean nullable, DataType dataType) {
     }
 
     /**
-     * Builds the {@link Column}; every property must have been set.
+     * Builds the {@link Column}; the name and data type must have been set.
      *
-     * @throws IllegalArgumentException if a property is unset or the name is empty
+     * @throws IllegalArgumentException if the name or data type is unset, or the name is empty
      */
     public Column build() {
       return new Column(
-          Validators.isNotNull(name, "name"),
-          Boolean.TRUE.equals(Validators.isNotNull(nullable, "nullable")),
-          Validators.isNotNull(dataType, "dataType"));
+          Validators.isNotNull(name, "name"), nullable, Validators.isNotNull(dataType, "dataType"));
     }
   }
 }

@@ -10,7 +10,10 @@ import org.jspecify.annotations.Nullable;
  * <p><b>Immutability:</b> This record is immutable and thread-safe.
  *
  * @param displayText the type as the database presents it, such as {@code varchar(20)} or {@code
- *     int4[]}; never null, but may be empty where the vendor allows an undeclared type
+ *     int4[]}; never null, but empty where the vendor allows an undeclared type (a SQLite column
+ *     with no type). An inline MySQL {@code ENUM} or {@code SET} appears verbatim, such as {@code
+ *     enum('a','b')}; its values are not modelled separately, because they belong to the column
+ *     rather than to a named type.
  * @param userType the user-defined type (enum, domain, composite, range) the column uses, or for an
  *     array of one, its element type; empty for built-in types. The type may lie outside the
  *     snapshot.

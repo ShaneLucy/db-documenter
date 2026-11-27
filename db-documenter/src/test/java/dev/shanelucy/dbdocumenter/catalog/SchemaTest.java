@@ -119,8 +119,7 @@ class SchemaTest {
       final var exception = assertThrows(IllegalArgumentException.class, builder::build);
 
       assertEquals(
-          "tables must all belong to schema app, but contains QualifiedName[schema=App, name=b]",
-          exception.getMessage());
+          "tables must all belong to schema app, but contains \"App\".b", exception.getMessage());
     }
 
     @Test
@@ -130,7 +129,7 @@ class SchemaTest {
       final var exception = assertThrows(IllegalArgumentException.class, builder::build);
 
       assertEquals(
-          "enumTypes must all belong to schema app, but contains QualifiedName[schema=auth, name=mood]",
+          "enumTypes must all belong to schema app, but contains auth.mood",
           exception.getMessage());
     }
 
@@ -145,8 +144,7 @@ class SchemaTest {
       final var exception = assertThrows(IllegalArgumentException.class, builder::build);
 
       assertEquals(
-          "tables.name must not contain duplicates, found duplicate: "
-              + "QualifiedName[schema=app, name=users]",
+          "tables.name must not contain duplicates, found duplicate: " + "app.users",
           exception.getMessage());
     }
 
@@ -160,8 +158,7 @@ class SchemaTest {
       final var exception = assertThrows(IllegalArgumentException.class, builder::build);
 
       assertEquals(
-          "enumTypes.name must not contain duplicates, found duplicate: "
-              + "QualifiedName[schema=app, name=mood]",
+          "enumTypes.name must not contain duplicates, found duplicate: " + "app.mood",
           exception.getMessage());
     }
 
